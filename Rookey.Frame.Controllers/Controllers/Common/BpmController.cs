@@ -684,12 +684,12 @@ namespace Rookey.Frame.Controllers
                 pageInfo.pagesize = top;
             }
             string errMsg = string.Empty;
+            int tp = _Request["tp"].ObjToInt();
             if (currUser.EmpId.HasValue || isAdmin)
             {
                 Guid userId = currUser.UserId;
                 Guid empId = currUser.EmpId.HasValue ? currUser.EmpId.Value : Guid.Empty;
                 int noAction = (int)WorkActionEnum.NoAction;
-                int tp = _Request["tp"].ObjToInt();
                 DatabaseType dbType = DatabaseType.MsSqlServer;
                 string connStr = ModelConfigHelper.GetModelConnStr(typeof(Bpm_WorkToDoListHistory), out dbType, false);
                 GridDataParmas gridParams = CommonOperate.GetGridDataParams(_Request);
@@ -755,6 +755,15 @@ namespace Rookey.Frame.Controllers
                     if (!todo.Bpm_WorkFlowInstanceId.HasValue)
                         continue;
                     Bpm_WorkFlowInstance workFlowInst = BpmOperate.GetWorkflowInstanceById(todo.Bpm_WorkFlowInstanceId.Value);
+                    if (tp == 2)
+                    {
+                        Bpm_WorkFlowInstanceHistory workflowInstHistory = CommonOperate.GetEntityById<Bpm_WorkFlowInstanceHistory>(todo.Bpm_WorkFlowInstanceId.Value, out errMsg);
+                        if (workflowInstHistory != null)
+                        {
+                            workFlowInst = new Bpm_WorkFlowInstance();
+                            ObjectHelper.CopyValue(workflowInstHistory, workFlowInst);
+                        }
+                    }
                     if (workFlowInst == null)
                         continue;
                     if (todo.ParentId.HasValue && todo.ParentId.Value != Guid.Empty) //当前是子流程待办时以父待办显示

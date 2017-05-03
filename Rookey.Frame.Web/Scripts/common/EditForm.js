@@ -170,6 +170,7 @@ function Save(obj, backFun, isAddNew, isDraft) {
         //外键字段处理
         var $foreinInputs = form.find("#mainContent input[foreignField='1']");
         if ($foreinInputs.length > 0) {
+            var msg = null;
             $foreinInputs.each(function () {
                 var foreinName = $(this).attr("id");
                 if (foreinName) {
@@ -177,6 +178,10 @@ function Save(obj, backFun, isAddNew, isDraft) {
                     if (obj.length > 0) {
                         var v = $(this).attr('v');
                         if (v == undefined) v = '';
+                        if (v.length != 36 && $(this).attr('isRequired') == '1') {
+                            msg = '【' + $(this).attr('fieldDisplay') + '】为必选项，请确认输入后是否选定了下拉提示项！';
+                            return;
+                        }
                         var textValue = $(this).next('span').find('input.textbox-text').val(); //外键名称为空时将值也清空
                         if (!textValue) {
                             $(this).textbox('clear');
@@ -186,6 +191,9 @@ function Save(obj, backFun, isAddNew, isDraft) {
                     }
                 }
             });
+            if (msg) {
+                topWin.ShowMsg('提示', msg, null, null, 3);
+            }
         }
         //表单验证
         var flag = form.form("validate");

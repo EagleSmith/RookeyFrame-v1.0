@@ -121,7 +121,13 @@ namespace Rookey.Frame.Base.Set
         /// </summary>
         public static bool IsEnabledPageCache
         {
-            get { return _isEnabledPageCache; }
+            get 
+            {
+                string isEnabledPageCache = WebConfigHelper.GetAppSettingValue("IsEnabledPageCache");
+                if (!string.IsNullOrEmpty(isEnabledPageCache))
+                    _isEnabledPageCache = isEnabledPageCache.ObjToBool();
+                return _isEnabledPageCache; 
+            }
             set { _isEnabledPageCache = value; }
         }
 

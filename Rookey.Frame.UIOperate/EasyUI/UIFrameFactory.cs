@@ -933,7 +933,8 @@ namespace Rookey.Frame.UIOperate
                 }
             }
             else if (field.ControlTypeOfEnum == ControlTypeEnum.DialogGrid ||
-                     field.ControlTypeOfEnum == ControlTypeEnum.DialogTree)
+                     field.ControlTypeOfEnum == ControlTypeEnum.DialogTree ||
+                     field.ControlTypeOfEnum == ControlTypeEnum.LabelBox)
             {
                 string textField = field.TextField;
                 Sys_Module foreignModule = null;
@@ -1365,6 +1366,9 @@ namespace Rookey.Frame.UIOperate
                             if (isMutiSelect) fieldAttr += " ms=\"1\"";
                             if (field.ControlTypeOfEnum == ControlTypeEnum.DialogTree)
                                 fieldAttr += " isTree=\"1\"";
+                            if (field.IsRequired == true)
+                                fieldAttr += " isRequired=\"1\"";
+                            fieldAttr += string.Format(" fieldDisplay=\"{0}\"", sysField.Display);
                             inputOptions += ",icons: [{iconCls:'eu-icon-search',handler: function(e){SelectDialogData($(e.data.target))}}]";
                             if (!isSearchForm && SystemOperate.IsDetailModule(moduleId) && SystemOperate.GetParentModule(moduleId).Name == foreignModuleName)
                             {
