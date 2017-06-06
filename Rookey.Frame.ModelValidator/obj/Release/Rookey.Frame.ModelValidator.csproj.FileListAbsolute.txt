@@ -16,3 +16,9 @@ D:\rookey\git.oschina\Rookey.Frame.Lib\web\Rookey.Frame.ModelValidator.pdb
 D:\rookey\git.oschina\Rookey.Frame.ModelValidator\obj\Release\Rookey.Frame.ModelValidator.csprojResolveAssemblyReference.cache
 D:\rookey\git.oschina\Rookey.Frame.ModelValidator\obj\Release\Rookey.Frame.ModelValidator.dll
 D:\rookey\git.oschina\Rookey.Frame.ModelValidator\obj\Release\Rookey.Frame.ModelValidator.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.ModelValidator.XML
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.ModelValidator.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.ModelValidator.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.ModelValidator\obj\Release\Rookey.Frame.ModelValidator.csprojResolveAssemblyReference.cache
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.ModelValidator\obj\Release\Rookey.Frame.ModelValidator.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.ModelValidator\obj\Release\Rookey.Frame.ModelValidator.pdb

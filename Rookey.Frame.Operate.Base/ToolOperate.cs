@@ -2498,6 +2498,18 @@ namespace Rookey.Frame.Operate.Base
                             Sort = 4
                         };
                         Guid approvalMenuId = CommonOperate.OperateRecord<Sys_Menu>(approvalMenu, OperateHandle.ModelRecordOperateType.Add, out errMsg, null, false);
+                        
+                        Sys_Menu flowProxyMenu = new Sys_Menu()
+                        {
+                            Name = "流程代理",
+                            Display = "流程代理",
+                            Sys_ModuleId = CommonOperate.GetEntity<Sys_Module>(x => x.Name == "流程代理", null, out errMsg).Id,
+                            ParentId = BpmMenuId,
+                            IsValid = true,
+                            IsLeaf = true,
+                            Sort = 5
+                        };
+                        Guid flowProxyMenuId = CommonOperate.OperateRecord<Sys_Menu>(flowProxyMenu, OperateHandle.ModelRecordOperateType.Add, out errMsg, null, false);
 
                         #endregion
                         #region 组织机构
@@ -3184,7 +3196,7 @@ namespace Rookey.Frame.Operate.Base
                         });
                         #endregion
                         #region 桌面待办字段配置
-                        deskGridFields.Add(new Desktop_GridField() { Sys_ModuleId = todoModuleId, FieidName = "Title", Width = 530, Sort = 1 });
+                        deskGridFields.Add(new Desktop_GridField() { Sys_ModuleId = todoModuleId, FieidName = "Title", Width = 400, Sort = 1 });
                         deskGridFields.Add(new Desktop_GridField() { Sys_ModuleId = todoModuleId, FieidName = "Launcher", Width = 70, Sort = 2 });
                         deskGridFields.ForEach(x =>
                         {

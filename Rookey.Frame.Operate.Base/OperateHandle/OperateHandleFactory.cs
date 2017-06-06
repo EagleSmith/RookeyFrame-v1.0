@@ -50,7 +50,12 @@ namespace Rookey.Frame.Operate.Base.OperateHandle
         /// <summary>
         /// 查看
         /// </summary>
-        View = 3
+        View = 3,
+
+        /// <summary>
+        /// 删除后还原
+        /// </summary>
+        Restore = 4
     }
 
     /// <summary>
@@ -1246,7 +1251,7 @@ namespace Rookey.Frame.Operate.Base.OperateHandle
                 }
                 catch { }
             }
-            return new List<Guid>();
+            return null;
         }
 
         /// <summary>

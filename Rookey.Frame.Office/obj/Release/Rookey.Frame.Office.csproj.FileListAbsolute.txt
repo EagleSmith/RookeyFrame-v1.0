@@ -16,3 +16,9 @@ D:\rookey\git.oschina\Rookey.Frame.Lib\web\Rookey.Frame.Office.pdb
 D:\rookey\git.oschina\Rookey.Frame.Office\obj\Release\Rookey.Frame.Office.csprojResolveAssemblyReference.cache
 D:\rookey\git.oschina\Rookey.Frame.Office\obj\Release\Rookey.Frame.Office.dll
 D:\rookey\git.oschina\Rookey.Frame.Office\obj\Release\Rookey.Frame.Office.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Office.XML
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Office.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Office.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Office\obj\Release\Rookey.Frame.Office.csprojResolveAssemblyReference.cache
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Office\obj\Release\Rookey.Frame.Office.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Office\obj\Release\Rookey.Frame.Office.pdb

@@ -39,7 +39,7 @@ namespace Rookey.Frame.Base.Set
     {
         #region 系统设置
 
-        private static UserNameAndEmpConfigRule _empUserNameConfigRule = UserNameAndEmpConfigRule.Email;
+        private static UserNameAndEmpConfigRule _empUserNameConfigRule = UserNameAndEmpConfigRule.EmpCode;
         /// <summary>
         /// 员工用户名默认配置规则
         /// </summary>
@@ -137,7 +137,13 @@ namespace Rookey.Frame.Base.Set
         /// </summary>
         public static bool IsAllowAttachModule
         {
-            get { return _isAllowGridAttachModule; }
+            get 
+            {
+                string isAllowGridAttachModule = WebConfigHelper.GetAppSettingValue("IsAllowAttachModule");
+                if (!string.IsNullOrEmpty(isAllowGridAttachModule))
+                    _isAllowGridAttachModule = isAllowGridAttachModule.ObjToBool();
+                return _isAllowGridAttachModule; 
+            }
             set { _isAllowGridAttachModule = value; }
         }
 
@@ -155,13 +161,19 @@ namespace Rookey.Frame.Base.Set
 
         #region 邮箱常量
 
-        private static string _smtpServer = "smtp.263xmail.com";
+        private static string _smtpServer = "";
         /// <summary>
         /// Smtp服务器
         /// </summary>
         public static string SmtpServer
         {
-            get { return _smtpServer; }
+            get 
+            {
+                string smtpServer = WebConfigHelper.GetAppSettingValue("EmailServer");
+                if (!string.IsNullOrEmpty(smtpServer))
+                    _smtpServer = smtpServer;
+                return _smtpServer; 
+            }
             set { _smtpServer = value; }
         }
 
@@ -175,33 +187,51 @@ namespace Rookey.Frame.Base.Set
             set { _smtpPort = value; }
         }
 
-        private static string _sysEmail = "OA-System@cecport.com";
+        private static string _sysEmail = ""; //oa@abc.com
         /// <summary>
         /// 系统邮箱账号
         /// </summary>
         public static string SysEmail
         {
-            get { return _sysEmail; }
+            get 
+            {
+                string sysEmail = WebConfigHelper.GetAppSettingValue("SysEmail");
+                if (!string.IsNullOrEmpty(sysEmail))
+                    _sysEmail = sysEmail;
+                return _sysEmail; 
+            }
             set { _sysEmail = value; }
         }
 
-        private static string _sysEmailPwd = MySecurity.SDecryptString("A8A8AF94B2901E5147C5E9E4D7F94083", "ceacsz");
+        private static string _sysEmailPwd = "";
         /// <summary>
         /// 系统邮箱密码
         /// </summary>
         public static string SysEmailPwd
         {
-            get { return _sysEmailPwd; }
+            get 
+            {
+                string sysEmailPwd = WebConfigHelper.GetAppSettingValue("SysEmailPwd");
+                if (!string.IsNullOrEmpty(sysEmailPwd))
+                    _sysEmailPwd = sysEmailPwd;
+                return _sysEmailPwd; 
+            }
             set { _sysEmailPwd = value; }
         }
 
-        private static string _sysEmailDes = "OA System";
+        private static string _sysEmailDes = "";
         /// <summary>
         /// 系统邮箱账号描述
         /// </summary>
         public static string SysEmailDes
         {
-            get { return _sysEmailDes; }
+            get 
+            {
+                string sysEmailDes = WebConfigHelper.GetAppSettingValue("SysEmailDes");
+                if (!string.IsNullOrEmpty(sysEmailDes))
+                    _sysEmailDes = sysEmailDes;
+                return _sysEmailDes; 
+            }
             set { _sysEmailDes = value; }
         }
 

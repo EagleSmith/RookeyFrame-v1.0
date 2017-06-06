@@ -118,7 +118,7 @@ namespace Rookey.Frame.UIOperate
         /// <summary>
         /// 网格工具栏高度
         /// </summary>
-        public const int GRID_TOOLBAR_HEIGHT = 36;
+        public const int GRID_TOOLBAR_HEIGHT = 32;
 
         /// <summary>
         /// 网格高度修正值

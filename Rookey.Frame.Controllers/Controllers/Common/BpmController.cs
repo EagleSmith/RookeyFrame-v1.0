@@ -635,6 +635,10 @@ namespace Rookey.Frame.Controllers
             {
                 workAction = WorkActionEnum.ReStarting;
             }
+            else if (flowBtnId == Guid.Empty) //作废
+            {
+                workAction = WorkActionEnum.Obsoleting;
+            }
             else if (currUser != null && currUser.UserName == "admin" && directHandler.HasValue && directHandler.Value != Guid.Empty)
             {
                 workAction = WorkActionEnum.Directing;
@@ -685,68 +689,65 @@ namespace Rookey.Frame.Controllers
             }
             string errMsg = string.Empty;
             int tp = _Request["tp"].ObjToInt();
-            if (currUser.EmpId.HasValue || isAdmin)
+            Guid userId = currUser.UserId;
+            Guid empId = currUser.EmpId.HasValue ? currUser.EmpId.Value : (isAdmin ? Guid.Empty : userId);
+            int noAction = (int)WorkActionEnum.NoAction;
+            DatabaseType dbType = DatabaseType.MsSqlServer;
+            string connStr = ModelConfigHelper.GetModelConnStr(typeof(Bpm_WorkToDoListHistory), out dbType, false);
+            GridDataParmas gridParams = CommonOperate.GetGridDataParams(_Request);
+            string whereSql = string.Empty;
+            Dictionary<string, string> searchDic = gridParams != null ? JsonHelper.Deserialize<Dictionary<string, string>>(gridParams.Q) : null;
+            Expression<Func<Bpm_WorkToDoList, bool>> searchExp = CommonOperate.GetGridFilterCondition<Bpm_WorkToDoList>(ref whereSql, searchDic, DataGridType.MainGrid, null, null, null, null, null, currUser);
+            if (tp == 0) //我的待办
             {
-                Guid userId = currUser.UserId;
-                Guid empId = currUser.EmpId.HasValue ? currUser.EmpId.Value : Guid.Empty;
-                int noAction = (int)WorkActionEnum.NoAction;
-                DatabaseType dbType = DatabaseType.MsSqlServer;
-                string connStr = ModelConfigHelper.GetModelConnStr(typeof(Bpm_WorkToDoListHistory), out dbType, false);
-                GridDataParmas gridParams = CommonOperate.GetGridDataParams(_Request);
-                string whereSql = string.Empty;
-                Dictionary<string, string> searchDic = gridParams != null ? JsonHelper.Deserialize<Dictionary<string, string>>(gridParams.Q) : null;
-                Expression<Func<Bpm_WorkToDoList, bool>> searchExp = CommonOperate.GetGridFilterCondition<Bpm_WorkToDoList>(ref whereSql, searchDic, DataGridType.MainGrid, null, null, null, null, null, currUser);
-                if (tp == 0) //我的待办
+                Expression<Func<Bpm_WorkToDoList, bool>> exp = x => x.OrgM_EmpId == empId && x.WorkAction == noAction && x.IsDeleted == false;
+                if (isAdmin)
+                    exp = x => x.WorkAction == noAction && x.IsDeleted == false;
+                if (searchExp != null)
+                    exp = ExpressionExtension.And(exp, searchExp);
+                list = CommonOperate.GetPageEntities<Bpm_WorkToDoList>(out errMsg, pageInfo, false, exp, whereSql, null, false, null, null, currUser);
+            }
+            else if (tp == 1) //我的申请
+            {
+                int startAction = (int)WorkActionEnum.Starting;
+                int startSubAction = (int)WorkActionEnum.SubStarting;
+                long total = 0;
+                DbLinkArgs currDbLink = ModelConfigHelper.GetDbLinkArgs(typeof(Bpm_WorkToDoList));
+                string workTodoHistoryTable = ModelConfigHelper.GetModuleTableName(typeof(Bpm_WorkToDoListHistory), currDbLink);
+                string table = string.Format("(SELECT * FROM Bpm_WorkToDoList UNION ALL SELECT * FROM {0}) A", workTodoHistoryTable);
+                string where = string.Format("IsDeleted=0 AND WorkAction IN({0},{1})", startAction.ToString(), startSubAction.ToString());
+                if (!isAdmin)
+                    where += string.Format(" AND CreateUserId='{0}'", userId.ToString());
+                if (searchExp != null)
                 {
-                    Expression<Func<Bpm_WorkToDoList, bool>> exp = x => x.OrgM_EmpId == empId && x.WorkAction == noAction && x.IsDeleted == false;
-                    if (isAdmin)
-                        exp = x => x.WorkAction == noAction && x.IsDeleted == false;
-                    if (searchExp != null)
-                        exp = ExpressionExtension.And(exp, searchExp);
-                    list = CommonOperate.GetPageEntities<Bpm_WorkToDoList>(out errMsg, pageInfo, false, exp, whereSql, null, false, null, null, currUser);
+                    string tempWhere = new CommonOperate.TempOperate<Bpm_WorkToDoList>(currUser).ExpressionConditionToWhereSql(searchExp);
+                    where += string.Format(" AND {0}", tempWhere);
                 }
-                else if (tp == 1) //我的申请
+                DataTable dt = CommonOperate.PagingQueryByProcedure(out errMsg, out total, table, "*", where, pageInfo, connStr, dbType);
+                list = ObjectHelper.FillModel<Bpm_WorkToDoList>(dt);
+                CommonOperate.ExecuteCustomeOperateHandleMethod(gridParams.ModuleId, "PageGridDataHandle", new object[] { list, null, null });
+                pageInfo.totalCount = total;
+            }
+            else if (tp == 2) //我的审批
+            {
+                long total = 0;
+                DbLinkArgs currDbLink = ModelConfigHelper.GetDbLinkArgs(typeof(Bpm_WorkToDoList));
+                string workTodoHistoryTable = ModelConfigHelper.GetModuleTableName(typeof(Bpm_WorkToDoListHistory), currDbLink);
+                string table = string.Format("(SELECT * FROM Bpm_WorkToDoList UNION ALL SELECT * FROM {0}) A", workTodoHistoryTable);
+                List<int> actionStatus = new List<int>() { (int)WorkActionEnum.Approving, (int)WorkActionEnum.Communicating, (int)WorkActionEnum.Directing, (int)WorkActionEnum.Refusing, (int)WorkActionEnum.Returning };
+                string actionStr = string.Join(",", actionStatus);
+                string where = string.Format("IsDeleted=0 AND WorkAction IN({0})", actionStr);
+                if (!isAdmin)
+                    where += string.Format(" AND OrgM_EmpId='{0}'", empId.ToString());
+                if (searchExp != null)
                 {
-                    int startAction = (int)WorkActionEnum.Starting;
-                    int startSubAction = (int)WorkActionEnum.SubStarting;
-                    long total = 0;
-                    DbLinkArgs currDbLink = ModelConfigHelper.GetDbLinkArgs(typeof(Bpm_WorkToDoList));
-                    string workTodoHistoryTable = ModelConfigHelper.GetModuleTableName(typeof(Bpm_WorkToDoListHistory), currDbLink);
-                    string table = string.Format("(SELECT * FROM Bpm_WorkToDoList UNION ALL SELECT * FROM {0}) A", workTodoHistoryTable);
-                    string where = string.Format("IsDeleted=0 AND WorkAction IN({0},{1})", startAction.ToString(), startSubAction.ToString());
-                    if (!isAdmin)
-                        where += string.Format(" AND CreateUserId='{0}'", userId.ToString());
-                    if (searchExp != null)
-                    {
-                        string tempWhere = new CommonOperate.TempOperate<Bpm_WorkToDoList>(currUser).ExpressionConditionToWhereSql(searchExp);
-                        where += string.Format(" AND {0}", tempWhere);
-                    }
-                    DataTable dt = CommonOperate.PagingQueryByProcedure(out errMsg, out total, table, "*", where, pageInfo, connStr, dbType);
-                    list = ObjectHelper.FillModel<Bpm_WorkToDoList>(dt);
-                    CommonOperate.ExecuteCustomeOperateHandleMethod(gridParams.ModuleId, "PageGridDataHandle", new object[] { list, null, null });
-                    pageInfo.totalCount = total;
+                    string tempWhere = new CommonOperate.TempOperate<Bpm_WorkToDoList>(currUser).ExpressionConditionToWhereSql(searchExp);
+                    where += string.Format(" AND {0}", tempWhere);
                 }
-                else if (tp == 2) //我的审批
-                {
-                    long total = 0;
-                    DbLinkArgs currDbLink = ModelConfigHelper.GetDbLinkArgs(typeof(Bpm_WorkToDoList));
-                    string workTodoHistoryTable = ModelConfigHelper.GetModuleTableName(typeof(Bpm_WorkToDoListHistory), currDbLink);
-                    string table = string.Format("(SELECT * FROM Bpm_WorkToDoList UNION ALL SELECT * FROM {0}) A", workTodoHistoryTable);
-                    List<int> actionStatus = new List<int>() { (int)WorkActionEnum.Approving, (int)WorkActionEnum.Communicating, (int)WorkActionEnum.Directing, (int)WorkActionEnum.Refusing, (int)WorkActionEnum.Returning };
-                    string actionStr = string.Join(",", actionStatus);
-                    string where = string.Format("IsDeleted=0 AND WorkAction IN({0})", actionStr);
-                    if (!isAdmin)
-                        where += string.Format(" AND OrgM_EmpId='{0}'", empId.ToString());
-                    if (searchExp != null)
-                    {
-                        string tempWhere = new CommonOperate.TempOperate<Bpm_WorkToDoList>(currUser).ExpressionConditionToWhereSql(searchExp);
-                        where += string.Format(" AND {0}", tempWhere);
-                    }
-                    DataTable dt = CommonOperate.PagingQueryByProcedure(out errMsg, out total, table, "*", where, pageInfo, connStr, dbType);
-                    list = ObjectHelper.FillModel<Bpm_WorkToDoList>(dt);
-                    CommonOperate.ExecuteCustomeOperateHandleMethod(gridParams.ModuleId, "PageGridDataHandle", new object[] { list, null, null });
-                    pageInfo.totalCount = total;
-                }
+                DataTable dt = CommonOperate.PagingQueryByProcedure(out errMsg, out total, table, "*", where, pageInfo, connStr, dbType);
+                list = ObjectHelper.FillModel<Bpm_WorkToDoList>(dt);
+                CommonOperate.ExecuteCustomeOperateHandleMethod(gridParams.ModuleId, "PageGridDataHandle", new object[] { list, null, null });
+                pageInfo.totalCount = total;
             }
             if (list != null && list.Count > 0)
             {

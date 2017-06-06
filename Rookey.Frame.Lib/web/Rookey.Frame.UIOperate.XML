@@ -643,6 +643,20 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:Rookey.Frame.UIOperate.UIFrameFactory.GetGridFieldFormatter(Rookey.Frame.Model.Sys.Sys_Module,Rookey.Frame.Model.Sys.Sys_GridField,Rookey.Frame.Operate.Base.EnumDef.DataGridType,System.String,System.Int32,System.String,System.String@,System.Guid)">
+            <summary>
+            获取网格字段格式化参数，并返回编辑参数
+            </summary>
+            <param name="module">模块</param>
+            <param name="field">字段</param>
+            <param name="gridType">网格类型</param>
+            <param name="gridId">网格DomId</param>
+            <param name="editMode">编辑模式</param>
+            <param name="otherFormatParams">其他参数</param>
+            <param name="editorStr">返回编辑参数</param>
+            <param name="userId">当前用户</param>
+            <returns></returns>
+        </member>
         <member name="M:Rookey.Frame.UIOperate.UIFrameFactory.CalcFormWidth(System.Guid,Rookey.Frame.Model.Sys.Sys_Form)">
             <summary>
             动态计算表单宽度
@@ -873,20 +887,6 @@
             <param name="button">按钮</param>
             <param name="customerFormUrl">编辑、查看表单的自定义表单URL</param>
             <param name="formId">表单ID</param>
-            <returns></returns>
-        </member>
-        <member name="M:Rookey.Frame.UIOperate.EasyUIFrame.GetGridFieldFormatter(Rookey.Frame.Model.Sys.Sys_Module,Rookey.Frame.Model.Sys.Sys_GridField,Rookey.Frame.Operate.Base.EnumDef.DataGridType,System.String,System.Int32,System.String,System.String@,System.Guid)">
-            <summary>
-            获取网格字段格式化参数，并返回编辑参数
-            </summary>
-            <param name="module">模块</param>
-            <param name="field">字段</param>
-            <param name="gridType">网格类型</param>
-            <param name="gridId">网格DomId</param>
-            <param name="editMode">编辑模式</param>
-            <param name="otherFormatParams">其他参数</param>
-            <param name="editorStr">返回编辑参数</param>
-            <param name="userId">当前用户</param>
             <returns></returns>
         </member>
         <member name="M:Rookey.Frame.UIOperate.EasyUIFrame.GetAdvanceSearchHTML(System.Guid,System.Nullable{System.Guid})">

@@ -25,7 +25,7 @@ function TitleKeyFormatter(value, row, index, moduleName, fieldName, paramsObj, 
         if (parseInt(isDraft) == 1) { //我的草稿列表时，点击标识字段链接进入编辑表单
             clickMethod = "Edit(this)";
         }
-        v = "<a title='" + title + "' href='#' recycle='" + obj.recycle + "' recordId='" + recordId + "' moduleId='" + obj.moduleId + "' moduleName='" + moduleName + "' moduleDisplay='" + obj.moduleDisplay + "' titleKey='" + obj.titleKey + "' titleKeyDisplay='" + obj.titleKeyDisplay + "' editMode='" + obj.editMode + "' editWidth='" + obj.editWidth + "' editHeight='" + obj.editHeight + "' gridId='" + obj.gridId + "' onclick='" + clickMethod + "'>" + v + "</a>";
+        v = "<a title='" + title + "' href='#' recycle='" + obj.recycle + "' recordId='" + recordId + "' moduleId='" + obj.moduleId + "' moduleName='" + moduleName + "' moduleDisplay='" + obj.moduleDisplay + "' titleKey='" + obj.titleKey + "' titleKeyDisplay='" + obj.titleKeyDisplay + "' editMode='" + obj.editMode + "' editWidth='" + obj.editWidth + "' editHeight='" + obj.editHeight + "' gridId='" + obj.gridId + "' onclick='" + clickMethod + "' formUrl='" + obj.formUrl + "'>" + v + "</a>";
     }
     if (page != 'edit' && paramsObj && paramsObj.length > 0) {
         var obj = eval("(" + decodeURIComponent(paramsObj) + ")");
@@ -382,6 +382,9 @@ function FlowIconFormatter(value, row, index, moduleId, moduleName) {
         case 5: //流程冻结中
             icon = "";
             break;
+        case 6: //流程作废
+            icon += "exclamation.png";
+            break;
         case 10: //审批通过
             icon += "approvalok.png";
             break;
@@ -430,6 +433,10 @@ function FlowStatusFormatter(value, row, index, moduleId, moduleName) {
         case 5: //被冻结
             statusDes = "被冻结";
             v = "<span style='color:#808080'>" + statusDes + "</span>";
+            break;
+        case 6: //已作废
+            statusDes = "已作废";
+            v = "<span style='color:#FF0000'>" + statusDes + "</span>";
             break;
         case 10: //已通过
             statusDes = "已通过";

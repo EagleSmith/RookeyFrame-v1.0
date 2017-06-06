@@ -14,3 +14,9 @@ D:\rookey\git.oschina\Rookey.Frame.Lib\web\Rookey.Frame.Email.pdb
 D:\rookey\git.oschina\Rookey.Frame.Email\obj\Release\Rookey.Frame.Email.csprojResolveAssemblyReference.cache
 D:\rookey\git.oschina\Rookey.Frame.Email\obj\Release\Rookey.Frame.Email.dll
 D:\rookey\git.oschina\Rookey.Frame.Email\obj\Release\Rookey.Frame.Email.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Email.XML
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Email.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Email.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Email\obj\Release\Rookey.Frame.Email.csprojResolveAssemblyReference.cache
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Email\obj\Release\Rookey.Frame.Email.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Email\obj\Release\Rookey.Frame.Email.pdb

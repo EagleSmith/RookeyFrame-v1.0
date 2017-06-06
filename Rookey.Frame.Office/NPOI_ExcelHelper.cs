@@ -528,17 +528,24 @@ namespace Rookey.Frame.Office
             {
                 IRow row = sheet.GetRow(i);
                 DataRow dataRow = table.NewRow();
-
+                bool addFlag = false; //添加行标识
                 if (row != null)
                 {
                     for (int j = row.FirstCellNum; j < cellCount; j++)
                     {
                         if (row.GetCell(j) != null)
-                            dataRow[j] = GetCellValue(row.GetCell(j));
+                        {
+                            string v = GetCellValue(row.GetCell(j));
+                            if (addFlag == false && !string.IsNullOrEmpty(v.Trim()))
+                                addFlag = true;
+                            dataRow[j] = v;
+                        }
                     }
                 }
-
-                table.Rows.Add(dataRow);
+                if (addFlag)
+                {
+                    table.Rows.Add(dataRow);
+                }
             }
 
             return table;

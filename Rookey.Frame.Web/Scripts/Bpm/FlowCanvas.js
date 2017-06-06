@@ -297,6 +297,14 @@ function LoadFlowChart(mId, recoredId, todoId, row) {
                 $('#tb_approvalList').datagrid('loadData', { total: data.AppInfos.length, rows: data.AppInfos });
                 $('#div_ApprovalList').attr('recordId', recoredId);
                 AutoMergeAppInfoCell(); //合并审批信息单元格
+                setTimeout(function () {
+                    var dataBody = $('#tb_approvalList').data().datagrid.dc.body2;
+                    dataBody.find("td[field='ApprovalOpinions'] div").each(function (i, item) {
+                        var text = $(item).text();
+                        text = "<a href='javascript:void(0)' title='" + text + "' onclick='ShowOpinions(this)'>" + text + "</a>";
+                        $(item).html(text);
+                    });
+                }, 200);
             }
             if (data.TitleKey && row) {
                 var tabsDom = $("#detailTab");

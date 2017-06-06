@@ -265,7 +265,13 @@ namespace Rookey.Frame.UIOperate
             //中间内容区域
             sb.Append("<div id=\"center\" data-options=\"region:'center'\" style=\"background: #eee; overflow: hidden;\">");
             sb.Append("<div id=\"tabs\" class=\"easyui-tabs\" fit=\"true\" border=\"false\" th=\"" + ConstDefine.TAB_HEAD_HEIGHT + "\" data-options=\"tools:'#tabs_toolbar',onClose:function(title,index){tabHeightInit();},onSelect:function(title,index){tabHeightInit();if(typeof(OverOnSelect)=='function'){OverOnSelect(title,index);}},tabHeight:" + ConstDefine.TAB_HEAD_HEIGHT.ToString() + "\">");
-            sb.Append("<div title=\"我的桌面\" style=\"overflow: hidden;\"><iframe id=\"deskIframe\" scrolling=\"auto\" frameborder=\"0\" url=\"/Page/DesktopIndex.html\" style=\"width: 100%;height: 100%;\"></iframe></div>");
+            string desktopUrl = string.Empty;
+            InitFactory factory = InitFactory.GetInstance();
+            if (factory != null)
+                desktopUrl = factory.GetDesktopPageUrl(CurrUser);
+            if (string.IsNullOrWhiteSpace(desktopUrl))
+                desktopUrl = "/Page/DesktopIndex.html";
+            sb.AppendFormat("<div title=\"我的桌面\" style=\"overflow: hidden;\"><iframe id=\"deskIframe\" scrolling=\"auto\" frameborder=\"0\" url=\"{0}\" style=\"width: 100%;height: 100%;\"></iframe></div>", desktopUrl);
             sb.Append("</div>");
             sb.Append("</div>");
             //底部状态栏
@@ -537,6 +543,7 @@ namespace Rookey.Frame.UIOperate
             //用户视图
             Sys_Grid grid = gridType == DataGridType.RecycleGrid || gridType == DataGridType.MyDraftGrid ? SystemOperate.GetDefaultGrid(moduleId) : (viewId.HasValue ? SystemOperate.GetGrid(viewId.Value) : SystemOperate.GetUserDefaultGrid(currUser.UserId, moduleId));
             if (grid == null) return string.Empty;
+            bool isMutiSearchStyle = gridType == DataGridType.MainGrid && grid.MaxSearchNum > 2;
             bool isEnabledFlow = BpmOperate.IsEnabledWorkflow(moduleId); //是否启用流程
             Sys_Form form = null; //表单对象
             string customerFormUrl = string.Empty;
@@ -1066,7 +1073,7 @@ namespace Rookey.Frame.UIOperate
                 }
                 else
                 {
-                    tableStyle += isShowFullPath ? "height:100%;" : string.Format("height:{0}px;", h.ToString());
+                    tableStyle += isShowFullPath || isMutiSearchStyle ? "height:100%;" : string.Format("height:{0}px;", h.ToString());
                     tableStyle += "width:100%;\"";
                 }
                 gridOptions += ",border:false";
@@ -1258,7 +1265,7 @@ namespace Rookey.Frame.UIOperate
             }
             bool isAllowEditField = gridType == DataGridType.MainGrid || gridType == DataGridType.FlowGrid || gridType == DataGridType.InnerDetailGrid || gridType == DataGridType.ViewDetailGrid;
             //其他格式化参数
-            string otherFormatParams = gridType != DataGridType.EditDetailGrid ? HttpUtility.UrlEncode("{recycle:" + (gridType == DataGridType.RecycleGrid ? "1" : "0") + ",moduleId:'" + module.Id.ToString() + "',moduleDisplay:'" + (string.IsNullOrEmpty(module.Display) ? module.Name : module.Display) + "',titleKey:'" + titleKey + "',titleKeyDisplay:'" + titleKeyDisplay + "',editMode:" + editMode.ToString() + ",editWidth:" + formWidth.ToString() + ",editHeight:" + formHeight.ToString() + ",gridId:'" + gridId + "'}", Encoding.UTF8).Replace("+", "%20") : string.Empty;
+            string otherFormatParams = gridType != DataGridType.EditDetailGrid ? HttpUtility.UrlEncode("{recycle:" + (gridType == DataGridType.RecycleGrid ? "1" : "0") + ",moduleId:'" + module.Id.ToString() + "',moduleDisplay:'" + (string.IsNullOrEmpty(module.Display) ? module.Name : module.Display) + "',titleKey:'" + titleKey + "',titleKeyDisplay:'" + titleKeyDisplay + "',editMode:" + editMode.ToString() + ",editWidth:" + formWidth.ToString() + ",editHeight:" + formHeight.ToString() + ",gridId:'" + gridId + "',formUrl:'" + customerFormUrl + "'}", Encoding.UTF8).Replace("+", "%20") : string.Empty;
             if (lockFields.Count > 0)
             {
                 foreach (Sys_GridField field in lockFields)
@@ -1294,12 +1301,13 @@ namespace Rookey.Frame.UIOperate
             #endregion
             sb.Append("</table>");
             //网格工具栏和搜索框
-            sb.AppendFormat("<div id=\"grid_toolbar_{0}\" class=\"toolbar datagrid-toolbar\" style=\"height:{1}px;\">", moduleId.ToString(), ConstDefine.GRID_TOOLBAR_HEIGHT.ToString());
+            sb.AppendFormat("<div id=\"grid_toolbar_{0}\" class=\"toolbar datagrid-toolbar\" style=\"{1}\">", moduleId.ToString(), isMutiSearchStyle ? string.Empty : string.Format("height:{0}px;", ConstDefine.GRID_TOOLBAR_HEIGHT.ToString()));
             StringBuilder mm_html = new StringBuilder(); //文件菜单按钮的下拉按钮html
             #region 工具栏
+            StringBuilder toolSb = new StringBuilder();
             bool isContainsDelBtn = false; //是否包含删除按钮
             //工具栏
-            sb.AppendFormat("<div name=\"btns\" style=\"margin-left:10px;margin-right:30px;height:{0}px;line-height:{0}px;margin-top:{1}px;float:left;\">", ConstDefine.GRID_TOOLBAR_HEIGHT.ToString(), (ConstDefine.GRID_TOOLBAR_HEIGHT - 26) / 2);
+            toolSb.AppendFormat("<div name=\"btns\" style=\"margin-left:10px;margin-right:30px;height:{0}px;line-height:{0}px;{1};float:left;\">", ConstDefine.GRID_TOOLBAR_HEIGHT.ToString(), string.Format("margin-top:{0}px{1}", (ConstDefine.GRID_TOOLBAR_HEIGHT - 26) / 2, isMutiSearchStyle ? ";width:100%" : string.Empty));
             if (gridType != DataGridType.DialogGrid && gridType != DataGridType.Other && gridType != DataGridType.InnerDetailGrid && gridType != DataGridType.RecycleGrid && gridType != DataGridType.MyDraftGrid)
             {
                 List<Sys_GridButton> topButtons = gridButtons.Where(x => x.ParentId == null || x.ParentId == Guid.Empty).ToList();
@@ -1424,7 +1432,7 @@ namespace Rookey.Frame.UIOperate
                     string btnAttr = GetGridButtonAttr(module, titleKeyDisplay, editMode, formWidth, formHeight, gridId, gridType, button, customerFormUrl);
                     if (GlobalSet.IsShowStyleBtn) //是否显示样式按钮
                         btnClass += string.Format(" c{0}", (no % 9).ToString());
-                    sb.AppendFormat("<a id=\"{0}\" href=\"#\" style=\"float:left;margin-left:5px;\" class=\"{1}\" data-options=\"plain:true,iconCls:'{2}'{6}\" onclick=\"{3}\" {5}>{4}</a>",
+                    toolSb.AppendFormat("<a id=\"{0}\" href=\"#\" style=\"float:left;margin-left:5px;\" class=\"{1}\" data-options=\"plain:true,iconCls:'{2}'{6}\" onclick=\"{3}\" {5}>{4}</a>",
                         button.ButtonTagId, btnClass, icon, button.ClickMethod, button.ButtonText, btnAttr, mm);
                 }
             }
@@ -1433,27 +1441,30 @@ namespace Rookey.Frame.UIOperate
                 string btnAttr = string.Format("moduleId=\"{0}\" moduleName=\"{1}\" titleKey=\"{2}\" titleKeyDisplay=\"{3}\" editMode=\"{4}\" editWidth=\"{5}\" editHeight=\"{6}\" gridId=\"{7}\"",
                         module.Id.ToString(), module.Name, titleKey, titleKeyDisplay, editMode.ToString(), formWidth.ToString(), formHeight.ToString(), gridId);
                 //添加还原、删除和查看按钮
-                sb.AppendFormat("<a id=\"btn_restore\" style=\"float:left;\" href=\"#\" class=\"easyui-linkbutton\" iconCls=\"eu-icon-redo\" plain=\"true\" onclick=\"Restore(this)\" {2}>还原</a>", moduleId.ToString(), module.Name, btnAttr);
-                sb.AppendFormat("<a id=\"btn_del\" style=\"float:left;\" href=\"#\" class=\"easyui-linkbutton\" iconCls=\"eu-p2-icon-delete2\" plain=\"true\" onclick=\"Delete(this)\" recycle=1 {2}>删除</a>", moduleId.ToString(), module.Name, btnAttr);
+                toolSb.AppendFormat("<a id=\"btn_restore\" style=\"float:left;\" href=\"#\" class=\"easyui-linkbutton\" iconCls=\"eu-icon-redo\" plain=\"true\" onclick=\"Restore(this)\" {2}>还原</a>", moduleId.ToString(), module.Name, btnAttr);
+                toolSb.AppendFormat("<a id=\"btn_del\" style=\"float:left;\" href=\"#\" class=\"easyui-linkbutton\" iconCls=\"eu-p2-icon-delete2\" plain=\"true\" onclick=\"Delete(this)\" recycle=\"1\" {2}>删除</a>", moduleId.ToString(), module.Name, btnAttr);
             }
             else if (gridType == DataGridType.MyDraftGrid) //我的草稿列表
             {
                 string btnAttr = string.Format("moduleId=\"{0}\" moduleName=\"{1}\" titleKey=\"{2}\" titleKeyDisplay=\"{3}\" editMode=\"{4}\" editWidth=\"{5}\" editHeight=\"{6}\" gridId=\"{7}\"",
                         module.Id.ToString(), module.Name, titleKey, titleKeyDisplay, editMode.ToString(), formWidth.ToString(), formHeight.ToString(), gridId);
                 //草稿可发布、删除
-                sb.AppendFormat("<a id=\"btn_release\" style=\"float:left;\" href=\"#\" class=\"easyui-linkbutton\" iconCls=\"eu-icon-ok\" plain=\"true\" onclick=\"Release(this)\" {2}>发布</a>", moduleId.ToString(), module.Name, btnAttr);
-                sb.AppendFormat("<a id=\"btn_del\" style=\"float:left;\" href=\"#\" class=\"easyui-linkbutton\" iconCls=\"eu-p2-icon-delete2\" plain=\"true\" onclick=\"Delete(this)\" isHardDel=1 {2}>删除</a>", moduleId.ToString(), module.Name, btnAttr);
+                toolSb.AppendFormat("<a id=\"btn_release\" style=\"float:left;\" href=\"#\" class=\"easyui-linkbutton\" iconCls=\"eu-icon-ok\" plain=\"true\" onclick=\"Release(this)\" {2}>发布</a>", moduleId.ToString(), module.Name, btnAttr);
+                toolSb.AppendFormat("<a id=\"btn_del\" style=\"float:left;\" href=\"#\" class=\"easyui-linkbutton\" iconCls=\"eu-p2-icon-delete2\" plain=\"true\" onclick=\"Delete(this)\" isHardDel=\"1\" {2}>删除</a>", moduleId.ToString(), module.Name, btnAttr);
             }
-            sb.Append("</div>");
+            toolSb.Append("</div>");
             #endregion
             #region 搜索框和视图
+            StringBuilder searchSb = new StringBuilder();
             if (gridType != DataGridType.EditDetailGrid)
             {
                 //搜索框和视图
                 List<Sys_GridField> searchFields = gridFields.Where(x => x.IsVisible && x.IsAllowSearch).ToList(); //搜索字段
                 if (!string.IsNullOrEmpty(titleKey) && !searchFields.Select(x => x.Sys_FieldName).Contains(titleKey)) //默认添加titlekey字段
                 {
-                    searchFields.Insert(0, gridFields.Where(x => x.Sys_FieldName == titleKey).FirstOrDefault());
+                    var titleKeyGf = gridFields.Where(x => x.Sys_FieldName == titleKey).FirstOrDefault();
+                    if (titleKeyGf != null)
+                        searchFields.Insert(0, titleKeyGf);
                 }
                 if (gridType == DataGridType.FlowGrid || gridType == DataGridType.ViewDetailGrid)
                 {
@@ -1469,29 +1480,33 @@ namespace Rookey.Frame.UIOperate
                     }
                 }
                 bool hasSearchFields = searchFields != null && searchFields.Count > 0;
-                string searchFloat = "right";
+                string searchFloat = isMutiSearchStyle ? "left;width:100%;margin-top:8px;margin-left:15px" : "right";
                 //自定义搜索UI
-                string simpleSearchHtml = GetCustomerPageHTML(moduleId, "GetSimpleSearchHTML", new object[] { searchFields, gridType, condition, where, viewId, initModule, initField });
-                sb.AppendFormat("<div id=\"div_search{0}\" style=\"margin-right:15px;float:{1};margin-top:{2}px;\">", moduleId.ToString(), searchFloat, (ConstDefine.GRID_TOOLBAR_HEIGHT - 26) / 2);
+                string simpleSearchHtml = isMutiSearchStyle ? string.Empty : GetCustomerPageHTML(moduleId, "GetSimpleSearchHTML", new object[] { searchFields, gridType, condition, where, viewId, initModule, initField });
+                searchSb.AppendFormat("<div id=\"div_search{0}\" style=\"margin-right:15px;float:{1};{2}\">", moduleId.ToString(), searchFloat, isMutiSearchStyle ? string.Empty : string.Format("margin-top:{0}px;", (ConstDefine.GRID_TOOLBAR_HEIGHT - 26) / 2));
                 if (string.IsNullOrEmpty(simpleSearchHtml)) //不存在用户自定义搜索UI
                 {
                     if (hasSearchFields) //有搜索字段
                     {
                         //是否显示复杂搜索
-                        bool displayComplexSearch = (gridType == DataGridType.MainGrid || gridType == DataGridType.DialogGrid) && grid.MaxSearchNum > 1;
+                        bool displayComplexSearch = isMutiSearchStyle ? gridType == DataGridType.MainGrid || gridType == DataGridType.DialogGrid : (gridType == DataGridType.MainGrid || gridType == DataGridType.DialogGrid) && grid.MaxSearchNum > 1;
                         Dictionary<Sys_Field, string> fieldInputHtmls = new Dictionary<Sys_Field, string>();
-                        //搜索控件domId
-                        string searchTxtName = gridType == DataGridType.MainGrid ? "txtSearch" : string.Format("txtSearch{0}", moduleId);
-                        //简单搜索框
-                        sb.AppendFormat("<div id=\"div_sampleSearch\" style=\"float:left;display:{0}\">", displayComplexSearch && !GlobalSet.IsDefaultSimpleSearch ? "none" : "block");
-                        sb.Append("<input id=\"" + searchTxtName + "\" moduleId=\"" + moduleId.ToString() + "\" gridId=\"" + gridId + "\" class=\"easyui-searchbox\" reget=\"1\" data-options=\"height:24,prompt:'请输入搜索值，空格隔开可搜索多个值',menu:'#search_mm" + moduleId.ToString() + "',searcher:function(value,name){if(typeof(SimpleSearch)=='function'){SimpleSearch(this,value,name);}}\" style=\"width:350px;\" />");
-                        sb.AppendFormat("<div id=\"search_mm{0}\" searchTxtId=\"{1}\">", moduleId.ToString(), searchTxtName);
+                        if (!isMutiSearchStyle)
+                        {
+                            //搜索控件domId
+                            string searchTxtName = gridType == DataGridType.MainGrid ? "txtSearch" : string.Format("txtSearch{0}", moduleId);
+                            //简单搜索框
+                            searchSb.AppendFormat("<div id=\"div_sampleSearch\" style=\"float:left;display:{0}\">", displayComplexSearch && !GlobalSet.IsDefaultSimpleSearch ? "none" : "block");
+                            searchSb.Append("<input id=\"" + searchTxtName + "\" moduleId=\"" + moduleId.ToString() + "\" gridId=\"" + gridId + "\" class=\"easyui-searchbox\" reget=\"1\" data-options=\"height:24,prompt:'请输入搜索值，空格隔开可搜索多个值',menu:'#search_mm" + moduleId.ToString() + "',searcher:function(value,name){if(typeof(SimpleSearch)=='function'){SimpleSearch(this,value,name);}}\" style=\"width:350px;\" />");
+                            searchSb.AppendFormat("<div id=\"search_mm{0}\" searchTxtId=\"{1}\">", moduleId.ToString(), searchTxtName);
+                        }
                         int no = 1;
                         int maxSearchNum = grid.MaxSearchNum;
                         if (gridType == DataGridType.DialogGrid)
                             maxSearchNum = 3;
                         foreach (Sys_GridField searchField in searchFields)
                         {
+                            if (!searchField.Sys_FieldId.HasValue) continue;
                             Sys_Field sysField = searchField.TempSysField != null ? searchField.TempSysField : SystemOperate.GetFieldById(searchField.Sys_FieldId.Value);
                             if (sysField == null) continue;
                             if (searchField.TempSysField == null) searchField.TempSysField = sysField;
@@ -1503,10 +1518,10 @@ namespace Rookey.Frame.UIOperate
                                 if (p == null) continue;
                             }
                             //外键字段和字符串字段支持简单搜索
-                            bool isSupportSampleSearch = !string.IsNullOrWhiteSpace(sysField.ForeignModuleName) || p.PropertyType == typeof(String);
+                            bool isSupportSampleSearch = isMutiSearchStyle ? false : !string.IsNullOrWhiteSpace(sysField.ForeignModuleName) || p.PropertyType == typeof(String);
                             if (isSupportSampleSearch) //支持简单搜索
                             {
-                                sb.AppendFormat("<div data-options=\"iconCls:'eu-p2-icon-table',name:'{0}'\">{1}</div>", sysField.Name, sysField.Display);
+                                searchSb.AppendFormat("<div data-options=\"iconCls:'eu-p2-icon-table',name:'{0}'\">{1}</div>", sysField.Name, sysField.Display);
                             }
                             if (displayComplexSearch)
                             {
@@ -1521,7 +1536,7 @@ namespace Rookey.Frame.UIOperate
                                 if (formField != null)
                                 {
                                     if (formField.ControlTypeOfEnum == ControlTypeEnum.MutiCheckBox) continue;
-                                    bool isSupportComplexSearch = isSupportSampleSearch || formField.ControlTypeOfEnum == ControlTypeEnum.ComboBox || formField.ControlTypeOfEnum == ControlTypeEnum.SingleCheckBox || formField.ControlTypeOfEnum == ControlTypeEnum.DateBox || formField.ControlTypeOfEnum == ControlTypeEnum.DateTimeBox;
+                                    bool isSupportComplexSearch = isMutiSearchStyle ? true : isSupportSampleSearch || formField.ControlTypeOfEnum == ControlTypeEnum.ComboBox || formField.ControlTypeOfEnum == ControlTypeEnum.SingleCheckBox || formField.ControlTypeOfEnum == ControlTypeEnum.DateBox || formField.ControlTypeOfEnum == ControlTypeEnum.DateTimeBox;
                                     if (!isSupportComplexSearch) continue;
                                     int controlWidth = 100; //默认搜索框宽100
                                     switch (formField.ControlTypeOfEnum)
@@ -1552,33 +1567,45 @@ namespace Rookey.Frame.UIOperate
                                 }
                             }
                         }
-                        sb.Append("</div>");
-                        sb.Append("</div>");
+                        if (!isMutiSearchStyle)
+                        {
+                            searchSb.Append("</div>");
+                            searchSb.Append("</div>");
+                        }
                         //添加复杂搜索
                         if (displayComplexSearch && fieldInputHtmls.Count > 0)
                         {
-                            sb.AppendFormat("<div id=\"div_complexSearch\" style=\"float:left;{0}\">", GlobalSet.IsDefaultSimpleSearch ? "display:none;" : string.Empty);
-                            sb.Append("<form method=\"post\" id=\"searchform\">");
-                            sb.Append("<div id=\"mainContent\">");
-                            sb.Append("<table style=\"height:26px;line-height:26px;\"><tr>");
+                            searchSb.AppendFormat("<div id=\"div_complexSearch\" style=\"float:left;{0}\" mutistyle=\"{1}\">", GlobalSet.IsDefaultSimpleSearch && !isMutiSearchStyle ? "display:none;" : string.Empty, isMutiSearchStyle ? "1" : string.Empty);
+                            searchSb.Append("<form method=\"post\" id=\"searchform\">");
+                            searchSb.Append("<div id=\"mainContent\">");
+                            searchSb.Append("<table style=\"height:26px;line-height:26px;\"><tr>");
+                            int n = 0;
                             foreach (Sys_Field key in fieldInputHtmls.Keys)
                             {
-                                sb.AppendFormat("<td><span style=\"margin-left:5px\">{0}：</span></td>", key.Display);
-                                sb.Append("<td>");
-                                sb.Append(fieldInputHtmls[key]);
-                                sb.Append("</td>");
+                                if (isMutiSearchStyle && n > 0 && n % 4 == 0)
+                                {
+                                    searchSb.Append("</tr><tr>");
+                                }
+                                n++;
+                                searchSb.AppendFormat("<td><span style=\"margin-left:5px\">{0}：</span></td>", key.Display);
+                                searchSb.Append("<td>");
+                                searchSb.Append(fieldInputHtmls[key]);
+                                searchSb.Append("</td>");
                             }
-                            sb.Append("</tr></table>");
-                            sb.Append("</div>");
-                            sb.Append("</form>");
-                            sb.Append("</div>");
-                            sb.AppendFormat("<a id=\"btn_search\" moduleId=\"{0}\" moduleName=\"{1}\" gridId=\"{2}\" viewId=\"{3}\" href=\"#\" title=\"点击搜索\" class=\"easyui-linkbutton easyui-tooltip\" iconCls=\"eu-icon-search\" plain=\"true\" onclick=\"ComplexSearch(this)\" style=\"{4}\">查询</a>", moduleId.ToString(), module.Name, gridId, grid.Id.ToString(), GlobalSet.IsDefaultSimpleSearch ? "display:none;" : string.Empty);
-                            //切换搜索按钮
-                            sb.AppendFormat("<a id=\"btn_changeSearch\" href=\"#\" title=\"切换搜索方式\" class=\"easyui-linkbutton easyui-tooltip\" iconCls=\"eu-p2-icon-feed_magnify\" plain=\"true\" onclick=\"ChangeSearchStyle(this)\"></a>", moduleId.ToString(), module.Name, gridId, grid.Id.ToString());
-                            sb.Append("<a id=\"btn_clear\" href=\"#\" title=\"清除搜索内容\" class=\"easyui-linkbutton easyui-tooltip\" iconCls=\"eu-icon-clear\" plain=\"true\" onclick=\"ClearSearch(this)\">清除</a>");
+                            searchSb.Append("</tr></table>");
+                            searchSb.Append("</div>");
+                            searchSb.Append("</form>");
+                            searchSb.Append("</div>");
+                            searchSb.AppendFormat("<a id=\"btn_search\" moduleId=\"{0}\" moduleName=\"{1}\" gridId=\"{2}\" viewId=\"{3}\" href=\"#\" title=\"点击搜索\" class=\"easyui-linkbutton easyui-tooltip\" iconCls=\"eu-icon-search\" plain=\"true\" onclick=\"ComplexSearch(this)\" style=\"{4}\">查询</a>", moduleId.ToString(), module.Name, gridId, grid.Id.ToString(), GlobalSet.IsDefaultSimpleSearch && !isMutiSearchStyle ? "display:none;" : string.Empty);
+                            if (!isMutiSearchStyle)
+                            {
+                                //切换搜索按钮
+                                searchSb.AppendFormat("<a id=\"btn_changeSearch\" href=\"#\" title=\"切换搜索方式\" class=\"easyui-linkbutton easyui-tooltip\" iconCls=\"eu-p2-icon-feed_magnify\" plain=\"true\" onclick=\"ChangeSearchStyle(this)\"></a>", moduleId.ToString(), module.Name, gridId, grid.Id.ToString());
+                            }
+                            searchSb.Append("<a id=\"btn_clear\" href=\"#\" title=\"清除搜索内容\" class=\"easyui-linkbutton easyui-tooltip\" iconCls=\"eu-icon-clear\" plain=\"true\" onclick=\"ClearSearch(this)\">清除</a>");
                         }
                         //高级搜索按钮
-                        sb.AppendFormat("<a id=\"btn_advanceSearch{0}\" moduleId=\"{0}\" moduleName=\"{1}\" gridId=\"{2}\" viewId=\"{3}\" href=\"#\" title=\"高级搜索\" class=\"easyui-linkbutton easyui-tooltip\" iconCls=\"eu-icon-advance_search\" plain=\"true\" onclick=\"AdvanceSearch(this)\"></a>", moduleId.ToString(), module.Name, gridId, grid.Id.ToString());
+                        searchSb.AppendFormat("<a id=\"btn_advanceSearch{0}\" moduleId=\"{0}\" moduleName=\"{1}\" gridId=\"{2}\" viewId=\"{3}\" href=\"#\" title=\"高级搜索\" class=\"easyui-linkbutton easyui-tooltip\" iconCls=\"eu-icon-advance_search\" plain=\"true\" onclick=\"AdvanceSearch(this)\"></a>", moduleId.ToString(), module.Name, gridId, grid.Id.ToString());
                         if (gridType == DataGridType.MainGrid && module.Name != "待办任务")
                         {
                             int isrf = grid.AddFilterRow.HasValue && grid.AddFilterRow.Value ? 1 : 0;
@@ -1590,13 +1617,13 @@ namespace Rookey.Frame.UIOperate
                                 filterIcon = "eu-icon-tip";
                             }
                             //启用过滤行搜索按钮
-                            sb.AppendFormat("<a id=\"btn_filterSearch\" moduleId=\"{0}\" moduleName=\"{1}\" gridId=\"{2}\" viewId=\"{3}\" isrf=\"{4}\" href=\"#\" title=\"{5}\" class=\"easyui-linkbutton\" iconCls=\"{6}\" plain=\"true\" onclick=\"OpenOrCloseRowFilterSearch(this)\"></a>", moduleId.ToString(), module.Name, gridId, grid.Id.ToString(), isrf.ToString(), filterTitle, filterIcon);
+                            searchSb.AppendFormat("<a id=\"btn_filterSearch\" moduleId=\"{0}\" moduleName=\"{1}\" gridId=\"{2}\" viewId=\"{3}\" isrf=\"{4}\" href=\"#\" title=\"{5}\" class=\"easyui-linkbutton\" iconCls=\"{6}\" plain=\"true\" onclick=\"OpenOrCloseRowFilterSearch(this)\"></a>", moduleId.ToString(), module.Name, gridId, grid.Id.ToString(), isrf.ToString(), filterTitle, filterIcon);
                         }
                     }
                 }
                 else //存在用户自定义搜索UI
                 {
-                    sb.Append(simpleSearchHtml);
+                    searchSb.Append(simpleSearchHtml);
                 }
                 if (gridType == DataGridType.MainGrid)
                 {
@@ -1606,12 +1633,12 @@ namespace Rookey.Frame.UIOperate
                     string tempGridUrl = gridUrl; //保存基本网格url,切换视图时用到
                     if (!string.IsNullOrEmpty(otherGridUrl))
                         tempGridUrl = gridUrl.Replace(otherGridUrl, string.Empty);
-                    sb.AppendFormat("<a id=\"btn_gridSet{0}\" moduleId=\"{0}\" moduleName=\"{1}\" gridId=\"{2}\" viewId=\"{3}\" viewName=\"{4}\" treeField=\"{5}\" gridUrl=\"{6}\" href=\"#\" title=\"单击可切换列表视图--当前视图：{7}\" class=\"easyui-linkbutton\" iconCls=\"eu-icon-grid\" plain=\"true\" onclick=\"GridSet(this)\"></a>",
+                    searchSb.AppendFormat("<a id=\"btn_gridSet{0}\" moduleId=\"{0}\" moduleName=\"{1}\" gridId=\"{2}\" viewId=\"{3}\" viewName=\"{4}\" treeField=\"{5}\" gridUrl=\"{6}\" href=\"#\" title=\"单击可切换列表视图--当前视图：{7}\" class=\"easyui-linkbutton\" iconCls=\"eu-icon-grid\" plain=\"true\" onclick=\"GridSet(this)\"></a>",
                             moduleId.ToString(), module.Name, gridId, grid.Id.ToString(), grid.Name, treeField, tempGridUrl, grid.Name);
                     //附属模块及明细显示设置按钮
                     if (grid.GridTypeOfEnum != GridTypeEnum.ComprehensiveDetail && SystemOperate.GetAttachModules(moduleId).Count > 0)
                     {
-                        sb.AppendFormat("<a id=\"btn_attach_set_{0}\" moduleId=\"{0}\" moduleName=\"{1}\" class=\"easyui-linkbutton easyui-tooltip\" data-options=\"iconCls:'eu-icon-cog',plain:true\" title=\"附属模块显示设置\" onclick=\"AttachModuleSet(this)\"></a>", moduleId.ToString(), module.Name);
+                        searchSb.AppendFormat("<a id=\"btn_attach_set_{0}\" moduleId=\"{0}\" moduleName=\"{1}\" class=\"easyui-linkbutton easyui-tooltip\" data-options=\"iconCls:'eu-icon-cog',plain:true\" title=\"附属模块显示设置\" onclick=\"AttachModuleSet(this)\"></a>", moduleId.ToString(), module.Name);
                     }
                     //我的草稿图标
                     if (module.IsEnabledDraft)
@@ -1624,7 +1651,7 @@ namespace Rookey.Frame.UIOperate
                             tempModuleId = detailModule.Id;
                             tempModuleName = detailModule.Name;
                         }
-                        sb.AppendFormat("<a id=\"btn_draft\" moduleId=\"{0}\" moduleName=\"{1}\" href=\"#\" title=\"点击进入我的草稿\" class=\"easyui-linkbutton easyui-tooltip\" iconCls=\"eu-icon-draft\" plain=\"true\" onclick=\"GoToDraft(this)\"></a>", tempModuleId.ToString(), tempModuleName);
+                        searchSb.AppendFormat("<a id=\"btn_draft\" moduleId=\"{0}\" moduleName=\"{1}\" href=\"#\" title=\"点击进入我的草稿\" class=\"easyui-linkbutton easyui-tooltip\" iconCls=\"eu-icon-draft\" plain=\"true\" onclick=\"GoToDraft(this)\"></a>", tempModuleId.ToString(), tempModuleName);
                     }
                 }
                 if (gridType == DataGridType.MainGrid || gridType == DataGridType.FlowGrid || gridType == DataGridType.ViewDetailGrid)
@@ -1635,12 +1662,22 @@ namespace Rookey.Frame.UIOperate
                         Guid tempModuleId = moduleId;
                         string tempModuleName = module.Name;
                         string tempModuleDisplay = string.IsNullOrEmpty(module.Display) ? module.Name : module.Display;
-                        sb.AppendFormat("<a id=\"btn_recycle\" moduleId=\"{0}\" moduleName=\"{1}\" moduleDisplay=\"{2}\" href=\"#\" title=\"点击进入回收站\" class=\"easyui-linkbutton easyui-tooltip\" iconCls=\"eu-icon-recycle\" plain=\"true\" onclick=\"GoToRecycle(this)\"></a>", tempModuleId.ToString(), tempModuleName, tempModuleDisplay);
+                        searchSb.AppendFormat("<a id=\"btn_recycle\" moduleId=\"{0}\" moduleName=\"{1}\" moduleDisplay=\"{2}\" href=\"#\" title=\"点击进入回收站\" class=\"easyui-linkbutton easyui-tooltip\" iconCls=\"eu-icon-recycle\" plain=\"true\" onclick=\"GoToRecycle(this)\"></a>", tempModuleId.ToString(), tempModuleName, tempModuleDisplay);
                     }
                 }
-                sb.Append("</div>");
+                searchSb.Append("</div>");
             }
             #endregion
+            if (isMutiSearchStyle) //多字段搜索风格
+            {
+                sb.Append(searchSb.ToString());
+                sb.Append(toolSb.ToString());
+            }
+            else
+            {
+                sb.Append(toolSb.ToString());
+                sb.Append(searchSb.ToString());
+            }
             sb.Append(mm_html.ToString());
             sb.Append("</div>");
             //end 网格工具栏和搜索框
@@ -1784,85 +1821,6 @@ namespace Rookey.Frame.UIOperate
             }
             #endregion
             return btnAttr;
-        }
-
-        /// <summary>
-        /// 获取网格字段格式化参数，并返回编辑参数
-        /// </summary>
-        /// <param name="module">模块</param>
-        /// <param name="field">字段</param>
-        /// <param name="gridType">网格类型</param>
-        /// <param name="gridId">网格DomId</param>
-        /// <param name="editMode">编辑模式</param>
-        /// <param name="otherFormatParams">其他参数</param>
-        /// <param name="editorStr">返回编辑参数</param>
-        /// <param name="userId">当前用户</param>
-        /// <returns></returns>
-        private static string GetGridFieldFormatter(Sys_Module module, Sys_GridField field, DataGridType gridType, string gridId, int editMode, string otherFormatParams, out string editorStr, Guid userId)
-        {
-            editorStr = field.EditorFormatter;
-            if (!field.Sys_FieldId.HasValue) return string.Empty;
-            bool isAllowEditField = gridType == DataGridType.MainGrid || gridType == DataGridType.FlowGrid || gridType == DataGridType.InnerDetailGrid || gridType == DataGridType.ViewDetailGrid;
-            string formatStr = gridType != DataGridType.RecycleGrid ? field.FieldFormatter : string.Empty;
-            string errMsg = string.Empty;
-            if (string.IsNullOrEmpty(formatStr))
-            {
-                Sys_Field sysField = field.TempSysField != null ? field.TempSysField : SystemOperate.GetFieldById(field.Sys_FieldId.Value);
-                if (sysField == null || !sysField.Sys_ModuleId.HasValue) return string.Empty;
-                if (field.TempSysField == null) field.TempSysField = sysField;
-                string foreignFormatParams = string.Empty; //外键格式化参数
-                if (!CommonDefine.BaseEntityFields.Contains(sysField.Name) && !string.IsNullOrWhiteSpace(sysField.ForeignModuleName) && gridType != DataGridType.RecycleGrid && gridType != DataGridType.MyDraftGrid && gridType != DataGridType.EditDetailGrid) //外键模块处理
-                {
-                    Sys_Module foreignModule = SystemOperate.GetModuleByName(sysField.ForeignModuleName);
-                    if (foreignModule != null)
-                    {
-                        Sys_Form foreginForm = SystemOperate.GetUserForm(userId, foreignModule.Id); //表单对象
-                        int ew = 0; //外键表单宽度
-                        int eh = 0; //外键表单高度
-                        int em = GetEditMode(foreignModule, foreginForm, out ew, out eh, userId); //外键编辑模式
-                        string foreignTitleKey = string.IsNullOrEmpty(foreignModule.TitleKey) ? string.Empty : foreignModule.TitleKey;
-                        string foreignTitleKeyDisplay = SystemOperate.GetModuleTitleKeyDisplay(foreignModule);
-                        foreignFormatParams = HttpUtility.UrlEncode("{moduleId:'" + foreignModule.Id.ToString() + "',moduleDisplay:'" + (string.IsNullOrEmpty(foreignModule.Display) ? foreignModule.Name : foreignModule.Display) + "',titleKey:'" + foreignTitleKey + "',titleKeyDisplay:'" + foreignTitleKeyDisplay + "',editMode:" + em.ToString() + ",editWidth:" + ew.ToString() + ",editHeight:" + eh.ToString() + "}", Encoding.UTF8).Replace("+", "%20");
-                    }
-                }
-                formatStr = SystemOperate.GetGridFormatFunction(sysField.Sys_ModuleId.Value, sysField, gridId, isAllowEditField, otherFormatParams, foreignFormatParams, field.Sys_FieldName);
-                field.FieldFormatter = formatStr;
-                if (!string.IsNullOrEmpty(formatStr) && gridType != DataGridType.RecycleGrid)
-                {
-                    CommonOperate.OperateRecord<Sys_GridField>(field, ModelRecordOperateType.Edit, out errMsg, new List<string>() { "FieldFormatter" });
-                }
-            }
-            if (string.IsNullOrEmpty(editorStr))
-            {
-                Sys_Field sysField = SystemOperate.GetFieldById(field.Sys_FieldId.Value);
-                if (sysField == null || !sysField.Sys_ModuleId.HasValue) return formatStr;
-                string editor = string.Empty;
-                if (editMode == (int)ModuleEditModeEnum.GridRowEdit)
-                {
-                    bool isCanEdtor = true; //是否允许打开编辑器
-                    string parentModuleName = module.ParentId.HasValue ? SystemOperate.GetModuleNameById(module.ParentId.Value) : string.Empty;
-                    if ((gridType == DataGridType.FlowGrid || gridType == DataGridType.ViewDetailGrid) && !string.IsNullOrEmpty(sysField.ForeignModuleName) && sysField.ForeignModuleName == parentModuleName)
-                    {
-                        isCanEdtor = false; //附属网格和明细查看网格时对应父模块外键字段不允许编辑
-                    }
-                    if (isCanEdtor) //允许打开编辑器
-                    {
-                        Sys_FormField formField = SystemOperate.GetNfDefaultFormSingleField(sysField);
-                        if (formField != null && (formField.IsAllowAdd == true || formField.IsAllowEdit == true)) //允许编辑时
-                        {
-                            if (PermissionOperate.CanEditField(userId, module.Id, sysField.Name)) //有编辑权限
-                                editor = SystemOperate.GetFieldEditor(SystemOperate.GetModuleById(sysField.Sys_ModuleId.Value), sysField);
-                        }
-                    }
-                }
-                editorStr = string.IsNullOrEmpty(editor) ? string.Empty : string.Format(",editor:{0}", editor);
-                field.EditorFormatter = editorStr;
-                if (!string.IsNullOrEmpty(editorStr))
-                {
-                    CommonOperate.OperateRecord<Sys_GridField>(field, ModelRecordOperateType.Edit, out errMsg, new List<string>() { "EditorFormatter" });
-                }
-            }
-            return formatStr;
         }
 
         /// <summary>
@@ -2549,6 +2507,7 @@ namespace Rookey.Frame.UIOperate
             if (module == null) return string.Empty;
             UserInfo currUser = this.CurrUser;
             if (currUser == null) return UIOperate.GetAccountExpiredTipHtml();
+            bool isRestartFlow = request != null && request["rsf"].ObjToInt() == 1;
             #endregion
             #region 页面重写
             string html = GetCustomerPageHTML(moduleId, "GetEditFormHTML", new object[] { id, gridId, copyId, showTip, todoTaskId, formId, request });
@@ -2743,7 +2702,14 @@ namespace Rookey.Frame.UIOperate
                         if (sysField == null) continue;
                         if (field.TempSysField == null) field.TempSysField = sysField;
                         string textValue = string.Empty;
-                        string value = GetFormFieldInputValue(out textValue, module, field, sysField, model, copyModel);
+                        //获取受当前字段关联的字段
+                        List<string> linkFieldsList = formFields.Where(x => x.Sys_FieldId.HasValue).Where(x => x.DefaultValue.ObjToStr() == "{" + sysField.Name + "}").Select(x => SystemOperate.GetFieldById(x.Sys_FieldId.Value).Name).ToList();
+                        string linkFields = linkFieldsList != null && linkFieldsList.Count > 0 ? string.Join(",", linkFieldsList) : string.Empty;
+                        bool canOp = opFields == null || opFields.Count == 0 || opFields.Contains(sysField.Name);
+                        bool canView = viewFields == null || viewFields.Count == 0 || viewFields.Contains(sysField.Name);
+                        string inputHtml = canView ? GetFormFieldInputHTML(module.Id, field, sysField, model, false, linkFields, copyModel, null, null, canOp, true, CurrUser, isRestartFlow) :
+                                           "<span title=\"无该字段查看权限\" style=\"width:100%\">******</span>";
+                        string value = GetFormFieldInputValue(out textValue, module, field, sysField, model, copyModel, canOp, isRestartFlow, currUser);
                         if (string.IsNullOrEmpty(textValue))
                             textValue = value;
                         tempHtml = tempHtml.Replace("{" + sysField.Name + "}", value).Replace("{" + sysField.Name + "_textValue}", textValue);
@@ -2811,7 +2777,6 @@ namespace Rookey.Frame.UIOperate
                 thHeightStr = string.Format(",tabHeight:{0}", ConstDefine.TAB_HEAD_HEIGHT.ToString());
             }
             sb.AppendFormat("<div id=\"editFormTabs\" class=\"{0}\" style=\"width:100%;{2}:{1};\" data-options=\"onSelect:OnEditFormTabSelect{3}\">", tabCls, tabHeight, tabHeightKey, thHeightStr);
-            bool isRestartFlow = request != null && request["rsf"].ObjToInt() == 1;
             foreach (var tab in tabs)
             {
                 string tabTitle = string.IsNullOrEmpty(tab.FirstOrDefault().TabName) ? "主信息" : tab.FirstOrDefault().TabName;
@@ -2871,6 +2836,11 @@ namespace Rookey.Frame.UIOperate
                 //网格js
                 string gridJsr = WebHelper.GetJsModifyTimeStr("/Scripts/common/Grid.js");
                 sb.AppendFormat("<script type=\"text/javascript\" src=\"{0}Scripts/common/Grid.js?r={1}\"></script>", domainPath, gridJsr);
+            }
+            else if (formFields.Select(x => x.ControlTypeOfEnum).Contains(ControlTypeEnum.ComboGrid))
+            {
+                string formatterJsr = WebHelper.GetJsModifyTimeStr("/Scripts/common/Formatter.js");
+                sb.AppendFormat("<script type=\"text/javascript\" src=\"{0}Scripts/common/Formatter.js?r={1}\"></script>", domainPath, formatterJsr);
             }
             //编辑表单js
             string editFormJsr = WebHelper.GetJsModifyTimeStr("/Scripts/common/EditForm.js");
@@ -4203,8 +4173,8 @@ namespace Rookey.Frame.UIOperate
             sb.Append("<td style=\"text-align:center;padding-right:300px;\">");
             if (!roleId.HasValue) //从角色权限设置菜单点击进入
             {
-                sb.AppendFormat("<a id=\"btnSave\" style=\"margin-right:10px;color:#fff;\" href=\"#\" class=\"easyui-linkbutton{0}\" data-options=\"iconCls:'eu-icon-save'\" onclick=\"SaveRolePermission()\">保 存</a>", GlobalSet.IsShowStyleBtn ? " c1" : string.Empty);
-                sb.AppendFormat("<a id=\"btnCancel\" style=\"margin-right:10px;color:#fff;\" href=\"#\" class=\"easyui-linkbutton{0}\" data-options=\"iconCls:'eu-icon-cancel'\" onclick=\"CloseTab()\">关 闭</a>", GlobalSet.IsShowStyleBtn ? " c2" : string.Empty);
+                sb.AppendFormat("<a id=\"btnSave\" style=\"margin-right:10px;\" href=\"#\" class=\"easyui-linkbutton{0}\" data-options=\"iconCls:'eu-icon-save'\" onclick=\"SaveRolePermission()\">保 存</a>", GlobalSet.IsShowStyleBtn ? " c1" : string.Empty);
+                sb.AppendFormat("<a id=\"btnCancel\" style=\"margin-right:10px;\" href=\"#\" class=\"easyui-linkbutton{0}\" data-options=\"iconCls:'eu-icon-cancel'\" onclick=\"CloseTab()\">关 闭</a>", GlobalSet.IsShowStyleBtn ? " c2" : string.Empty);
             }
             sb.Append("</td>");
             sb.Append("</tr></table>");
@@ -4497,9 +4467,9 @@ namespace Rookey.Frame.UIOperate
             sb.Append("<td style=\"text-align:center;padding-right:300px;\">");
             if (!userId.HasValue) //从用户权限菜单中点击进入
             {
-                sb.AppendFormat("<a id=\"btnSave\" style=\"margin-right:10px;color:#fff;\" href=\"#\" class=\"easyui-linkbutton{0}\" data-options=\"iconCls:'eu-icon-save'\" onclick=\"SaveUserPermission()\">保 存</a>", GlobalSet.IsShowStyleBtn ? " c1" : string.Empty);
-                sb.AppendFormat("<a id=\"btnCancel\" style=\"margin-right:10px;color:#fff;\" href=\"#\" class=\"easyui-linkbutton{0}\" data-options=\"iconCls:'eu-icon-cancel'\" onclick=\"CloseTab()\">关 闭</a>", GlobalSet.IsShowStyleBtn ? " c2" : string.Empty);
-                sb.AppendFormat("<a id=\"btnClear\" style=\"margin-right:10px;color:#fff;\" href=\"#\" class=\"easyui-linkbutton{0}\" data-options=\"iconCls:'eu-icon-clear'\" onclick=\"ClearUserPermission()\">清除权限</a>", GlobalSet.IsShowStyleBtn ? " c3" : string.Empty);
+                sb.AppendFormat("<a id=\"btnSave\" style=\"margin-right:10px;\" href=\"#\" class=\"easyui-linkbutton{0}\" data-options=\"iconCls:'eu-icon-save'\" onclick=\"SaveUserPermission()\">保 存</a>", GlobalSet.IsShowStyleBtn ? " c1" : string.Empty);
+                sb.AppendFormat("<a id=\"btnCancel\" style=\"margin-right:10px;\" href=\"#\" class=\"easyui-linkbutton{0}\" data-options=\"iconCls:'eu-icon-cancel'\" onclick=\"CloseTab()\">关 闭</a>", GlobalSet.IsShowStyleBtn ? " c2" : string.Empty);
+                sb.AppendFormat("<a id=\"btnClear\" style=\"margin-right:10px;\" href=\"#\" class=\"easyui-linkbutton{0}\" data-options=\"iconCls:'eu-icon-clear'\" onclick=\"ClearUserPermission()\">清除权限</a>", GlobalSet.IsShowStyleBtn ? " c3" : string.Empty);
             }
             sb.Append("</td>");
             sb.Append("</tr></table>");
@@ -4729,7 +4699,7 @@ namespace Rookey.Frame.UIOperate
             if (desktopItems.Count > 0)
             {
                 StringBuilder toolsSb = new StringBuilder();
-                sb.AppendFormat("<div id=\"pp\" style=\"width:{0}px;overflow-x:hidden;\">", (CurrUser.ClientBrowserWidth - ConstDefine.MAIN_LEFT_MENU_WIDTH - 12).ToString());
+                sb.AppendFormat("<div id=\"pp\" style=\"width:{0}px;overflow-x:hidden;overflow-y:hidden;\">", (CurrUser.ClientBrowserWidth - ConstDefine.MAIN_LEFT_MENU_WIDTH - 12).ToString());
                 for (int j = 0; j < 2; j++) //桌面设置两列
                 {
                     //--column--start
@@ -4817,7 +4787,7 @@ namespace Rookey.Frame.UIOperate
                 {
                     fields = gridParams.GridFields.Where(x => !string.IsNullOrEmpty(x.Sys_FieldName)).Select(x => new Desktop_GridField() { FieidName = x.Sys_FieldName, Width = x.Width.HasValue && x.Width.Value > 0 ? x.Width.Value : 120, Sort = x.Sort }).ToList();
                 }
-                sb.AppendFormat("<table id=\"deskgrid_{0}\" style=\"height:98%\" class=\"easyui-datagrid\" data-options=\"{1}\">", moduleId.ToString(), otherParams);
+                sb.AppendFormat("<table id=\"deskgrid_{0}\" style=\"height:100%\" class=\"easyui-datagrid\" data-options=\"{1}\">", moduleId.ToString(), otherParams);
                 sb.Append("<thead>");
                 sb.Append("<tr>");
                 int editMode = 1;
@@ -4943,7 +4913,7 @@ namespace Rookey.Frame.UIOperate
         public override string GetNodeParamSetHTML(Guid workflowId, string tagId)
         {
             Bpm_WorkNode workNode = BpmOperate.GetWorkNodeByTagId(workflowId, tagId);
-            Bpm_WorkNode preNode = workNode != null ? BpmOperate.GetPrexNode(workflowId, workNode.Id) : null;
+            Bpm_WorkNode preNode = workNode != null ? BpmOperate.GetPrexNode(workflowId, workNode.Id).FirstOrDefault() : null;
             //结点按钮配置
             List<Bpm_NodeBtnConfig> btnConfigs = workNode != null ? BpmOperate.GetAllApprovalBtnConfigs(x => x.Bpm_WorkFlowId == workflowId && x.Bpm_WorkNodeId == workNode.Id) : new List<Bpm_NodeBtnConfig>();
             StringBuilder sb = new StringBuilder();
@@ -5226,7 +5196,7 @@ namespace Rookey.Frame.UIOperate
                 {
                     case NodeBackTypeEnum.BackToLast:
                         {
-                            Bpm_WorkNode preNode = BpmOperate.GetPrexNode(workNode.Bpm_WorkFlowId.Value, workNodeId);
+                            Bpm_WorkNode preNode = BpmOperate.GetPrexNode(workNode.Bpm_WorkFlowId.Value, workNodeId).FirstOrDefault();
                             if (preNode != null)
                             {
                                 sb.AppendFormat("<option value=\"{0}\">{1}</option>", preNode.Id, preNode.Name);
@@ -5309,6 +5279,10 @@ namespace Rookey.Frame.UIOperate
                     case WorkFlowStatusEnum.Freezed:
                         icon = string.Empty;
                         break;
+                    case WorkFlowStatusEnum.Obsoleted:
+                        flowStatusDes = "已作废";
+                        icon += "exclamation.png";
+                        break;
                     case WorkFlowStatusEnum.Over:
                         flowStatusDes = "已通过";
                         icon += "approvalok.png";
@@ -5350,11 +5324,28 @@ namespace Rookey.Frame.UIOperate
                 if (approvalInfos.Count > 0)
                 {
                     ApprovalInfo info = approvalInfos.FirstOrDefault();
-                    workflowInst.OrgM_EmpName = workflowInst.OrgM_EmpId.HasValue ? OrgMOperate.GetEmpName(workflowInst.OrgM_EmpId.Value) : string.Empty;
+                    string starter = string.Empty;
+                    if (workflowInst.OrgM_EmpId.HasValue)
+                    {
+                        OrgM_Emp tempEmp = OrgMOperate.GetEmp(workflowInst.OrgM_EmpId.Value);
+                        if (tempEmp == null)
+                        {
+                            Sys_User user = UserOperate.GetUser(workflowInst.OrgM_EmpId.Value);
+                            if (user != null)
+                                starter = string.IsNullOrEmpty(user.AliasName) ? user.UserName : user.AliasName;
+                        }
+                        else
+                        {
+                            starter = tempEmp.Name;
+                        }
+                    }
+                    workflowInst.OrgM_EmpName = starter;
                     sb.Append("<table style=\"width:100%\">");
                     sb.AppendFormat("<tr><th style=\"text-align:right;width:80px;\">发起人：</th><td>{0}</td></tr>", workflowInst.OrgM_EmpName);
                     sb.AppendFormat("<tr><th style=\"text-align:right;width:80px;\">状&nbsp;&nbsp;&nbsp;态：</th><td><table><tr><td>{0}</td><td>{1}</td></tr></table></td></tr>", flowImgStr, flowStatusDes);
-                    if (workflowInst.StatusOfEnum != WorkFlowStatusEnum.Over && workflowInst.StatusOfEnum != WorkFlowStatusEnum.Refused)
+                    if (workflowInst.StatusOfEnum != WorkFlowStatusEnum.Over &&
+                        workflowInst.StatusOfEnum != WorkFlowStatusEnum.Refused &&
+                        workflowInst.StatusOfEnum != WorkFlowStatusEnum.Obsoleted)
                     {
                         sb.AppendFormat("<tr><th style=\"text-align:right;width:80px;\">下一处理人：</th><td>{0}</td></tr>", info.NextHandler);
                     }

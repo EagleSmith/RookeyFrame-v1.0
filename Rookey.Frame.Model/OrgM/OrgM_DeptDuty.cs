@@ -29,7 +29,7 @@ namespace Rookey.Frame.Model.OrgM
         /// <summary>
         /// 所属部门
         /// </summary>
-        [FieldConfig(Display = "部门", ControlType = (int)ControlTypeEnum.DialogGrid, IsFrozen = true, IsRequired = true, RowNum = 1, ColNum = 2, HeadSort = 2, ForeignModuleName = "部门管理")]
+        [FieldConfig(Display = "部门", ControlType = (int)ControlTypeEnum.DialogTree, IsFrozen = true, IsRequired = true, RowNum = 1, ColNum = 2, HeadSort = 2, ForeignModuleName = "部门管理")]
         public Guid? OrgM_DeptId { get; set; }
 
         /// <summary>

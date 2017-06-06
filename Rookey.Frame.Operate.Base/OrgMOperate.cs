@@ -312,7 +312,7 @@ namespace Rookey.Frame.Operate.Base
                     List<TreeNode> deptNodes = listDelts.Select(x => new TreeNode()
                     {
                         id = x.Id.ToString(),
-                        text = x.Name,
+                        text = string.IsNullOrEmpty(x.Alias) ? x.Name : x.Alias,
                         iconCls = "eu-icon-dept"
                     }).ToList();
                     node.children = deptNodes;
@@ -321,6 +321,8 @@ namespace Rookey.Frame.Operate.Base
             }
             else
             {
+                if (string.IsNullOrEmpty(root.Alias))
+                    root.Alias = root.Name;
                 if (expression != null)
                 {
                     TreeNode node = new TreeNode()
@@ -336,7 +338,7 @@ namespace Rookey.Frame.Operate.Base
                         List<TreeNode> deptNodes = listDelts.Select(x => new TreeNode()
                         {
                             id = x.Id.ToString(),
-                            text = x.Name,
+                            text = string.IsNullOrEmpty(x.Alias) ? x.Name : x.Alias,
                             iconCls = "eu-icon-dept"
                         }).ToList();
                         node.children = deptNodes;
@@ -350,6 +352,11 @@ namespace Rookey.Frame.Operate.Base
                     {
                         listChilds = listChilds.Where(expression.Compile()).ToList();
                     }
+                    listChilds.ForEach(x =>
+                    {
+                        if (string.IsNullOrEmpty(x.Alias))
+                            x.Alias = x.Name;
+                    });
                     var tree = CommonOperate.GetTree<OrgM_Dept>(listChilds, root, null, "ParentId", "Alias", "eu-icon-dept", isAsync);
                     return tree;
                 }
@@ -824,6 +831,18 @@ namespace Rookey.Frame.Operate.Base
         }
 
         /// <summary>
+        /// 获取员工信息，包含离职人员
+        /// </summary>
+        /// <param name="empId">员工ID</param>
+        /// <returns></returns>
+        public static OrgM_Emp GetEmpContainsQuit(Guid empId)
+        {
+            string errMsg = string.Empty;
+            OrgM_Emp emp = CommonOperate.GetEntityById<OrgM_Emp>(empId, out errMsg);
+            return emp;
+        }
+
+        /// <summary>
         /// 根据员工编号获取员工信息
         /// </summary>
         /// <param name="empCode">员工编号</param>
@@ -856,6 +875,20 @@ namespace Rookey.Frame.Operate.Base
         public static string GetEmpName(Guid empId)
         {
             OrgM_Emp emp = GetEmp(empId);
+            if (emp != null)
+                return emp.Name.ObjToStr();
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// 获取员工姓名，包含离职人员
+        /// </summary>
+        /// <param name="empId">员工ID</param>
+        /// <returns></returns>
+        public static string GetEmpNameContainsQuit(Guid empId)
+        {
+            string errMsg = string.Empty;
+            OrgM_Emp emp = CommonOperate.GetEntityById<OrgM_Emp>(empId, out errMsg);
             if (emp != null)
                 return emp.Name.ObjToStr();
             return string.Empty;

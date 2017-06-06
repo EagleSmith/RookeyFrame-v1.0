@@ -16,3 +16,9 @@ D:\rookey\git.oschina\Rookey.Frame.Lib\web\Rookey.Frame.Orm.Base.pdb
 D:\rookey\git.oschina\Rookey.Frame.Orm.Base\obj\Release\Rookey.Frame.Orm.Base.csprojResolveAssemblyReference.cache
 D:\rookey\git.oschina\Rookey.Frame.Orm.Base\obj\Release\Rookey.Frame.Orm.Base.dll
 D:\rookey\git.oschina\Rookey.Frame.Orm.Base\obj\Release\Rookey.Frame.Orm.Base.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Orm.Base.XML
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Orm.Base.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Orm.Base.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Orm.Base\obj\Release\Rookey.Frame.Orm.Base.csprojResolveAssemblyReference.cache
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Orm.Base\obj\Release\Rookey.Frame.Orm.Base.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Orm.Base\obj\Release\Rookey.Frame.Orm.Base.pdb

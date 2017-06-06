@@ -16,3 +16,9 @@ D:\rookey\git.oschina\Rookey.Frame.Lib\web\Rookey.Frame.Orm.SqlServer.pdb
 D:\rookey\git.oschina\Rookey.Frame.Orm.SqlServer\obj\Release\Rookey.Frame.Orm.SqlServer.csprojResolveAssemblyReference.cache
 D:\rookey\git.oschina\Rookey.Frame.Orm.SqlServer\obj\Release\Rookey.Frame.Orm.SqlServer.dll
 D:\rookey\git.oschina\Rookey.Frame.Orm.SqlServer\obj\Release\Rookey.Frame.Orm.SqlServer.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Orm.SqlServer.XML
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Orm.SqlServer.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Orm.SqlServer.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Orm.SqlServer\obj\Release\Rookey.Frame.Orm.SqlServer.csprojResolveAssemblyReference.cache
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Orm.SqlServer\obj\Release\Rookey.Frame.Orm.SqlServer.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Orm.SqlServer\obj\Release\Rookey.Frame.Orm.SqlServer.pdb

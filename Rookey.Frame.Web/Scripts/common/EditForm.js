@@ -187,6 +187,7 @@ function Save(obj, backFun, isAddNew, isDraft) {
                             $(this).textbox('clear');
                             v = '';
                         }
+                        obj.attr('v', v);
                         obj.attr('value', v);
                     }
                 }
@@ -328,23 +329,27 @@ function Save(obj, backFun, isAddNew, isDraft) {
                                 if (typeof (OverDetailModuleDataHandleBeforeSaved) == "function") {
                                     row = OverDetailModuleDataHandleBeforeSaved(row, detailModuleId, detailModuleName, detailUpdateFields);
                                 }
-                                if (isNoFastSave) {
-                                    //数据组装
-                                    var detailDatas = [];
-                                    for (var p in row) {
-                                        if (p != 'Id') {
-                                            detailDatas.push({ name: p, value: row[p] });
-                                        }
-                                    }
-                                    moduleDatas.push(JSON.stringify(detailDatas));
-                                }
-                                else {
-                                    if (detailUpdateFields.length == 0) {
+                                if (row != null && row != undefined) {
+                                    if (isNoFastSave) {
+                                        //数据组装
+                                        var detailDatas = [];
                                         for (var p in row) {
-                                            detailUpdateFields.push(p);
+                                            if (p != 'Id') {
+                                                detailDatas.push({ name: p, value: row[p] });
+                                            }
+                                        }
+                                        if (detailDatas.length > 0) {
+                                            moduleDatas.push(JSON.stringify(detailDatas));
                                         }
                                     }
-                                    moduleDatas.push(JSON.stringify(row));
+                                    else {
+                                        if (detailUpdateFields.length == 0) {
+                                            for (var p in row) {
+                                                detailUpdateFields.push(p);
+                                            }
+                                        }
+                                        moduleDatas.push(JSON.stringify(row));
+                                    }
                                 }
                             }
                         }
@@ -577,11 +582,47 @@ function Save(obj, backFun, isAddNew, isDraft) {
                             id = result.RecordId;
                         topWin.CloseWaitDialog();
                         topWin.ShowAlertMsg(msgTitle, result.Message, "info");
+                        if (page == 'add' || page == 'edit') {
+                            //行编辑网格调整为编辑模式
+                            $("div[id^='regon_']").each(function () {
+                                var detailModuleId = $(this).attr("moduleId");
+                                var detailModuleName = $(this).attr("moduleName");
+                                var detailGridId = 'grid_' + detailModuleId;
+                                var gridObj = $("#" + detailGridId);
+                                var detailEditMode = gridObj.attr('editMode');
+                                if (detailEditMode == 3) { //列表行编辑模式
+                                    var rows = gridObj.datagrid("getRows");
+                                    for (var i = 0; i < rows.length; i++) {
+                                        var row = rows[i];
+                                        var rowIndex = gridObj.datagrid('getRowIndex', row);
+                                        EditRow(detailGridId, rowIndex, detailModuleId, detailModuleName, false);
+                                    }
+                                }
+                            });
+                        }
                     }
                 },
                 error: function (err) {
                     topWin.CloseWaitDialog();
                     topWin.ShowAlertMsg(msgTitle, '数据保存失败，服务器异常！', "error");
+                    if (page == 'add' || page == 'edit') {
+                        //行编辑网格调整为编辑模式
+                        $("div[id^='regon_']").each(function () {
+                            var detailModuleId = $(this).attr("moduleId");
+                            var detailModuleName = $(this).attr("moduleName");
+                            var detailGridId = 'grid_' + detailModuleId;
+                            var gridObj = $("#" + detailGridId);
+                            var detailEditMode = gridObj.attr('editMode');
+                            if (detailEditMode == 3) { //列表行编辑模式
+                                var rows = gridObj.datagrid("getRows");
+                                for (var i = 0; i < rows.length; i++) {
+                                    var row = rows[i];
+                                    var rowIndex = gridObj.datagrid('getRowIndex', row);
+                                    EditRow(detailGridId, rowIndex, detailModuleId, detailModuleName, false);
+                                }
+                            }
+                        });
+                    }
                 },
                 dataType: "json"
             });

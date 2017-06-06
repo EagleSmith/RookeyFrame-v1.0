@@ -110,6 +110,10 @@ $(function () {
     if (IsNeedParsePage()) {
         ParserLayout();
     }
+    if ($('#div_complexSearch').attr('mutistyle') == '1') {
+        var h = $('#div_complexSearch').find('tr').length * 26 + 36 + 10;
+        $("div[id^='grid_toolbar_']").eq(0).height(h);
+    }
 });
 
 /*----------------------搜索相关----------------------------*/
@@ -292,6 +296,8 @@ function ClearSearch(obj) {
 //当工具栏搜索框被挤到下方时处理，针对主网格，纠正网格高度
 //isLoadSuccess:是否数据加载成功后
 function CorrectGridHeight(isLoadSuccess) {
+    if ($('#div_complexSearch').attr('mutistyle') == '1')
+        return;
     //当工具栏搜索框被挤到下方时处理
     var moduleId = $('#regon_main').attr('moduleId');
     var gridToolbar = $('#grid_toolbar_' + moduleId);
@@ -3088,6 +3094,10 @@ function OnLoadSuccess(data, gridId, moduleId, moduleName) {
                 var groupTitle = $('div.datagrid-group');
                 if (groupTitle.length > 0)
                     newh += 28 * groupTitle.length;
+                if ($('#div_complexSearch').attr('mutistyle') == '1') {
+                    var temph = parseInt($("div[id^='grid_toolbar_']").height());
+                    newh += temph;
+                }
                 ResizeGrid(gridId, null, newh);
             }
         }

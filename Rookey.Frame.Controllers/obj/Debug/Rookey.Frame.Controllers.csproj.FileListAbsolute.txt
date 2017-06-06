@@ -22,3 +22,15 @@ D:\rookey\Rookey.Frame v1.0\Code\Rookey.Frame.Lib\web\Rookey.Frame.Controllers.p
 D:\rookey\Rookey.Frame v1.0\Code\Rookey.Frame.Controllers\obj\Debug\Rookey.Frame.Controllers.csprojResolveAssemblyReference.cache
 D:\rookey\Rookey.Frame v1.0\Code\Rookey.Frame.Controllers\obj\Debug\Rookey.Frame.Controllers.dll
 D:\rookey\Rookey.Frame v1.0\Code\Rookey.Frame.Controllers\obj\Debug\Rookey.Frame.Controllers.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Controllers.XML
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Controllers.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Controllers.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Controllers\obj\Debug\Rookey.Frame.Controllers.csprojResolveAssemblyReference.cache
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Controllers\obj\Debug\Rookey.Frame.Controllers.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Controllers\obj\Debug\Rookey.Frame.Controllers.pdb
+D:\rookey\git.oschina\Rookey.Frame.Lib\web\Rookey.Frame.Controllers.XML
+D:\rookey\git.oschina\Rookey.Frame.Lib\web\Rookey.Frame.Controllers.dll
+D:\rookey\git.oschina\Rookey.Frame.Lib\web\Rookey.Frame.Controllers.pdb
+D:\rookey\git.oschina\Rookey.Frame.Controllers\obj\Debug\Rookey.Frame.Controllers.csprojResolveAssemblyReference.cache
+D:\rookey\git.oschina\Rookey.Frame.Controllers\obj\Debug\Rookey.Frame.Controllers.dll
+D:\rookey\git.oschina\Rookey.Frame.Controllers\obj\Debug\Rookey.Frame.Controllers.pdb

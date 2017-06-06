@@ -25,6 +25,7 @@ using Rookey.Frame.Model.Bpm;
 using Rookey.Frame.Base.User;
 using Rookey.Frame.Base.Set;
 using Rookey.Frame.Model.OrgM;
+using Rookey.Frame.Operate.Base.OperateHandle;
 
 namespace Rookey.Frame.UIOperate
 {
@@ -494,6 +495,85 @@ namespace Rookey.Frame.UIOperate
         #region 静态方法
 
         /// <summary>
+        /// 获取网格字段格式化参数，并返回编辑参数
+        /// </summary>
+        /// <param name="module">模块</param>
+        /// <param name="field">字段</param>
+        /// <param name="gridType">网格类型</param>
+        /// <param name="gridId">网格DomId</param>
+        /// <param name="editMode">编辑模式</param>
+        /// <param name="otherFormatParams">其他参数</param>
+        /// <param name="editorStr">返回编辑参数</param>
+        /// <param name="userId">当前用户</param>
+        /// <returns></returns>
+        internal static string GetGridFieldFormatter(Sys_Module module, Sys_GridField field, DataGridType gridType, string gridId, int editMode, string otherFormatParams, out string editorStr, Guid userId)
+        {
+            editorStr = field.EditorFormatter;
+            if (!field.Sys_FieldId.HasValue) return string.Empty;
+            bool isAllowEditField = gridType == DataGridType.MainGrid || gridType == DataGridType.FlowGrid || gridType == DataGridType.InnerDetailGrid || gridType == DataGridType.ViewDetailGrid;
+            string formatStr = gridType != DataGridType.RecycleGrid ? field.FieldFormatter : string.Empty;
+            string errMsg = string.Empty;
+            if (string.IsNullOrEmpty(formatStr))
+            {
+                Sys_Field sysField = field.TempSysField != null ? field.TempSysField : SystemOperate.GetFieldById(field.Sys_FieldId.Value);
+                if (sysField == null || !sysField.Sys_ModuleId.HasValue) return string.Empty;
+                if (field.TempSysField == null) field.TempSysField = sysField;
+                string foreignFormatParams = string.Empty; //外键格式化参数
+                if (!CommonDefine.BaseEntityFields.Contains(sysField.Name) && !string.IsNullOrWhiteSpace(sysField.ForeignModuleName) && gridType != DataGridType.RecycleGrid && gridType != DataGridType.MyDraftGrid && gridType != DataGridType.EditDetailGrid) //外键模块处理
+                {
+                    Sys_Module foreignModule = SystemOperate.GetModuleByName(sysField.ForeignModuleName);
+                    if (foreignModule != null)
+                    {
+                        Sys_Form foreginForm = SystemOperate.GetUserForm(userId, foreignModule.Id); //表单对象
+                        int ew = 0; //外键表单宽度
+                        int eh = 0; //外键表单高度
+                        int em = GetEditMode(foreignModule, foreginForm, out ew, out eh, userId); //外键编辑模式
+                        string foreignTitleKey = string.IsNullOrEmpty(foreignModule.TitleKey) ? string.Empty : foreignModule.TitleKey;
+                        string foreignTitleKeyDisplay = SystemOperate.GetModuleTitleKeyDisplay(foreignModule);
+                        foreignFormatParams = HttpUtility.UrlEncode("{moduleId:'" + foreignModule.Id.ToString() + "',moduleDisplay:'" + (string.IsNullOrEmpty(foreignModule.Display) ? foreignModule.Name : foreignModule.Display) + "',titleKey:'" + foreignTitleKey + "',titleKeyDisplay:'" + foreignTitleKeyDisplay + "',editMode:" + em.ToString() + ",editWidth:" + ew.ToString() + ",editHeight:" + eh.ToString() + "}", Encoding.UTF8).Replace("+", "%20");
+                    }
+                }
+                formatStr = SystemOperate.GetGridFormatFunction(sysField.Sys_ModuleId.Value, sysField, gridId, isAllowEditField, otherFormatParams, foreignFormatParams, field.Sys_FieldName);
+                field.FieldFormatter = formatStr;
+                if (!string.IsNullOrEmpty(formatStr) && gridType != DataGridType.RecycleGrid)
+                {
+                    CommonOperate.OperateRecord<Sys_GridField>(field, ModelRecordOperateType.Edit, out errMsg, new List<string>() { "FieldFormatter" });
+                }
+            }
+            if (string.IsNullOrEmpty(editorStr))
+            {
+                Sys_Field sysField = SystemOperate.GetFieldById(field.Sys_FieldId.Value);
+                if (sysField == null || !sysField.Sys_ModuleId.HasValue) return formatStr;
+                string editor = string.Empty;
+                if (editMode == (int)ModuleEditModeEnum.GridRowEdit)
+                {
+                    bool isCanEdtor = true; //是否允许打开编辑器
+                    string parentModuleName = module.ParentId.HasValue ? SystemOperate.GetModuleNameById(module.ParentId.Value) : string.Empty;
+                    if ((gridType == DataGridType.FlowGrid || gridType == DataGridType.ViewDetailGrid) && !string.IsNullOrEmpty(sysField.ForeignModuleName) && sysField.ForeignModuleName == parentModuleName)
+                    {
+                        isCanEdtor = false; //附属网格和明细查看网格时对应父模块外键字段不允许编辑
+                    }
+                    if (isCanEdtor) //允许打开编辑器
+                    {
+                        Sys_FormField formField = SystemOperate.GetNfDefaultFormSingleField(sysField);
+                        if (formField != null && (formField.IsAllowAdd == true || formField.IsAllowEdit == true)) //允许编辑时
+                        {
+                            if (PermissionOperate.CanEditField(userId, module.Id, sysField.Name)) //有编辑权限
+                                editor = SystemOperate.GetFieldEditor(SystemOperate.GetModuleById(sysField.Sys_ModuleId.Value), sysField, userId);
+                        }
+                    }
+                }
+                editorStr = string.IsNullOrEmpty(editor) ? string.Empty : string.Format(",editor:{0}", editor);
+                field.EditorFormatter = editorStr;
+                if (!string.IsNullOrEmpty(editorStr))
+                {
+                    CommonOperate.OperateRecord<Sys_GridField>(field, ModelRecordOperateType.Edit, out errMsg, new List<string>() { "EditorFormatter" });
+                }
+            }
+            return formatStr;
+        }
+
+        /// <summary>
         /// 动态计算表单宽度
         /// </summary>
         /// <param name="moduleId">模块Id</param>
@@ -778,12 +858,14 @@ namespace Rookey.Frame.UIOperate
                     if (field.IsAllowAdd != false) //字段允许新增
                     {
                         value = field.DefaultValue;
+                        textValue = field.DefaultValue;
                         if (field.ControlType == (int)ControlTypeEnum.TextBox ||
                             field.ControlType == (int)ControlTypeEnum.TextAreaBox)
                         {
                             if (value.ObjToStr().StartsWith("{") && value.ObjToStr().EndsWith("}"))
                             {
                                 value = string.Empty;
+                                textValue = string.Empty;
                             }
                         }
                         if (copyModel != null) //复制对象不为空
@@ -875,12 +957,41 @@ namespace Rookey.Frame.UIOperate
                                     }
                                 }
                             }
+                            else if (field.ControlTypeOfEnum == ControlTypeEnum.LabelBox)
+                            {
+                                if (!string.IsNullOrEmpty(field.DefaultValue))
+                                {
+                                    if (SystemOperate.IsDictionaryBindField(module.Id, sysField.Name))
+                                    {
+                                        textValue = SystemOperate.GetDictionaryDisplayText(module.Id, sysField.Name, field.DefaultValue);
+                                    }
+                                    else if (SystemOperate.IsEnumField(module.Id, sysField.Name))
+                                    {
+                                        textValue = SystemOperate.GetEnumFieldDisplayText(module.Id, sysField.Name, field.DefaultValue);
+                                    }
+                                }
+                            }
                         }
                         else if (value.ObjToStr() == "currDept" || value.ObjToStr() == "currDuty" ||
                                  value.ObjToStr() == "currEmp" || value.ObjToStr() == "currEmpCode" ||
                                  value.ObjToStr() == "currTel" || value.ObjToStr() == "currEmail")
                         {
                             value = string.Empty;
+                            textValue = string.Empty;
+                        }
+                        else if (field.ControlTypeOfEnum == ControlTypeEnum.LabelBox)
+                        {
+                            if (!string.IsNullOrEmpty(field.DefaultValue))
+                            {
+                                if (SystemOperate.IsDictionaryBindField(module.Id, sysField.Name))
+                                {
+                                    textValue = SystemOperate.GetDictionaryDisplayText(module.Id, sysField.Name, field.DefaultValue);
+                                }
+                                else if (SystemOperate.IsEnumField(module.Id, sysField.Name))
+                                {
+                                    textValue = SystemOperate.GetEnumFieldDisplayText(module.Id, sysField.Name, field.DefaultValue);
+                                }
+                            }
                         }
                     }
                 }
@@ -1129,9 +1240,9 @@ namespace Rookey.Frame.UIOperate
             bool isAllowOp = true; //是否允许新增或编辑
             if (!isSearchForm) //非搜索表单
             {
-                if (!string.IsNullOrEmpty(field.NullTipText))
+                if (!string.IsNullOrEmpty(field.NullTipText) && field.ControlTypeOfEnum != ControlTypeEnum.ComboGrid)
                     inputOptions += string.Format(",prompt:'{0}'", field.NullTipText);
-                if (field.ControlTypeOfEnum != ControlTypeEnum.DialogGrid)
+                if (field.ControlTypeOfEnum != ControlTypeEnum.DialogGrid && field.ControlTypeOfEnum != ControlTypeEnum.DialogTree)
                 {
                     string onchangeString = "onChange:function(newValue,oldValue){if(typeof(OnFieldValueChanged)=='function'){OnFieldValueChanged({moduleId:'" + moduleId + "',moduleName:'" + module.Name + "'},'" + sysField.Name + "',newValue,oldValue);}}";
                     inputOptions += "," + onchangeString;
@@ -1392,7 +1503,7 @@ namespace Rookey.Frame.UIOperate
                             string dateClass = "easyui-datebox";
                             if (field.ControlTypeOfEnum == ControlTypeEnum.DateTimeBox)
                                 dateClass = "easyui-datetimebox";
-                            inputOptions += "\"";
+                            inputOptions += ",editable:false\"";
                             sb.AppendFormat("<input id=\"{0}\" name=\"{0}\" class=\"{1}\" style=\"width:{2};\" value=\"{3}\" {4}/>",
                                 sysField.Name, dateClass, inputWidthStr, value.ObjToStr(), inputOptions);
                             #endregion
@@ -1534,6 +1645,64 @@ namespace Rookey.Frame.UIOperate
                             inputOptions += "\"";
                             sb.AppendFormat("<input id=\"{0}\" name=\"{0}\" style=\"width:{1};\" class=\"{4}\" value=\"{2}\" {3}/>",
                                  sysField.Name, inputWidthStr, value.ObjToStr(), inputOptions, className);
+                            #endregion
+                        }
+                        break;
+                    case ControlTypeEnum.ComboGrid: //下拉网格
+                        {
+                            #region 下拉网格
+                            Guid foreignModuleId = SystemOperate.GetModuleIdByName(foreignModuleName);
+                            Sys_Module foreignModule = SystemOperate.GetModuleById(foreignModuleId);
+                            if (foreignModule != null)
+                            {
+                                if (string.IsNullOrEmpty(valueField)) valueField = "Id";
+                                if (string.IsNullOrEmpty(textField)) textField = foreignModule.TitleKey.ObjToStr();
+                                if (string.IsNullOrEmpty(fieldUrl))
+                                    fieldUrl = string.Format("/DataAsync/LoadGridData.html?moduleId={0}&tgt={1}", foreignModuleId.ToString(), (int)DataGridType.Other);
+                                string sortfield = ModelConfigHelper.IsModelEnableMemeryCache(CommonOperate.GetModelType(foreignModule.TableName)) ? "CreateDate" : "AutoIncrmId";
+                                inputOptions += string.Format(",delay:500,mode:'remote',striped:true,rownumbers:true,pagination:true,idField:'Id',textField:'{0}',url:'{1}',sortName:'{2}',sortOrder:'desc'", textField, fieldUrl, sortfield);
+                                if (!string.IsNullOrEmpty(value.ObjToStr())) //设置默认值
+                                    inputOptions += string.Format(",value:'{0}'", value.ObjToStr());
+                                if (!isSearchForm)
+                                    inputOptions += ",onSelect:function(record){if(typeof(OnFieldSelect)=='function'){OnFieldSelect(record,'" + sysField.Name + "','" + valueField + "','" + textField + "');}}";
+                                Sys_Grid grid = SystemOperate.GetDefaultGrid(foreignModuleId);
+                                List<Sys_GridField> gridFields = grid.GridFields != null && grid.GridFields.Count > 0 ? grid.GridFields : SystemOperate.GetGridFields(grid, true, true);
+                                if (grid.GridFields == null && gridFields.Count > 0)
+                                {
+                                    grid.GridFields = gridFields;
+                                }
+                                if (!string.IsNullOrEmpty(field.NullTipText)) //有过滤字段
+                                {
+                                    List<string> filterFields = field.NullTipText.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
+                                    if (filterFields.Count > 0)
+                                        gridFields = gridFields.Where(x => filterFields.Contains(x.Sys_FieldName)).ToList();
+                                }
+                                //过滤字段权限
+                                List<string> canViewFields = PermissionOperate.GetUserFieldsPermissions(currUser.UserId, foreignModuleId, FieldPermissionTypeEnum.ViewField);
+                                if (canViewFields != null && canViewFields.Count > 0 && !canViewFields.Contains("-1"))
+                                    gridFields = gridFields.Where(x => canViewFields.Contains(x.Sys_FieldName)).ToList();
+                                inputOptions += ",columns: [[";
+                                int panelWidth = 0;
+                                string fieldStr = string.Empty;
+                                foreach (Sys_GridField gf in gridFields)
+                                {
+                                    int w = gf.Width.HasValue && gf.Width.Value > 0 ? gf.Width.Value : 120;
+                                    panelWidth += w;
+                                    if (!string.IsNullOrEmpty(fieldStr))
+                                        fieldStr += ",";
+                                    fieldStr += "{";
+                                    string editorStr = string.Empty;
+                                    string formatStr = GetGridFieldFormatter(foreignModule, gf, DataGridType.Other, null, (int)ModuleEditModeEnum.None, string.Empty, out editorStr, currUser.UserId);
+                                    fieldStr += string.Format("field:'{0}',title:'{1}',width:{2},hidden:{3}", gf.Sys_FieldName, gf.Display, w, (!gf.IsVisible || gf.Sys_FieldName == "Id").ToString().ToLower());
+                                    if (!string.IsNullOrEmpty(formatStr))
+                                        fieldStr += string.Format(",formatter:{0}", formatStr);
+                                    fieldStr += "}";
+                                }
+                                inputOptions += fieldStr;
+                                if (panelWidth > 700) panelWidth = 700;
+                                inputOptions += string.Format("]],panelWidth:{0},panelHeight:320\"", panelWidth);
+                                sb.AppendFormat("<select id=\"{0}\" name=\"{0}\" class=\"easyui-combogrid\" style=\"width:{1};\" {2}></select>", sysField.Name, inputWidthStr, inputOptions);
+                            }
                             #endregion
                         }
                         break;
@@ -1981,6 +2150,10 @@ namespace Rookey.Frame.UIOperate
                     else if (btn.IconType == ButtonIconType.FlowDirect) //指派
                     {
                         formBtnSb.Append(" flowflag=\"4\" nosave=\"1\"");
+                    }
+                    else if (btn.IconType == ButtonIconType.FlowObsoleted) //作废
+                    {
+                        formBtnSb.Append(" flowflag=\"5\" nosave=\"1\"");
                     }
                     formBtnSb.Append(" detail=\"" + (module.ParentId.HasValue && module.ParentId.Value != Guid.Empty ? "true" : "false") + "\" editMode=\"" + editMode.ToString() + "\" moduleId=\"" + module.Id.ToString() + "\" moduleName=\"" + module.Name + "\" gridId=\"" + (string.IsNullOrEmpty(gridId) ? string.Empty : gridId) + "\"");
                     if (!string.IsNullOrEmpty(titleKeyValue))

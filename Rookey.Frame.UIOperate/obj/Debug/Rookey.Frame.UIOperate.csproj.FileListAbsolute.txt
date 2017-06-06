@@ -22,3 +22,15 @@ D:\rookey\Rookey.Frame v1.0\Code\Rookey.Frame.Lib\web\Rookey.Frame.UIOperate.pdb
 D:\rookey\Rookey.Frame v1.0\Code\Rookey.Frame.UIOperate\obj\Debug\Rookey.Frame.UIOperate.csprojResolveAssemblyReference.cache
 D:\rookey\Rookey.Frame v1.0\Code\Rookey.Frame.UIOperate\obj\Debug\Rookey.Frame.UIOperate.dll
 D:\rookey\Rookey.Frame v1.0\Code\Rookey.Frame.UIOperate\obj\Debug\Rookey.Frame.UIOperate.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.UIOperate.XML
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.UIOperate.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.UIOperate.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.UIOperate\obj\Debug\Rookey.Frame.UIOperate.csprojResolveAssemblyReference.cache
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.UIOperate\obj\Debug\Rookey.Frame.UIOperate.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.UIOperate\obj\Debug\Rookey.Frame.UIOperate.pdb
+D:\rookey\git.oschina\Rookey.Frame.Lib\web\Rookey.Frame.UIOperate.XML
+D:\rookey\git.oschina\Rookey.Frame.Lib\web\Rookey.Frame.UIOperate.dll
+D:\rookey\git.oschina\Rookey.Frame.Lib\web\Rookey.Frame.UIOperate.pdb
+D:\rookey\git.oschina\Rookey.Frame.UIOperate\obj\Debug\Rookey.Frame.UIOperate.csprojResolveAssemblyReference.cache
+D:\rookey\git.oschina\Rookey.Frame.UIOperate\obj\Debug\Rookey.Frame.UIOperate.dll
+D:\rookey\git.oschina\Rookey.Frame.UIOperate\obj\Debug\Rookey.Frame.UIOperate.pdb

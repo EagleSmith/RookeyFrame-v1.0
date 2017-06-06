@@ -46,7 +46,7 @@ namespace Rookey.Frame.Operate.Base.OperateHandle.Implement
                     if (tpType == 1) //我的申请
                     {
                         gridParams.GridFields = new List<Sys_GridField>();
-                        gridParams.GridFields.Add(new Sys_GridField() { Sys_FieldName = "Title", Width = 400, Sort = 1 });
+                        gridParams.GridFields.Add(new Sys_GridField() { Sys_FieldName = "Title", Width = 380, Sort = 1 });
                         gridParams.GridFields.Add(new Sys_GridField() { Sys_FieldName = "Status", Width = 60, Sort = 2 });
                         gridParams.GridFields.Add(new Sys_GridField() { Sys_FieldName = "OrgM_EmpName", Width = 60, Sort = 3 });
                     }
@@ -93,7 +93,7 @@ namespace Rookey.Frame.Operate.Base.OperateHandle.Implement
                         List<Guid> tempEmpIds = tempTodo.NextNodeHandler.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(x => x.ObjToGuid()).Where(x => x != Guid.Empty).ToList();
                         if (tempEmpIds.Count > 0)
                         {
-                            todo.OrgM_EmpName = string.Join(",", tempEmpIds.Select(x => OrgMOperate.GetEmpName(x)).Where(x => !string.IsNullOrEmpty(x)));
+                            todo.OrgM_EmpName = string.Join(",", tempEmpIds.Select(x => OrgMOperate.GetEmpNameContainsQuit(x)).Where(x => !string.IsNullOrEmpty(x)));
                         }
                     }
                 }

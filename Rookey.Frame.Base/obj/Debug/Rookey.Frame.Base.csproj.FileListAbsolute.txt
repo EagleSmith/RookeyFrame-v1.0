@@ -22,3 +22,15 @@ D:\rookey\Rookey.Frame v1.0\Code\Rookey.Frame.Lib\web\Rookey.Frame.Base.pdb
 D:\rookey\Rookey.Frame v1.0\Code\Rookey.Frame.Base\obj\Debug\Rookey.Frame.Base.csprojResolveAssemblyReference.cache
 D:\rookey\Rookey.Frame v1.0\Code\Rookey.Frame.Base\obj\Debug\Rookey.Frame.Base.dll
 D:\rookey\Rookey.Frame v1.0\Code\Rookey.Frame.Base\obj\Debug\Rookey.Frame.Base.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Base.XML
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Base.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Base.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Base\obj\Debug\Rookey.Frame.Base.csprojResolveAssemblyReference.cache
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Base\obj\Debug\Rookey.Frame.Base.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Base\obj\Debug\Rookey.Frame.Base.pdb
+D:\rookey\git.oschina\Rookey.Frame.Lib\web\Rookey.Frame.Base.XML
+D:\rookey\git.oschina\Rookey.Frame.Lib\web\Rookey.Frame.Base.dll
+D:\rookey\git.oschina\Rookey.Frame.Lib\web\Rookey.Frame.Base.pdb
+D:\rookey\git.oschina\Rookey.Frame.Base\obj\Debug\Rookey.Frame.Base.csprojResolveAssemblyReference.cache
+D:\rookey\git.oschina\Rookey.Frame.Base\obj\Debug\Rookey.Frame.Base.dll
+D:\rookey\git.oschina\Rookey.Frame.Base\obj\Debug\Rookey.Frame.Base.pdb

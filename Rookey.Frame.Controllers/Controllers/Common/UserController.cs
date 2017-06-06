@@ -26,6 +26,7 @@ using Rookey.Frame.Controllers.Other;
 using System.Web.Security;
 using Rookey.Frame.Base.Set;
 using Rookey.Frame.Model.OrgM;
+using System.Text;
 
 namespace Rookey.Frame.Controllers
 {
@@ -140,6 +141,7 @@ namespace Rookey.Frame.Controllers
 
         private const string LOGINERROR = "LoginError";
 
+        #region 页面
         /// <summary>
         /// 登录页面
         /// </summary>
@@ -157,7 +159,10 @@ namespace Rookey.Frame.Controllers
                     {
                         token = tables.Split(",".ToCharArray()).ToList();
                     }
-                    ToolOperate.RepairTables(token);
+                    if (token.Count > 0)
+                    {
+                        ToolOperate.RepairTables(token);
+                    }
                 }
             }
             else //需要初始化
@@ -179,6 +184,41 @@ namespace Rookey.Frame.Controllers
             return View();
         }
 
+        /// <summary>
+        /// 注册页面
+        /// </summary>
+        /// <returns></returns>
+        [Anonymous]
+        public ActionResult Reg()
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// 忘记密码页面
+        /// </summary>
+        /// <returns></returns>
+        [Anonymous]
+        public ActionResult ForgetPwd()
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// 重置密码页面
+        /// </summary>
+        /// <returns></returns>
+        [Anonymous]
+        public ActionResult ResetPwd()
+        {
+            Guid uid = Request["uid"].ObjToGuid();
+            if (uid == Guid.Empty || string.IsNullOrEmpty(UserOperate.GetUserNameByUserId(uid)))
+                return RedirectToAction("ForgetPwd");
+            return View();
+        }
+        #endregion
+
+        #region 操作
         /// <summary>
         /// 用户登录
         /// </summary>
@@ -427,6 +467,154 @@ namespace Rookey.Frame.Controllers
             }
             return Json(new ReturnResult() { Success = rs, Message = errMsg });
         }
+
+        /// <summary>
+        /// 用户注册
+        /// </summary>
+        /// <param name="username">用户名</param>
+        /// <param name="userpwd">密码</param>
+        /// <param name="useralias">用户别名</param>
+        /// <returns></returns>
+        [Anonymous]
+        public ActionResult UserReg(string username, string userpwd, string useralias)
+        {
+            string userTipDes = "用户名";
+            if (GlobalSet.EmpUserNameConfigRule == UserNameAndEmpConfigRule.Email)
+                userTipDes = "邮箱";
+            else if (GlobalSet.EmpUserNameConfigRule == UserNameAndEmpConfigRule.Mobile)
+                userTipDes = "手机号";
+            if (string.IsNullOrEmpty(username))
+                return Json(new ReturnResult() { Success = false, Message = string.Format("{0}不能为空！", userTipDes) });
+            if (GlobalSet.EmpUserNameConfigRule == UserNameAndEmpConfigRule.Email && !Validator.IsEmail(username))
+                return Json(new ReturnResult() { Success = false, Message = "请输入正确的邮箱地址！" });
+            if (GlobalSet.EmpUserNameConfigRule == UserNameAndEmpConfigRule.Mobile && !Validator.IsMobilePhoneNumber(username))
+                return Json(new ReturnResult() { Success = false, Message = "请输入正确的手机号码！" });
+            if (string.IsNullOrEmpty(userpwd))
+                return Json(new ReturnResult() { Success = false, Message = "密码不能为空！" });
+            if (!string.IsNullOrEmpty(useralias) && useralias.Length > 15)
+                return Json(new ReturnResult() { Success = false, Message = "用户别称不能超过15位！" });
+            string errMsg = string.Empty;
+            Guid userId = UserOperate.AddUser(out errMsg, username, userpwd, null, useralias);
+            return Json(new ReturnResult() { Success = string.IsNullOrEmpty(errMsg), Message = errMsg });
+        }
+
+        /// <summary>
+        /// 忘记密码，忘记密码给用户发送邮件将修改密码链接发送给用户
+        /// 用户点击链接进行密码修改
+        /// </summary>
+        /// <param name="username">用户名</param>
+        /// <returns></returns>
+        [Anonymous]
+        public ActionResult UserForgetPwd(string username)
+        {
+            string userTipDes = "用户名";
+            if (GlobalSet.EmpUserNameConfigRule == UserNameAndEmpConfigRule.Email)
+                userTipDes = "邮箱";
+            else if (GlobalSet.EmpUserNameConfigRule == UserNameAndEmpConfigRule.Mobile)
+                userTipDes = "手机号";
+            if (string.IsNullOrEmpty(username))
+                return Json(new ReturnResult() { Success = false, Message = string.Format("{0}不能为空！", userTipDes) });
+            if (GlobalSet.EmpUserNameConfigRule == UserNameAndEmpConfigRule.Email && !Validator.IsEmail(username))
+                return Json(new ReturnResult() { Success = false, Message = "请输入正确的邮箱地址！" });
+            if (GlobalSet.EmpUserNameConfigRule == UserNameAndEmpConfigRule.Mobile && !Validator.IsMobilePhoneNumber(username))
+                return Json(new ReturnResult() { Success = false, Message = "请输入正确的手机号码！" });
+            string errMsg = string.Empty;
+            bool rs = UserOperate.UserIsValid(username, out errMsg);
+            if (!rs)
+                return Json(new ReturnResult() { Success = false, Message = errMsg });
+            string email = username;
+            if (GlobalSet.EmpUserNameConfigRule != UserNameAndEmpConfigRule.Email)
+            {
+                OrgM_Emp emp = OrgMOperate.GetEmpByUserName(username);
+                if (emp != null)
+                {
+                    email = OrgMOperate.GetEmployeeEmails(new List<Guid>() { emp.Id }).Keys.FirstOrDefault();
+                }
+            }
+            if (!email.Contains("@"))
+                return Json(new ReturnResult() { Success = false, Message = "获取用户邮箱失败！" });
+            Dictionary<string, string> dicMail = new Dictionary<string, string>();
+            dicMail.Add(email, email);
+            string subject = string.Format("重置您在{0}的密码", WebConfigHelper.GetCurrWebName());
+            Sys_User user = UserOperate.GetUser(username);
+            string content = GetForgetPwdSendContent(user);
+            errMsg = SystemOperate.EmailSend(subject, content, dicMail, null, null, null, true, "dingxin.wang@cecport.com", null, "wdx840324");
+            return Json(new ReturnResult() { Success = string.IsNullOrEmpty(errMsg), Message = errMsg });
+        }
+
+        /// <summary>
+        /// 获取重置密码邮件内容
+        /// </summary>
+        /// <param name="user">用户</param>
+        /// <returns></returns>
+        private string GetForgetPwdSendContent(Sys_User user)
+        {
+            StringBuilder sb = new StringBuilder();
+            string webServer = WebConfigHelper.GetAppSettingValue("WebServer"); //跳转服务器
+            string webIndex = WebConfigHelper.GetAppSettingValue("WebIndex"); //跳转首页地址
+            string webName = WebConfigHelper.GetCurrWebName();
+            sb.Append("<div style=\"font-size: 13px;padding:40px;background-color: #F7F7F7;font-family:Arial, Helvetica, sans-serif; color:#333;\">");
+            sb.Append("<div class=\"mailcontentbox\" style=\"min-width: 500px;max-width: 750px;\">");
+            sb.Append("<div style=\"background-color: gray;\">");
+            sb.AppendFormat("<a href=\"{0}{1}\" target=\"_blank\">", webServer, webIndex);
+            string logoPath = WebConfigHelper.GetCurrWebLogo();
+            if (!string.IsNullOrEmpty(logoPath))
+            {
+                logoPath = logoPath.Substring(1, logoPath.Length - 1);
+                logoPath = webServer + logoPath;
+            }
+            sb.AppendFormat("<img style=\"margin:5px 0px 5px 10px;\" src=\"{0}\" border=\"0\">", logoPath);
+            sb.Append("</a>");
+            sb.Append("</div>");
+            sb.Append("<div style=\"border-width:0px 1px 2px 1px;border-style:solid;border-color:#D7D7D7;border-bottom-color:#333;padding:20px;background:#fff;\">");
+            sb.Append("<p style=\"line-height:20px;padding-bottom:5px;\">");
+            sb.AppendFormat("	您好 {0},", string.IsNullOrEmpty(user.AliasName) ? user.UserName : user.AliasName);
+            sb.Append("</p>");
+            sb.Append("<p style=\"line-height:20px;padding-bottom:5px;\">");
+            sb.AppendFormat("您发送了重置{0}密码的申请。			</p>", webName);
+            sb.Append("<p style=\"line-height:20px;padding-bottom:5px;\">");
+            sb.Append("请点击下边的链接进行确认，之后您将可以设置一个新密码。			</p>");
+            sb.Append("<p style=\"line-height:20px;padding-bottom:5px;\">");
+            string resetPwdUrl = string.Format("{0}User/ResetPwd.html?uid={1}", webServer, user.Id);
+            sb.AppendFormat("	<a href=\"{0}\" target=\"_blank\" style=\"color:#36C;\">{0}</a>", resetPwdUrl);
+            sb.Append("</p>");
+            sb.Append("<p style=\"line-height:13px; margin: 40px 0px 10px\">");
+            sb.AppendFormat("感谢您使用{0}			</p>", webName);
+            sb.Append("<p style=\"padding-bottom:5px; padding-top:0px; margin-top:0px\">");
+            sb.AppendFormat("	{0} Team", webName);
+            sb.Append("</p>");
+            sb.Append("</div>");
+            sb.Append("<div style=\"color:#777;padding: 15px;\">");
+            sb.AppendFormat("	©{0} {1} Team.", DateTime.Now.Year, webName);
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// 未登录修改密码
+        /// </summary>
+        /// <returns></returns>
+        [Anonymous]
+        public ActionResult ChangePwdNoLogin()
+        {
+            Guid uid = Request["uid"].ObjToGuid();
+            if (uid == Guid.Empty || string.IsNullOrEmpty(UserOperate.GetUserNameByUserId(uid)))
+                return Json(new ReturnResult() { Success = false, Message = "用户ID不存在！" });
+            string pwd1 = Request["pwd1"].ObjToStr();
+            string pwd2 = Request["pwd2"].ObjToStr();
+            if (string.IsNullOrEmpty(pwd1.Trim()))
+                return Json(new ReturnResult() { Success = false, Message = "新密码不能为空！" });
+            if (pwd1.Length < 5 || pwd1.Length > 20)
+                return Json(new ReturnResult() { Success = false, Message = "密码长度为5-20个字符！" });
+            if (pwd1 != pwd2)
+                return Json(new ReturnResult() { Success = false, Message = "两次密码输入不一致！" });
+            string errMsg = string.Empty;
+            bool rs = UserOperate.ModifyPassword(uid, pwd1, out errMsg);
+            return Json(new ReturnResult() { Success = rs, Message = errMsg });
+        }
+        #endregion
 
         #endregion
     }

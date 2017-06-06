@@ -421,7 +421,7 @@
         </member>
         <member name="F:Rookey.Frame.EntityBase.ControlTypeEnum.ComboGrid">
             <summary>
-            下拉弹出列表框
+            下拉网格列表
             </summary>
         </member>
         <member name="F:Rookey.Frame.EntityBase.ControlTypeEnum.ComboTree">

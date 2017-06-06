@@ -1,26 +1,13 @@
 ﻿//初始化
 $(function () {
-    var noself = GetLocalQueryString("noself");
-    if (noself != "1") {
-        if (top.location != self.location) top.location = self.location;
-    }
     if (GetCookie("UserName") && GetCookie("UserName") != null)
-        $("#txtUserName").val(GetCookie("UserName"));
+        $("#txtUserName").val(GetCookie("UserName"))
     $(document).keydown(function (e) {
         if (e.keyCode == 13) {
             DoLogin();
         }
     });
 });
-
-//获取本地url里的参数值
-function GetLocalQueryString(name) {
-    var _url = "http://" + document.location;
-    var reg = new RegExp("(^|\\?|&)" + name + "=([^&]*)(\\s|&|$)", "i");
-    if (reg.test(_url))
-        return RegExp.$2;
-    return "";
-}
 
 //取cookies函数    
 function GetCookie(name) {
@@ -65,39 +52,59 @@ function DoLogin() {
     var username = $("#txtUserName").val();
     var password = $("#txtPwd").val();
     if (username == "") {
-        window.alert("账号不能为空！");
+        $('#usernameTip').text("邮箱不能为空！");
         $("#txtUserName").focus();
+        ClearErrTip();
         return;
     }
     if (password == "") {
-        window.alert("密码不能为空！");
+        $('#pwdTip').text("密码不能为空！");
         $("#txtPwd").focus();
+        ClearErrTip();
         return;
     }
     $.ajax({
         type: 'post',
         dataType: 'json',
         url: '/UserAsync/UserLogin.html',
-        data: { username: username, userpwd: password, valcode: '', isNoCode: true },
+        data: [
+        { name: 'username', value: username },
+        { name: 'userpwd', value: password },
+        { name: 'isNoCode', value: true },
+        { name: 'valcode', value: '' },
+        { name: 'w', value: GetBodyWidth() },
+        { name: 'h', value: GetBodyHeight() },
+        { name: 'r', value: Math.random() }
+        ],
         success: function (result) {
+            if (!result) {
+                $('#usernameTip').text('服务器异常！');
+                ClearErrTip();
+                return;
+            }
             if (!result.Success) {
-                $('#login').removeAttr('disabled');
-                window.alert(result.Message);
+                if (result.Message && result.Message.indexOf('密码') > -1)
+                    $('#pwdTip').text(result.Message);
+                else
+                    $('#usernameTip').text(result.Message);
+                ClearErrTip();
                 $("#txtUserName").focus();
             } else {
-                var fromUrl = decodeURIComponent(GetLocalQueryString("fromUrl"));
-                if (!fromUrl) {
-                    fromUrl = "/Page/Main.html";
-                }
-                location.href = fromUrl;
+                location.href = "/Page/Main.html";
             }
         },
         error: function () {
-            $('#login').removeAttr('disabled');
-            window.alert('发生系统错误，请与系统管理员联系！');
+            $('#usernameTip').text('服务器无响应！');
+            ClearErrTip();
         },
         beforeSend: function () {
-            $('#login').attr('disabled', 'disabled');
+        },
+        complete: function () {
         }
     });
+}
+
+//清除错误提示
+function ClearErrTip() {
+    setTimeout(function () { $(".error-tip").html("") }, 3000);
 }

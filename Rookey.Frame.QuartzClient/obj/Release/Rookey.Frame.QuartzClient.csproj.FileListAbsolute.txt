@@ -16,3 +16,9 @@ D:\rookey\git.oschina\Rookey.Frame.Lib\web\Rookey.Frame.QuartzClient.pdb
 D:\rookey\git.oschina\Rookey.Frame.QuartzClient\obj\Release\Rookey.Frame.QuartzClient.csprojResolveAssemblyReference.cache
 D:\rookey\git.oschina\Rookey.Frame.QuartzClient\obj\Release\Rookey.Frame.QuartzClient.dll
 D:\rookey\git.oschina\Rookey.Frame.QuartzClient\obj\Release\Rookey.Frame.QuartzClient.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.QuartzClient.XML
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.QuartzClient.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.QuartzClient.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.QuartzClient\obj\Release\Rookey.Frame.QuartzClient.csprojResolveAssemblyReference.cache
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.QuartzClient\obj\Release\Rookey.Frame.QuartzClient.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.QuartzClient\obj\Release\Rookey.Frame.QuartzClient.pdb

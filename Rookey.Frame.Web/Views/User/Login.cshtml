@@ -1,58 +1,52 @@
-﻿@{
-    string webName = Rookey.Frame.Common.WebConfigHelper.GetCurrWebName();
-    ViewBag.Title = string.Format("{0}－用户登录", webName);
+﻿@using Rookey.Frame.Common;
+@{
     Layout = null;
+    string webName = WebConfigHelper.GetCurrWebName();
 }
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0" />
-    <title>@ViewBag.Title</title>
-    <link href="~/Css/bootstrap/bootstrap.min.css" rel="stylesheet" />
-    <link href="~/Scripts/login/Login.css" rel="stylesheet" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>登录 | @webName</title>
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" href="/Scripts/login/login.css" type="text/css">
 </head>
 <body>
-    <div class="box">
-        <div class="login-box">
-            <div class="login-title text-center">
-                <h1><small>@webName</small></h1>
-            </div>
-            <div class="login-content ">
-                <div class="form">
-                    <form action="#" method="post">
-                        <div class="form-group">
-                            <div class="col-xs-12  ">
-                                <div class="input-group">
-                                    <span class="input-group-addon">
-                                        <img src="~/Scripts/login/Images/userName-icon.png" width="17" height="17" />
-                                    </span>
-                                    <input type="text" id="txtUserName" name="txtUserName" class="form-control" placeholder="用户名" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-xs-12">
-                                <div class="input-group">
-                                    <span class="input-group-addon">
-                                        <img src="~/Scripts/login/Images/password-icon.png" width="17" height="17" />
-                                    </span>
-                                    <input type="password" id="txtPwd" name="txtPwd" class="form-control" placeholder="密码" />
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="form-group form-actions">
-                            <div class="col-xs-12">
-                                <button type="button" id="login" class="btn btn-sm btn-info text-center" onclick="DoLogin()">登录</button>
-                            </div>
-                        </div>
-                    </form>
+    <div class="page-con">
+        <div><span id="logo-text">@webName<label><span class="logo-dot rotate"></span></label></span></div>
+        <div>
+            <form name="loginform" id="loginform" method="post">
+                <div style="margin-top: 25px; position: relative;">
+                    <input name="txtUserName" id="txtUserName" value="" class="txt" type="text" placeholder="用户名">
+                    <div id="usernameTip" class="error-tip"></div>
                 </div>
+                <div class="login-input" style="margin-top: 20px; position: relative;">
+                    <input name="txtPwd" id="txtPwd" class="txt" type="password" placeholder="密码">
+                    <a href="/User/ForgetPwd.html">忘记密码</a>
+                    <div id="pwdTip" class="error-tip"></div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <span id="login_btn" onclick="DoLogin();" class="button">立即登录</span>
+                </div>
+            </form>
+        </div>
+        <div class="signup"><a href="/User/Reg.html">注册</a></div>
+        <div style="margin: 20px 24px 0px 24px;display:none;">
+            <div class="sep">
+                <div style="margin-top: -9px;">
+                    <label>第三方账号登录</label></div>
+            </div>
+            <div style="position: relative;">
+                <span id="weixin_login" onclick="login.paltform.weixin()" class="icons weixin"></span>&nbsp;&nbsp;
+                <span onclick="login.paltform.login(&#39;qq&#39;)" class="icons qq"></span>&nbsp;&nbsp;
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="~/Scripts/jquery/jquery-1.8.0.min.js"></script>
-    <script type="text/javascript" src="~/Scripts/login/Login.js"></script>
+    <div class="weixin-con" id="weixin_dlg">
+        <div style="margin-top: 200px;">加载中...</div>
+    </div>
+    <script src="/Scripts/jquery/jquery-1.8.0.min.js" charset="UTF-8" type="text/javascript"></script>
+    <script src="/Scripts/login/login.js" charset="UTF-8" type="text/javascript"></script>
 </body>
 </html>

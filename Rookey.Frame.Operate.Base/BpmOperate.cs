@@ -62,7 +62,7 @@ namespace Rookey.Frame.Operate.Base
         /// <summary>
         /// 流程分类树，包含分类下的流程
         /// </summary
-        /// <param name="classId">分类根结点ID，为空是加载整棵树</param>
+        /// <param name="classId">分类根节点ID，为空是加载整棵树</param>
         /// <param name="currUser">当前用户</param>
         /// <returns></returns>
         public static TreeNode LoadFlowClassTree(Guid? classId, UserInfo currUser)
@@ -226,10 +226,10 @@ namespace Rookey.Frame.Operate.Base
 
         #endregion
 
-        #region 流程结点
+        #region 流程节点
 
         /// <summary>
-        /// 获取所有流程结点
+        /// 获取所有流程节点
         /// </summary>
         /// <param name="expression">条件表达式</param>
         /// <returns></returns>
@@ -244,9 +244,9 @@ namespace Rookey.Frame.Operate.Base
         }
 
         /// <summary>
-        /// 获取流程结点
+        /// 获取流程节点
         /// </summary>
-        /// <param name="workNodeId">流程结点ID</param>
+        /// <param name="workNodeId">流程节点ID</param>
         /// <returns></returns>
         public static Bpm_WorkNode GetWorkNode(Guid workNodeId)
         {
@@ -254,7 +254,7 @@ namespace Rookey.Frame.Operate.Base
         }
 
         /// <summary>
-        /// 获取流程的所有流程结点
+        /// 获取流程的所有流程节点
         /// </summary>
         /// <param name="workflowId">流程ID</param>
         /// <returns></returns>
@@ -281,7 +281,7 @@ namespace Rookey.Frame.Operate.Base
         }
 
         /// <summary>
-        /// 获取结束结点
+        /// 获取结束节点
         /// </summary>
         /// <param name="workflowId">流程ID</param>
         /// <returns></returns>
@@ -294,7 +294,7 @@ namespace Rookey.Frame.Operate.Base
         }
 
         /// <summary>
-        /// 根据模块ID获取发起结点
+        /// 根据模块ID获取发起节点
         /// </summary>
         /// <param name="moduleId">模块ID</param>
         /// <returns></returns>
@@ -309,33 +309,40 @@ namespace Rookey.Frame.Operate.Base
         }
 
         /// <summary>
-        /// 获取当前结点的前一结点
+        /// 获取当前节点的前一节点集合
         /// </summary>
         /// <param name="workflowId">流程ID</param>
-        /// <param name="workNodeId">当前结点ID</param>
+        /// <param name="workNodeId">当前节点ID</param>
         /// <returns></returns>
-        public static Bpm_WorkNode GetPrexNode(Guid workflowId, Guid workNodeId)
+        public static List<Bpm_WorkNode> GetPrexNode(Guid workflowId, Guid workNodeId)
         {
-            Bpm_WorkLine workLine = GetAllWorkLines(x => x.Bpm_WorkFlowId == workflowId && x.Bpm_WorkNodeEndId == workNodeId).FirstOrDefault();
-            if (workLine != null && workLine.Bpm_WorkNodeStartId.HasValue && workLine.Bpm_WorkNodeStartId.Value != Guid.Empty)
-                return GetWorkNode(workLine.Bpm_WorkNodeStartId.Value);
-            return null;
+            List<Bpm_WorkNode> nodes = new List<Bpm_WorkNode>();
+            List<Bpm_WorkLine> workLines = GetAllWorkLines(x => x.Bpm_WorkFlowId == workflowId && x.Bpm_WorkNodeEndId == workNodeId);
+            foreach (Bpm_WorkLine workLine in workLines)
+            {
+                if (workLine.Bpm_WorkNodeStartId.HasValue && workLine.Bpm_WorkNodeStartId.Value != Guid.Empty)
+                    nodes.Add(GetWorkNode(workLine.Bpm_WorkNodeStartId.Value));
+            }
+            return nodes;
         }
 
         /// <summary>
-        /// 获取当前结点的所有前面结点集合
+        /// 获取当前节点的所有前面节点集合（递归）
         /// </summary>
         /// <param name="workflowId">流程ID</param>
-        /// <param name="workNodeId">当前结点ID</param>
+        /// <param name="workNodeId">当前节点ID</param>
         /// <returns></returns>
         public static List<Bpm_WorkNode> GetPrexNodes(Guid workflowId, Guid workNodeId)
         {
             List<Bpm_WorkNode> preNodes = new List<Bpm_WorkNode>();
-            Bpm_WorkNode preNode = GetPrexNode(workflowId, workNodeId);
-            if (preNode != null && preNode.WorkNodeTypeOfEnum == WorkNodeTypeEnum.Common)
+            List<Bpm_WorkNode> preNode = GetPrexNode(workflowId, workNodeId).Where(x => x.WorkNodeTypeOfEnum == WorkNodeTypeEnum.Common).ToList();
+            if (preNode.Count > 0)
             {
-                preNodes.Add(preNode);
-                preNodes.AddRange(GetPrexNodes(workflowId, preNode.Id));
+                preNodes.AddRange(preNode);
+                foreach (Bpm_WorkNode tempNode in preNode)
+                {
+                    preNodes.AddRange(GetPrexNodes(workflowId, tempNode.Id));
+                }
             }
             return preNodes;
         }
@@ -364,11 +371,11 @@ namespace Rookey.Frame.Operate.Base
         /// <summary>
         /// 获取下一审批节点
         /// </summary>
-        /// <param name="nextNodes">下一结点集合</param>
+        /// <param name="nextNodes">下一节点集合</param>
         /// <param name="workflow">流程</param>
-        /// <param name="currNode">当前结点</param>
+        /// <param name="currNode">当前节点</param>
         /// <param name="workFlowInst">流程实例</param>
-        /// <param name="currNodeInst">当前实例结点</param>
+        /// <param name="currNodeInst">当前实例节点</param>
         /// <returns></returns>
         public static Bpm_WorkNode GetNextActionNode(List<Bpm_WorkNode> nextNodes, Bpm_WorkFlow workflow, Bpm_WorkNode currNode, Bpm_WorkFlowInstance workFlowInst, Bpm_WorkNodeInstance currNodeInst)
         {
@@ -414,7 +421,7 @@ namespace Rookey.Frame.Operate.Base
         }
 
         /// <summary>
-        /// 根据tagId获取流程结点
+        /// 根据tagId获取流程节点
         /// </summary>
         /// <param name="workflowId">流程ID</param>
         /// <param name="tagId">tagid</param>
@@ -425,10 +432,10 @@ namespace Rookey.Frame.Operate.Base
         }
 
         /// <summary>
-        /// 获取下一结点的处理者
+        /// 获取下一节点的处理者
         /// </summary>
-        /// <param name="nextNode">下一结点</param>
-        /// <param name="currUser">当前结点处理人</param>
+        /// <param name="nextNode">下一节点</param>
+        /// <param name="currUser">当前节点处理人</param>
         /// <param name="workFlowInst">流程实例</param>
         /// <returns>返回员工ID集合</returns>
         public static List<Guid> GetNextNodeHandler(Bpm_WorkNode nextNode, UserInfo currUser, Bpm_WorkFlowInstance workFlowInst)
@@ -438,8 +445,9 @@ namespace Rookey.Frame.Operate.Base
             if (!nextNode.Bpm_WorkFlowId.HasValue || nextNode.WorkNodeTypeOfEnum == WorkNodeTypeEnum.End)
                 return new List<Guid>();
             List<Guid> empIds = new List<Guid>();
-            Guid moduleId = GetWorkflowModuleId(nextNode.Bpm_WorkFlowId.Value);
-            //调用自定义查找结点处理人方法
+            Guid workflowId = nextNode.Bpm_WorkFlowId.Value;
+            Guid moduleId = GetWorkflowModuleId(workflowId);
+            //调用自定义查找节点处理人方法
             object rsObj = CommonOperate.ExecuteCustomeOperateHandleMethod(moduleId, "GetNodeHandler", new object[] { workFlowInst.RecordId, nextNode.Name, workFlowInst.Id, currUser });
             if (rsObj != null)
             {
@@ -447,279 +455,305 @@ namespace Rookey.Frame.Operate.Base
                 {
                     empIds = rsObj as List<Guid>;
                 }
-                catch { }
+                catch
+                {
+                    empIds = new List<Guid>();
+                }
             }
-            if (empIds.Count > 0) return empIds;
-            //调用通用查找结点处理人
-            List<Guid> filter = new List<Guid>(); //过滤范围
-            if (!string.IsNullOrEmpty(nextNode.HandleRange))
+            else
             {
-                string[] token = nextNode.HandleRange.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                if (token.Length > 0)
-                    filter = token.Select(x => x.ObjToGuid()).Where(x => x != Guid.Empty).ToList();
+                empIds = null;
             }
-            #region 找处理人
-            switch (nextNode.HandlerTypeOfEnum) //处理者类型
+            if (empIds == null)
             {
-                case NodeHandlerTypeEnum.All: //所有人员
-                    {
-                        empIds = OrgMOperate.GetAllEmps(x => x.Id != currUser.EmpId.Value).Select(x => x.Id).ToList();
-                    }
-                    break;
-                case NodeHandlerTypeEnum.Dept: //部门
-                    foreach (Guid deptId in filter)
-                    {
-                        empIds.AddRange(OrgMOperate.GetDeptEmps(deptId, true).Select(x => x.Id));
-                    }
-                    break;
-                case NodeHandlerTypeEnum.Duty: //职务
-                    foreach (Guid dutyId in filter)
-                    {
-                        empIds.AddRange(OrgMOperate.GetDutyEmps(dutyId).Select(x => x.Id));
-                    }
-                    break;
-                case NodeHandlerTypeEnum.Employee: //人员
-                    empIds = filter;
-                    break;
-                case NodeHandlerTypeEnum.Position: //岗位
-                    foreach (Guid positionId in filter)
-                    {
-                        empIds.AddRange(OrgMOperate.GetPositionEmps(positionId).Select(x => x.Id));
-                    }
-                    break;
-                case NodeHandlerTypeEnum.Role: //角色
-                    foreach (Guid roleId in filter)
-                    {
-                        List<string> usernames = PermissionOperate.GetRoleUsers(roleId).Select(x => x.UserName).ToList();
-                        empIds.AddRange(OrgMOperate.GetEmpsByUserNames(usernames).Select(x => x.Id));
-                    }
-                    break;
-                case NodeHandlerTypeEnum.FormFieldValue: //表单字段值
-                    {
-                        Guid tempEmpId = nextNode.FormFieldName.ObjToGuid();
-                        if (tempEmpId != Guid.Empty)
-                            empIds.Add(tempEmpId);
-                    }
-                    break;
-                case NodeHandlerTypeEnum.LastHandlerDirectLeader: //上一步处理者直接上级
-                    {
-                        if (currUser.EmpId.HasValue && currUser.EmpId.Value != Guid.Empty)
+                empIds = new List<Guid>();
+                //调用通用查找节点处理人
+                List<Guid> filter = new List<Guid>(); //过滤范围
+                if (!string.IsNullOrEmpty(nextNode.HandleRange))
+                {
+                    string[] token = nextNode.HandleRange.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                    if (token.Length > 0)
+                        filter = token.Select(x => x.ObjToGuid()).Where(x => x != Guid.Empty).ToList();
+                }
+                #region 找处理人
+                switch (nextNode.HandlerTypeOfEnum) //处理者类型
+                {
+                    case NodeHandlerTypeEnum.All: //所有人员
                         {
-                            var tempEmp = OrgMOperate.GetEmpParentEmp(currUser.EmpId.Value);
-                            if (tempEmp != null) empIds.Add(tempEmp.Id);
+                            empIds = OrgMOperate.GetAllEmps(x => x.Id != currUser.EmpId.Value).Select(x => x.Id).ToList();
                         }
-                    }
-                    break;
-                case NodeHandlerTypeEnum.LastHandlerChargeLeader: //上一步处理者分管领导
-                    {
-                        if (currUser.EmpId.HasValue && currUser.EmpId.Value != Guid.Empty)
+                        break;
+                    case NodeHandlerTypeEnum.Dept: //部门
+                        foreach (Guid deptId in filter)
                         {
-                            var tempEmp = OrgMOperate.GetEmpChargeLeader(currUser.EmpId.Value);
-                            if (tempEmp != null) empIds.Add(tempEmp.Id);
+                            empIds.AddRange(OrgMOperate.GetDeptEmps(deptId, true).Select(x => x.Id));
                         }
-                    }
-                    break;
-                case NodeHandlerTypeEnum.StarterDirectLeader: //发起者直接上级
-                    {
-                        if (workFlowInst.OrgM_EmpId.HasValue && workFlowInst.OrgM_EmpId.Value != Guid.Empty)
+                        break;
+                    case NodeHandlerTypeEnum.Duty: //职务
+                        foreach (Guid dutyId in filter)
                         {
-                            var tempEmp = OrgMOperate.GetEmpParentEmp(workFlowInst.OrgM_EmpId.Value);
-                            if (tempEmp != null) empIds.Add(tempEmp.Id);
+                            empIds.AddRange(OrgMOperate.GetDutyEmps(dutyId).Select(x => x.Id));
                         }
-                    }
-                    break;
-                case NodeHandlerTypeEnum.StarterChargeLeader: //发起者部门负责人
-                    {
-                        if (workFlowInst.OrgM_EmpId.HasValue && workFlowInst.OrgM_EmpId.Value != Guid.Empty)
+                        break;
+                    case NodeHandlerTypeEnum.Employee: //人员
+                        empIds = filter;
+                        break;
+                    case NodeHandlerTypeEnum.Position: //岗位
+                        foreach (Guid positionId in filter)
                         {
-                            var tempEmp = OrgMOperate.GetEmpChargeLeader(workFlowInst.OrgM_EmpId.Value);
-                            if (tempEmp != null) empIds.Add(tempEmp.Id);
+                            empIds.AddRange(OrgMOperate.GetPositionEmps(positionId).Select(x => x.Id));
                         }
-                    }
-                    break;
-                case NodeHandlerTypeEnum.Starter: //发起者
-                    {
-                        if (workFlowInst.OrgM_EmpId.HasValue && workFlowInst.OrgM_EmpId.Value != Guid.Empty)
-                            empIds.Add(workFlowInst.OrgM_EmpId.Value);
-                    }
-                    break;
-                case NodeHandlerTypeEnum.LastHandler: //上一处理人
-                    {
-                        if (currUser.EmpId.HasValue && currUser.EmpId.Value != Guid.Empty)
-                            empIds.Add(currUser.EmpId.Value);
-                    }
-                    break;
-                case NodeHandlerTypeEnum.StarterParentDeptLeader: //发起者上级部门负责人
-                    {
-                        if (workFlowInst.OrgM_EmpId.HasValue && workFlowInst.OrgM_EmpId.Value != Guid.Empty)
+                        break;
+                    case NodeHandlerTypeEnum.Role: //角色
+                        foreach (Guid roleId in filter)
                         {
-                            OrgM_Dept dept = OrgMOperate.GetEmpMainDept(workFlowInst.OrgM_EmpId.Value);
-                            if (dept != null && dept.ParentId.HasValue && dept.ParentId.Value != Guid.Empty)
+                            List<Sys_User> roleUsers = PermissionOperate.GetRoleUsers(roleId);
+                            List<string> usernames = roleUsers.Select(x => x.UserName).ToList();
+                            var roleEmpIds = OrgMOperate.GetEmpsByUserNames(usernames).Select(x => x.Id);
+                            //针对角色配置时，如果角色有配置员工信息时取员工ID，否则取用户ID
+                            if (roleEmpIds.Count() > 0)
+                                empIds.AddRange(roleEmpIds);
+                            else
+                                empIds.AddRange(roleUsers.Select(x => x.Id));
+                        }
+                        break;
+                    case NodeHandlerTypeEnum.FormFieldValue: //表单字段值
+                        {
+                            Guid tempEmpId = nextNode.FormFieldName.ObjToGuid();
+                            if (tempEmpId != Guid.Empty)
+                                empIds.Add(tempEmpId);
+                        }
+                        break;
+                    case NodeHandlerTypeEnum.LastHandlerDirectLeader: //上一步处理者直接上级
+                        {
+                            if (currUser.EmpId.HasValue && currUser.EmpId.Value != Guid.Empty)
                             {
-                                OrgM_Emp tempEmp = OrgMOperate.GetDeptLeader(dept.ParentId.Value);
+                                var tempEmp = OrgMOperate.GetEmpParentEmp(currUser.EmpId.Value);
                                 if (tempEmp != null) empIds.Add(tempEmp.Id);
                             }
                         }
-                    }
-                    break;
-                case NodeHandlerTypeEnum.StarterParentParentDeptLeader: //发起者上上级部门负责人
-                    {
-                        if (workFlowInst.OrgM_EmpId.HasValue && workFlowInst.OrgM_EmpId.Value != Guid.Empty)
+                        break;
+                    case NodeHandlerTypeEnum.LastHandlerChargeLeader: //上一步处理者分管领导
                         {
-                            OrgM_Dept dept = OrgMOperate.GetEmpMainDept(workFlowInst.OrgM_EmpId.Value);
-                            if (dept != null && dept.ParentId.HasValue && dept.ParentId.Value != Guid.Empty)
+                            if (currUser.EmpId.HasValue && currUser.EmpId.Value != Guid.Empty)
                             {
-                                OrgM_Dept parentDept = OrgMOperate.GetDeptById(dept.ParentId.Value);
-                                if (parentDept != null && parentDept.ParentId.HasValue && parentDept.ParentId.Value != Guid.Empty)
-                                {
-                                    OrgM_Emp tempEmp = OrgMOperate.GetDeptLeader(parentDept.ParentId.Value);
-                                    if (tempEmp != null) empIds.Add(tempEmp.Id);
-                                }
-                            }
-                        }
-                    }
-                    break;
-                case NodeHandlerTypeEnum.LastHandlerParentDeptLeader: //上一处理者上级部门负责人
-                    {
-                        if (currUser.EmpId.HasValue && currUser.EmpId.Value != Guid.Empty)
-                        {
-                            OrgM_Dept dept = OrgMOperate.GetEmpMainDept(currUser.EmpId.Value);
-                            if (dept != null && dept.ParentId.HasValue && dept.ParentId.Value != Guid.Empty)
-                            {
-                                OrgM_Emp tempEmp = OrgMOperate.GetDeptLeader(dept.ParentId.Value);
+                                var tempEmp = OrgMOperate.GetEmpChargeLeader(currUser.EmpId.Value);
                                 if (tempEmp != null) empIds.Add(tempEmp.Id);
                             }
                         }
-                    }
-                    break;
-                case NodeHandlerTypeEnum.LastHandlerParentParentDeptLeader: //上一处理者上上级部门负责人
-                    {
-                        if (currUser.EmpId.HasValue && currUser.EmpId.Value != Guid.Empty)
+                        break;
+                    case NodeHandlerTypeEnum.StarterDirectLeader: //发起者直接上级
                         {
-                            OrgM_Dept dept = OrgMOperate.GetEmpMainDept(currUser.EmpId.Value);
-                            if (dept != null && dept.ParentId.HasValue && dept.ParentId.Value != Guid.Empty)
+                            if (workFlowInst.OrgM_EmpId.HasValue && workFlowInst.OrgM_EmpId.Value != Guid.Empty)
                             {
-                                OrgM_Dept parentDept = OrgMOperate.GetDeptById(dept.ParentId.Value);
-                                if (parentDept != null && parentDept.ParentId.HasValue && parentDept.ParentId.Value != Guid.Empty)
+                                var tempEmp = OrgMOperate.GetEmpParentEmp(workFlowInst.OrgM_EmpId.Value);
+                                if (tempEmp != null) empIds.Add(tempEmp.Id);
+                            }
+                        }
+                        break;
+                    case NodeHandlerTypeEnum.StarterChargeLeader: //发起者部门负责人
+                        {
+                            if (workFlowInst.OrgM_EmpId.HasValue && workFlowInst.OrgM_EmpId.Value != Guid.Empty)
+                            {
+                                var tempEmp = OrgMOperate.GetEmpChargeLeader(workFlowInst.OrgM_EmpId.Value);
+                                if (tempEmp != null) empIds.Add(tempEmp.Id);
+                            }
+                        }
+                        break;
+                    case NodeHandlerTypeEnum.Starter: //发起者
+                        {
+                            if (workFlowInst.OrgM_EmpId.HasValue && workFlowInst.OrgM_EmpId.Value != Guid.Empty)
+                                empIds.Add(workFlowInst.OrgM_EmpId.Value);
+                        }
+                        break;
+                    case NodeHandlerTypeEnum.LastHandler: //上一处理人
+                        {
+                            if (currUser.EmpId.HasValue && currUser.EmpId.Value != Guid.Empty)
+                                empIds.Add(currUser.EmpId.Value);
+                        }
+                        break;
+                    case NodeHandlerTypeEnum.StarterParentDeptLeader: //发起者上级部门负责人
+                        {
+                            if (workFlowInst.OrgM_EmpId.HasValue && workFlowInst.OrgM_EmpId.Value != Guid.Empty)
+                            {
+                                OrgM_Dept dept = OrgMOperate.GetEmpMainDept(workFlowInst.OrgM_EmpId.Value);
+                                if (dept != null && dept.ParentId.HasValue && dept.ParentId.Value != Guid.Empty)
                                 {
-                                    OrgM_Emp tempEmp = OrgMOperate.GetDeptLeader(parentDept.ParentId.Value);
+                                    OrgM_Emp tempEmp = OrgMOperate.GetDeptLeader(dept.ParentId.Value);
                                     if (tempEmp != null) empIds.Add(tempEmp.Id);
                                 }
                             }
                         }
-                    }
-                    break;
-                case NodeHandlerTypeEnum.StarterLevel1DeptLeader: //发起者第一层级部门负责人
-                    {
-                        if (workFlowInst.OrgM_EmpId.HasValue && workFlowInst.OrgM_EmpId.Value != Guid.Empty)
+                        break;
+                    case NodeHandlerTypeEnum.StarterParentParentDeptLeader: //发起者上上级部门负责人
                         {
-                            OrgM_Dept dept = OrgMOperate.GetEmpMainDept(workFlowInst.OrgM_EmpId.Value);
-                            if (dept != null)
+                            if (workFlowInst.OrgM_EmpId.HasValue && workFlowInst.OrgM_EmpId.Value != Guid.Empty)
                             {
-                                OrgM_Dept levelDept = OrgMOperate.GetLevelDepthDepts(1, dept.Id).FirstOrDefault();
-                                if (levelDept != null)
+                                OrgM_Dept dept = OrgMOperate.GetEmpMainDept(workFlowInst.OrgM_EmpId.Value);
+                                if (dept != null && dept.ParentId.HasValue && dept.ParentId.Value != Guid.Empty)
                                 {
-                                    OrgM_Emp tempEmp = OrgMOperate.GetDeptLeader(levelDept.Id);
+                                    OrgM_Dept parentDept = OrgMOperate.GetDeptById(dept.ParentId.Value);
+                                    if (parentDept != null && parentDept.ParentId.HasValue && parentDept.ParentId.Value != Guid.Empty)
+                                    {
+                                        OrgM_Emp tempEmp = OrgMOperate.GetDeptLeader(parentDept.ParentId.Value);
+                                        if (tempEmp != null) empIds.Add(tempEmp.Id);
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case NodeHandlerTypeEnum.LastHandlerParentDeptLeader: //上一处理者上级部门负责人
+                        {
+                            if (currUser.EmpId.HasValue && currUser.EmpId.Value != Guid.Empty)
+                            {
+                                OrgM_Dept dept = OrgMOperate.GetEmpMainDept(currUser.EmpId.Value);
+                                if (dept != null && dept.ParentId.HasValue && dept.ParentId.Value != Guid.Empty)
+                                {
+                                    OrgM_Emp tempEmp = OrgMOperate.GetDeptLeader(dept.ParentId.Value);
                                     if (tempEmp != null) empIds.Add(tempEmp.Id);
                                 }
                             }
                         }
-                    }
-                    break;
-                case NodeHandlerTypeEnum.StarterLevel2DeptLeader: //发起者第二层级部门负责人
-                    {
-                        if (workFlowInst.OrgM_EmpId.HasValue && workFlowInst.OrgM_EmpId.Value != Guid.Empty)
+                        break;
+                    case NodeHandlerTypeEnum.LastHandlerParentParentDeptLeader: //上一处理者上上级部门负责人
                         {
-                            OrgM_Dept dept = OrgMOperate.GetEmpMainDept(workFlowInst.OrgM_EmpId.Value);
-                            if (dept != null)
+                            if (currUser.EmpId.HasValue && currUser.EmpId.Value != Guid.Empty)
                             {
-                                OrgM_Dept levelDept = OrgMOperate.GetLevelDepthDepts(2, dept.Id).FirstOrDefault();
-                                if (levelDept != null)
+                                OrgM_Dept dept = OrgMOperate.GetEmpMainDept(currUser.EmpId.Value);
+                                if (dept != null && dept.ParentId.HasValue && dept.ParentId.Value != Guid.Empty)
                                 {
-                                    OrgM_Emp tempEmp = OrgMOperate.GetDeptLeader(levelDept.Id);
-                                    if (tempEmp != null) empIds.Add(tempEmp.Id);
+                                    OrgM_Dept parentDept = OrgMOperate.GetDeptById(dept.ParentId.Value);
+                                    if (parentDept != null && parentDept.ParentId.HasValue && parentDept.ParentId.Value != Guid.Empty)
+                                    {
+                                        OrgM_Emp tempEmp = OrgMOperate.GetDeptLeader(parentDept.ParentId.Value);
+                                        if (tempEmp != null) empIds.Add(tempEmp.Id);
+                                    }
                                 }
                             }
                         }
-                    }
-                    break;
-                case NodeHandlerTypeEnum.StarterLevel3DeptLeader: //发起者第三层级部门负责人
-                    {
-                        if (workFlowInst.OrgM_EmpId.HasValue && workFlowInst.OrgM_EmpId.Value != Guid.Empty)
+                        break;
+                    case NodeHandlerTypeEnum.StarterLevel1DeptLeader: //发起者第一层级部门负责人
                         {
-                            OrgM_Dept dept = OrgMOperate.GetEmpMainDept(workFlowInst.OrgM_EmpId.Value);
-                            if (dept != null)
+                            if (workFlowInst.OrgM_EmpId.HasValue && workFlowInst.OrgM_EmpId.Value != Guid.Empty)
                             {
-                                OrgM_Dept levelDept = OrgMOperate.GetLevelDepthDepts(3, dept.Id).FirstOrDefault();
-                                if (levelDept != null)
+                                OrgM_Dept dept = OrgMOperate.GetEmpMainDept(workFlowInst.OrgM_EmpId.Value);
+                                if (dept != null)
                                 {
-                                    OrgM_Emp tempEmp = OrgMOperate.GetDeptLeader(levelDept.Id);
-                                    if (tempEmp != null) empIds.Add(tempEmp.Id);
+                                    OrgM_Dept levelDept = OrgMOperate.GetLevelDepthDepts(1, dept.Id).FirstOrDefault();
+                                    if (levelDept != null)
+                                    {
+                                        OrgM_Emp tempEmp = OrgMOperate.GetDeptLeader(levelDept.Id);
+                                        if (tempEmp != null) empIds.Add(tempEmp.Id);
+                                    }
                                 }
                             }
                         }
-                    }
-                    break;
-                case NodeHandlerTypeEnum.LastHandlerLevel1DeptLeader: //上一处理者第一层级部门负责人
-                    {
-                        if (currUser.EmpId.HasValue && currUser.EmpId.Value != Guid.Empty)
+                        break;
+                    case NodeHandlerTypeEnum.StarterLevel2DeptLeader: //发起者第二层级部门负责人
                         {
-                            OrgM_Dept dept = OrgMOperate.GetEmpMainDept(currUser.EmpId.Value);
-                            if (dept != null)
+                            if (workFlowInst.OrgM_EmpId.HasValue && workFlowInst.OrgM_EmpId.Value != Guid.Empty)
                             {
-                                OrgM_Dept levelDept = OrgMOperate.GetLevelDepthDepts(1, dept.Id).FirstOrDefault();
-                                if (levelDept != null)
+                                OrgM_Dept dept = OrgMOperate.GetEmpMainDept(workFlowInst.OrgM_EmpId.Value);
+                                if (dept != null)
                                 {
-                                    OrgM_Emp tempEmp = OrgMOperate.GetDeptLeader(levelDept.Id);
-                                    if (tempEmp != null) empIds.Add(tempEmp.Id);
+                                    OrgM_Dept levelDept = OrgMOperate.GetLevelDepthDepts(2, dept.Id).FirstOrDefault();
+                                    if (levelDept != null)
+                                    {
+                                        OrgM_Emp tempEmp = OrgMOperate.GetDeptLeader(levelDept.Id);
+                                        if (tempEmp != null) empIds.Add(tempEmp.Id);
+                                    }
                                 }
                             }
                         }
-                    }
-                    break;
-                case NodeHandlerTypeEnum.LastHandlerLevel2DeptLeader: //上一处理者第二层级部门负责人
-                    {
-                        if (currUser.EmpId.HasValue && currUser.EmpId.Value != Guid.Empty)
+                        break;
+                    case NodeHandlerTypeEnum.StarterLevel3DeptLeader: //发起者第三层级部门负责人
                         {
-                            OrgM_Dept dept = OrgMOperate.GetEmpMainDept(currUser.EmpId.Value);
-                            if (dept != null)
+                            if (workFlowInst.OrgM_EmpId.HasValue && workFlowInst.OrgM_EmpId.Value != Guid.Empty)
                             {
-                                OrgM_Dept levelDept = OrgMOperate.GetLevelDepthDepts(2, dept.Id).FirstOrDefault();
-                                if (levelDept != null)
+                                OrgM_Dept dept = OrgMOperate.GetEmpMainDept(workFlowInst.OrgM_EmpId.Value);
+                                if (dept != null)
                                 {
-                                    OrgM_Emp tempEmp = OrgMOperate.GetDeptLeader(levelDept.Id);
-                                    if (tempEmp != null) empIds.Add(tempEmp.Id);
+                                    OrgM_Dept levelDept = OrgMOperate.GetLevelDepthDepts(3, dept.Id).FirstOrDefault();
+                                    if (levelDept != null)
+                                    {
+                                        OrgM_Emp tempEmp = OrgMOperate.GetDeptLeader(levelDept.Id);
+                                        if (tempEmp != null) empIds.Add(tempEmp.Id);
+                                    }
                                 }
                             }
                         }
-                    }
-                    break;
-                case NodeHandlerTypeEnum.LastHandlerLevel3DeptLeader: //上一处理者第三层级部门负责人
-                    {
-                        if (currUser.EmpId.HasValue && currUser.EmpId.Value != Guid.Empty)
+                        break;
+                    case NodeHandlerTypeEnum.LastHandlerLevel1DeptLeader: //上一处理者第一层级部门负责人
                         {
-                            OrgM_Dept dept = OrgMOperate.GetEmpMainDept(currUser.EmpId.Value);
-                            if (dept != null)
+                            if (currUser.EmpId.HasValue && currUser.EmpId.Value != Guid.Empty)
                             {
-                                OrgM_Dept levelDept = OrgMOperate.GetLevelDepthDepts(3, dept.Id).FirstOrDefault();
-                                if (levelDept != null)
+                                OrgM_Dept dept = OrgMOperate.GetEmpMainDept(currUser.EmpId.Value);
+                                if (dept != null)
                                 {
-                                    OrgM_Emp tempEmp = OrgMOperate.GetDeptLeader(levelDept.Id);
-                                    if (tempEmp != null) empIds.Add(tempEmp.Id);
+                                    OrgM_Dept levelDept = OrgMOperate.GetLevelDepthDepts(1, dept.Id).FirstOrDefault();
+                                    if (levelDept != null)
+                                    {
+                                        OrgM_Emp tempEmp = OrgMOperate.GetDeptLeader(levelDept.Id);
+                                        if (tempEmp != null) empIds.Add(tempEmp.Id);
+                                    }
                                 }
                             }
                         }
-                    }
-                    break;
+                        break;
+                    case NodeHandlerTypeEnum.LastHandlerLevel2DeptLeader: //上一处理者第二层级部门负责人
+                        {
+                            if (currUser.EmpId.HasValue && currUser.EmpId.Value != Guid.Empty)
+                            {
+                                OrgM_Dept dept = OrgMOperate.GetEmpMainDept(currUser.EmpId.Value);
+                                if (dept != null)
+                                {
+                                    OrgM_Dept levelDept = OrgMOperate.GetLevelDepthDepts(2, dept.Id).FirstOrDefault();
+                                    if (levelDept != null)
+                                    {
+                                        OrgM_Emp tempEmp = OrgMOperate.GetDeptLeader(levelDept.Id);
+                                        if (tempEmp != null) empIds.Add(tempEmp.Id);
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case NodeHandlerTypeEnum.LastHandlerLevel3DeptLeader: //上一处理者第三层级部门负责人
+                        {
+                            if (currUser.EmpId.HasValue && currUser.EmpId.Value != Guid.Empty)
+                            {
+                                OrgM_Dept dept = OrgMOperate.GetEmpMainDept(currUser.EmpId.Value);
+                                if (dept != null)
+                                {
+                                    OrgM_Dept levelDept = OrgMOperate.GetLevelDepthDepts(3, dept.Id).FirstOrDefault();
+                                    if (levelDept != null)
+                                    {
+                                        OrgM_Emp tempEmp = OrgMOperate.GetDeptLeader(levelDept.Id);
+                                        if (tempEmp != null) empIds.Add(tempEmp.Id);
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                }
+                #endregion
             }
-            #endregion
+            string errMsg = string.Empty;
+            List<Guid> tempEmpIds = new List<Guid>();
+            foreach (Guid empId in empIds)
+            {
+                Guid proxyEmpId = CommonOperate.Scalar<Bpm_FlowProxy>(x => x.OrgM_EmpProxyId, x => x.Bpm_WorkFlowId == workflowId && x.Bpm_WorkNodeId == nextNode.Id && x.OrgM_EmpId == empId && x.IsValid == true, out errMsg).ObjToGuid();
+                if (proxyEmpId != Guid.Empty)
+                    tempEmpIds.Add(proxyEmpId);
+                else
+                    tempEmpIds.Add(empId);
+            }
             return empIds;
         }
 
         /// <summary>
-        /// 获取前一结点的处理人集合
+        /// 获取前一节点的处理人集合
         /// </summary>
-        /// <param name="currNode">当前结点</param>
+        /// <param name="currNode">当前节点</param>
         /// <param name="workflowInst">流程实例</param>
         /// <returns></returns>
         public static List<Guid> GetPreNodeHandler(Bpm_WorkNode currNode, Bpm_WorkFlowInstance workflowInst)
@@ -741,14 +775,15 @@ namespace Rookey.Frame.Operate.Base
         }
 
         /// <summary>
-        /// 获取发起结点处理者
+        /// 获取发起节点处理者
         /// </summary>
         /// <param name="moduleId">模块ID</param>
+        /// <param name="tempLaunchNode">发起节点</param>
         /// <returns></returns>
-        public static List<Guid> GetLaunchNodeHandler(Guid moduleId)
+        public static List<Guid> GetLaunchNodeHandler(Guid moduleId, Bpm_WorkNode tempLaunchNode = null)
         {
             List<Guid> empIds = new List<Guid>();
-            Bpm_WorkNode launchNode = GetLaunchNodeByModuleId(moduleId);
+            Bpm_WorkNode launchNode = tempLaunchNode != null ? tempLaunchNode : GetLaunchNodeByModuleId(moduleId);
             if (launchNode == null) return empIds;
             List<Guid> filter = new List<Guid>(); //过滤范围
             if (!string.IsNullOrEmpty(launchNode.HandleRange))
@@ -789,8 +824,13 @@ namespace Rookey.Frame.Operate.Base
                 case NodeHandlerTypeEnum.Role:
                     foreach (Guid roleId in filter)
                     {
-                        List<string> usernames = PermissionOperate.GetRoleUsers(roleId).Select(x => x.UserName.ObjToStr().ToLower()).ToList();
-                        empIds.AddRange(OrgMOperate.GetEmpsByUserNames(usernames).Select(x => x.Id));
+                        List<Sys_User> roleUsers = PermissionOperate.GetRoleUsers(roleId);
+                        List<string> usernames = roleUsers.Select(x => x.UserName.ObjToStr().ToLower()).ToList();
+                        var roleEmpIds = OrgMOperate.GetEmpsByUserNames(usernames).Select(x => x.Id);
+                        if (roleEmpIds.Count() > 0)
+                            empIds.AddRange(roleEmpIds);
+                        else
+                            empIds.AddRange(roleUsers.Select(x => x.Id));
                     }
                     break;
             }
@@ -798,9 +838,9 @@ namespace Rookey.Frame.Operate.Base
         }
 
         /// <summary>
-        /// 获取子流程的父流程当前结点
+        /// 获取子流程的父流程当前节点
         /// </summary>
-        /// <param name="subWorkflowId">子流程结点</param>
+        /// <param name="subWorkflowId">子流程节点</param>
         /// <returns></returns>
         public static Bpm_WorkNode GetParentFlowNode(Guid subWorkflowId)
         {
@@ -808,7 +848,7 @@ namespace Rookey.Frame.Operate.Base
         }
 
         /// <summary>
-        /// 获取回退结点集合
+        /// 获取回退节点集合
         /// </summary>
         /// <param name="toDoTaskId">待办ID</param>
         /// <returns></returns>
@@ -819,7 +859,7 @@ namespace Rookey.Frame.Operate.Base
             List<Bpm_WorkNode> bakcNodes = new List<Bpm_WorkNode>();
             if (workNode != null && workNode.Bpm_WorkFlowId.HasValue && workNode.Bpm_WorkFlowId.Value != Guid.Empty)
             {
-                if (workNode.BackTypeOfEnum == NodeBackTypeEnum.BackToLast) //只能回退到上一结点
+                if (workNode.BackTypeOfEnum == NodeBackTypeEnum.BackToLast) //只能回退到上一节点
                 {
                     string errMsg = string.Empty;
                     List<Guid> preNodeIds = GetPrexNodes(workNode.Bpm_WorkFlowId.Value, workNodeId).Select(x => x.Id).ToList();
@@ -829,13 +869,13 @@ namespace Rookey.Frame.Operate.Base
                     if (nodeInst != null && nodeInst.Bpm_WorkNodeId.HasValue)
                         bakcNodes = GetAllWorkNodes(x => x.Id == nodeInst.Bpm_WorkNodeId.Value);
                 }
-                else if (workNode.BackTypeOfEnum == NodeBackTypeEnum.BackToFirst) //只能回退到发起结点
+                else if (workNode.BackTypeOfEnum == NodeBackTypeEnum.BackToFirst) //只能回退到发起节点
                 {
                     Bpm_WorkNode launchNode = BpmOperate.GetLaunchNode(workNode.Bpm_WorkFlowId.Value);
                     if (launchNode != null)
                         bakcNodes = new List<Bpm_WorkNode>() { launchNode };
                 }
-                else if (workNode.BackTypeOfEnum == NodeBackTypeEnum.BackToAll) //允许回退到任意结点，并且要排除并行节点
+                else if (workNode.BackTypeOfEnum == NodeBackTypeEnum.BackToAll) //允许回退到任意节点，并且要排除并行节点
                 {
                     string errMsg = string.Empty;
                     List<Guid> preNodeIds = GetPrexNodes(workNode.Bpm_WorkFlowId.Value, workNodeId).Select(x => x.Id).ToList();
@@ -856,9 +896,9 @@ namespace Rookey.Frame.Operate.Base
         }
 
         /// <summary>
-        /// 获取流程结点实例
+        /// 获取流程节点实例
         /// </summary>
-        /// <param name="id">结点ID</param>
+        /// <param name="id">节点ID</param>
         /// <returns></returns>
         public static Bpm_WorkNodeInstance GetWorkNodeInstanceById(Guid id)
         {
@@ -960,7 +1000,7 @@ namespace Rookey.Frame.Operate.Base
         /// 获取流程表单按钮集合
         /// </summary>
         /// <param name="workflowId">流程ID</param>
-        /// <param name="workNodeId">流程结点ID</param>
+        /// <param name="workNodeId">流程节点ID</param>
         /// <returns></returns>
         public static List<FormButton> GetWorkNodeFormBtns(Guid workflowId, Guid workNodeId)
         {
@@ -1014,14 +1054,18 @@ namespace Rookey.Frame.Operate.Base
         }
 
         /// <summary>
-        /// 获取发起结点流程操作按钮集合
+        /// 获取发起节点流程操作按钮集合
         /// </summary>
-        /// <param name="todoTaskId">待办ID，针对回退到发起结点时的待办ID</param>
+        /// <param name="todoTaskId">待办ID，针对回退到发起节点时的待办ID</param>
         /// <returns></returns>
         public static List<FormButton> GetLaunchNodeFlowBtns(Guid? todoTaskId = null)
         {
             List<FormButton> btns = new List<FormButton>();
             btns.Add(new FormButton() { TagId = string.Format("flowBtn_{0}", todoTaskId.HasValue ? todoTaskId.Value : Guid.Empty), DisplayText = "保存并提交", IconType = ButtonIconType.Save, ClickMethod = "SubmitFlow(this)", Icon = "eu-icon-tosubmit", Sort = 4 });
+            if (todoTaskId.HasValue && todoTaskId.Value != Guid.Empty)
+            {
+                btns.Add(new FormButton() { TagId = string.Format("flowBtn_{0}", Guid.Empty), DisplayText = "作废", IconType = ButtonIconType.FlowObsoleted, ClickMethod = "ApprovalFlow(this)", Icon = "eu-p2-icon-exclamation", Sort = 5 });
+            }
             return btns;
         }
 
@@ -1081,6 +1125,11 @@ namespace Rookey.Frame.Operate.Base
                         if (workNodeInst != null && workNodeInst.Bpm_WorkNodeId.HasValue && workNodeInst.Bpm_WorkNodeId.Value != Guid.Empty)
                         {
                             List<FormButton> btns = GetWorkNodeFormBtns(workflowInst.Bpm_WorkFlowId.Value, workNodeInst.Bpm_WorkNodeId.Value);
+                            Bpm_WorkNode launchNode = BpmOperate.GetLaunchNode(workflowInst.Bpm_WorkFlowId.Value);
+                            if (launchNode != null && launchNode.Id == workNodeInst.Bpm_WorkNodeId.Value) //发起节点添加作废按钮
+                            {
+                                btns.Add(new FormButton() { TagId = string.Format("flowBtn_{0}", Guid.Empty), DisplayText = "作废", IconType = ButtonIconType.FlowObsoleted, ClickMethod = "ApprovalFlow(this)", Icon = "eu-p2-icon-exclamation", Sort = 5 });
+                            }
                             btns.ForEach(x => { x.ParentToDoId = todoTaskId.ToString(); });
                             return btns;
                         }
@@ -1115,7 +1164,7 @@ namespace Rookey.Frame.Operate.Base
                 return string.Format("{0}模块流程配置获取失败", errPrex);
             Bpm_WorkNode launchNode = GetLaunchNode(workFlow.Id);
             if (launchNode == null)
-                return string.Format("{0}发起结点信息获取失败", errPrex);
+                return string.Format("{0}发起节点信息获取失败", errPrex);
             if (currUser == null)
                 return string.Format("{0}当前用户信息获取失败", errPrex);
             object model = CommonOperate.GetEntityById(moduleId, recordId, out errMsg);
@@ -1133,8 +1182,8 @@ namespace Rookey.Frame.Operate.Base
                 Bpm_WorkFlowId = workFlow.Id,
                 Status = (int)WorkFlowStatusEnum.Start,
                 StartDate = DateTime.Now,
-                OrgM_EmpId = currUser.EmpId,
-                OrgM_EmpName = string.IsNullOrEmpty(currUser.EmpName) ? currUser.UserName : currUser.EmpName,
+                OrgM_EmpId = currUser.EmpId.HasValue ? currUser.EmpId : currUser.UserId,
+                OrgM_EmpName = string.IsNullOrEmpty(currUser.EmpName) ? (string.IsNullOrEmpty(currUser.AliasName) ? currUser.UserName : currUser.AliasName) : currUser.EmpName,
                 RecordId = recordId,
                 ParentId = parentFlowInstId,
                 CreateUserId = currUser.UserId,
@@ -1185,13 +1234,13 @@ namespace Rookey.Frame.Operate.Base
                 return string.Format("{0}当前待办任务对应的流程实例数据丢失", errPrex);
             Bpm_WorkNodeInstance workNodeInst = CommonOperate.GetEntityById<Bpm_WorkNodeInstance>(workTodo.Bpm_WorkNodeInstanceId.Value, out errMsg);
             if (workNodeInst == null || !workNodeInst.Bpm_WorkNodeId.HasValue)
-                return string.Format("{0}当前待办任务对应的流程结点实例数据丢失", errPrex);
+                return string.Format("{0}当前待办任务对应的流程节点实例数据丢失", errPrex);
             Bpm_WorkFlow workFlow = GetWorkflow(workFlowInst.Bpm_WorkFlowId.Value);
             if (workFlow == null)
-                return string.Format("{0}当前待办任务对应的流程结点数据丢失", errPrex);
+                return string.Format("{0}当前待办任务对应的流程节点数据丢失", errPrex);
             Bpm_WorkNode workNode = GetWorkNode(workNodeInst.Bpm_WorkNodeId.Value);
             if (workNode == null)
-                return string.Format("{0}当前待办任务对应的流程结点数据丢失", errPrex);
+                return string.Format("{0}当前待办任务对应的流程节点数据丢失", errPrex);
             if (currUser == null)
                 return string.Format("{0}当前用户信息获取失败", errPrex);
             if (currUser.UserName != "admin")
@@ -1206,10 +1255,10 @@ namespace Rookey.Frame.Operate.Base
             Bpm_WorkNode returnNode = null;
             if (workAction == WorkActionEnum.Returning) //回退时
             {
-                if (returnNodeId.HasValue && returnNodeId.Value != Guid.Empty) //有回退结点ID参数
+                if (returnNodeId.HasValue && returnNodeId.Value != Guid.Empty) //有回退节点ID参数
                     returnNode = GetWorkNode(returnNodeId.Value);
-                else //默认回退到前一结点
-                    returnNode = GetPrexNode(workFlow.Id, workNode.Id);
+                else //默认回退到前一节点
+                    returnNode = GetPrexNode(workFlow.Id, workNode.Id).FirstOrDefault();
                 if (returnNode == null)
                     return string.Format("{0}回退节点不存在，请联系系统运维人员", errPrex);
             }
@@ -1234,13 +1283,13 @@ namespace Rookey.Frame.Operate.Base
         /// </summary>
         /// <param name="workflow">流程</param>
         /// <param name="workFlowInst">流程实例</param>
-        /// <param name="workNode">流程结点</param>
-        /// <param name="workNodeInst">流程结点实例</param>
+        /// <param name="workNode">流程节点</param>
+        /// <param name="workNodeInst">流程节点实例</param>
         /// <param name="currUser">当前用户</param>
         /// <param name="workAction">操作动作</param>
         /// <param name="approvalOpinions">审批意见</param>
         /// <param name="workTodo">审批时处理的当前待办任务</param>
-        /// <param name="returnNode">回退时的回退结点</param>
+        /// <param name="returnNode">回退时的回退节点</param>
         /// <param name="directHandler">指派时的人员ID</param>
         /// <param name="parentWorkTodoId">父待办ID，针对发起子流程</param>
         /// <param name="detailIds">当前子流程需要发起的所有明细ID集合，判断所有子流程是否结束时用到</param>
@@ -1258,21 +1307,21 @@ namespace Rookey.Frame.Operate.Base
             string connStr = ModelConfigHelper.GetModelConnStr(typeof(Bpm_WorkFlow), out dbType, false);
             string subStr = workFlowInst.ParentId.HasValue && workFlowInst.ParentId.Value != Guid.Empty ? "_SUB" : string.Empty;
             #region 并行审批判断
-            bool isParallelHasRejectOver = false; //是否并行结点存在拒绝的就终止，只要有一个人拒绝，该并行结点就视为被拒绝，流程终止
+            bool isParallelHasRejectOver = false; //是否并行节点存在拒绝的就终止，只要有一个人拒绝，该并行节点就视为被拒绝，流程终止
             bool isParallelApproval = false; //是否是并行审批
-            //并行审批判断条件：是并行审批结点并且对应该结点的并行审批还有其他人员未处理的，即并行审批
+            //并行审批判断条件：是并行审批节点并且对应该节点的并行审批还有其他人员未处理的，即并行审批
             //最后一个人审批时按非并行审批处理，并行审批不允许回退
             if (workTodo != null && workNode.HandleStrategyOfEnum == HandleStrategyTypeEnum.AllAgree)
             {
                 if (workAction == WorkActionEnum.Returning)
-                    return string.Format("{0}该审批结点为并行结点不允许进行该操作", errPrex);
+                    return string.Format("{0}该审批节点为并行节点不允许进行该操作", errPrex);
                 List<Guid?> tempHandlers = workTodo.NextNodeHandler.ObjToStr().Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(x => x.ObjToGuidNull()).Where(x => x != Guid.Empty).ToList();
-                bool isParallelNode = tempHandlers.Count > 1; //当前为并行结点
-                tempHandlers = tempHandlers.Where(x => x != currUser.EmpId.Value).ToList();
+                bool isParallelNode = tempHandlers.Count > 1; //当前为并行节点
+                tempHandlers = tempHandlers.Where(x => x != currUser.EmpId && x != currUser.UserId).ToList();
                 if (tempHandlers.Count > 0 || isParallelNode) //除了当前人还有其他并行审批人员
                 {
-                    List<Bpm_WorkNodeInstance> tempNodeInsts = CommonOperate.GetEntities<Bpm_WorkNodeInstance>(out errMsg, x => x.Bpm_WorkFlowInstanceId == workFlowInst.Id && x.Bpm_WorkNodeId == workNode.Id, null, false); //当前结点所有并行结点实例集合
-                    List<Guid?> nodeInstIds = tempNodeInsts.Select(x => (Guid?)x.Id).Where(x => x != workNodeInst.Id).ToList(); //除当前结点实例外的其他结点实例ID集合
+                    List<Bpm_WorkNodeInstance> tempNodeInsts = CommonOperate.GetEntities<Bpm_WorkNodeInstance>(out errMsg, x => x.Bpm_WorkFlowInstanceId == workFlowInst.Id && x.Bpm_WorkNodeId == workNode.Id, null, false); //当前节点所有并行节点实例集合
+                    List<Guid?> nodeInstIds = tempNodeInsts.Select(x => (Guid?)x.Id).Where(x => x != workNodeInst.Id).ToList(); //除当前节点实例外的其他节点实例ID集合
                     if (tempHandlers.Count > 0)
                     {
                         int tempWorkAction = (int)WorkActionEnum.NoAction;
@@ -1293,10 +1342,10 @@ namespace Rookey.Frame.Operate.Base
             }
             #endregion
             bool canTransfer = false; //达到转移待办历史数据条件
-            List<Bpm_WorkToDoList> nextTodos = new List<Bpm_WorkToDoList>(); //下一结点待办集合
+            List<Bpm_WorkToDoList> nextTodos = new List<Bpm_WorkToDoList>(); //下一节点待办集合
             #region 自动跳转相关
-            Bpm_WorkNode autoJumpNode = null; //自动跳转结点
-            Bpm_WorkNodeInstance autoJumpNodeInst = null; //自动跳转结点实例
+            Bpm_WorkNode autoJumpNode = null; //自动跳转节点
+            Bpm_WorkNodeInstance autoJumpNodeInst = null; //自动跳转节点实例
             bool notFindNextHandlerIsAuto = false; //找不到处理人是否自动跳转
             bool handlerIsStarterAuto = false; //处理人是发起人自动跳转
             bool handlerIsAppearedAuto = false; //处理人出现过自动跳转
@@ -1307,35 +1356,36 @@ namespace Rookey.Frame.Operate.Base
             bool isChildFlowHandle = (parentWorkTodoId.HasValue && parentWorkTodoId.Value != Guid.Empty) || (workTodo != null && workTodo.ParentId.HasValue && workTodo.ParentId.Value != Guid.Empty); //子流程处理标识
             List<Guid> tempNextHandlers = new List<Guid>(); //临时下一待办处理人
             Dictionary<Guid, Bpm_WorkToDoList> tempHandleEmpIds = new Dictionary<Guid, Bpm_WorkToDoList>(); //临时下一待办处理人及待办集合
-            List<Guid?> parentNextNodeInstIds = new List<Guid?>(); //父流程下一结点实例ID集合
+            List<Guid?> parentNextNodeInstIds = new List<Guid?>(); //父流程下一节点实例ID集合
             bool isAllChildFlowOver = false; //是否父流程下所有子均结束
-            Bpm_WorkNode parentNextNode = null; //父流程下一审批结点
+            Bpm_WorkNode parentNextNode = null; //父流程下一审批节点
             if (workFlowInst.ParentId.HasValue && workFlowInst.ParentId.Value != Guid.Empty && isChildFlowHandle)
             {
-                Bpm_WorkNode parentNode = GetParentFlowNode(workflow.Id); //当前子流程的父流程结点
+                Bpm_WorkNode parentNode = GetParentFlowNode(workflow.Id); //当前子流程的父流程节点
                 if (parentNode != null && parentNode.Bpm_WorkFlowId.HasValue)
                 {
-                    parentNextNode = GetNextWorkNodes(parentNode.Bpm_WorkFlowId.Value, parentNode.Id).FirstOrDefault(); //父流程下一审批结点集合
+                    parentNextNode = GetNextWorkNodes(parentNode.Bpm_WorkFlowId.Value, parentNode.Id).FirstOrDefault(); //父流程下一审批节点集合
                     if (parentNextNode != null)
                     {
                         int overStatus = (int)WorkFlowStatusEnum.Over;
                         int refuseStatus = (int)WorkFlowStatusEnum.Refused;
+                        int obsoleteStatus = (int)WorkFlowStatusEnum.Obsoleted;
                         //未结束的子流程数量
-                        long subNoOverFlowCount = CommonOperate.Count<Bpm_WorkFlowInstance>(out errMsg, false, x => x.Bpm_WorkFlowId == workflow.Id && x.Id != workFlowInst.Id && x.Status != overStatus && x.Status != refuseStatus && x.ParentId == workFlowInst.ParentId);
+                        long subNoOverFlowCount = CommonOperate.Count<Bpm_WorkFlowInstance>(out errMsg, false, x => x.Bpm_WorkFlowId == workflow.Id && x.Id != workFlowInst.Id && x.Status != overStatus && x.Status != refuseStatus && x.Status != obsoleteStatus && x.ParentId == workFlowInst.ParentId);
                         if (subNoOverFlowCount == 0)
                         {
-                            //子流程发起时，还未添加子流程实例信息，判断是否有下一结点，没有则结束
+                            //子流程发起时，还未添加子流程实例信息，判断是否有下一节点，没有则结束
                             if (workFlowInst.Id != Guid.Empty) //子流程审批中
                             {
                                 isAllChildFlowOver = true;
                             }
-                            else if (GetNextWorkNodes(workflow.Id, workNode.Id).Count == 0 && detailIds != null && detailIds.Count == 1) //当前子流程只有一个结点，发起即结束，并且明细子流程只有一个
+                            else if (GetNextWorkNodes(workflow.Id, workNode.Id).Count == 0 && detailIds != null && detailIds.Count == 1) //当前子流程只有一个节点，发起即结束，并且明细子流程只有一个
                             {
                                 isAllChildFlowOver = true;
                             }
                             if (isAllChildFlowOver)
                             {
-                                //下一结点实例
+                                //下一节点实例
                                 List<Bpm_WorkNodeInstance> insts = CommonOperate.GetEntities<Bpm_WorkNodeInstance>(out errMsg, x => x.Bpm_WorkFlowInstanceId == workFlowInst.ParentId.Value && x.Bpm_WorkNodeId == parentNextNode.Id, null, false, new List<string>() { "Id" });
                                 if (insts != null && insts.Count > 0)
                                     parentNextNodeInstIds = insts.Select(x => (Guid?)x.Id).ToList();
@@ -1365,8 +1415,8 @@ namespace Rookey.Frame.Operate.Base
                 //启用事务
                 CommonOperate.TransactionHandle((conn) =>
                 {
-                    #region 针对流程发起处理流程实例及结点实例
-                    //针对流程发起，初始化流程实例、流程结点实例
+                    #region 针对流程发起处理流程实例及节点实例
+                    //针对流程发起，初始化流程实例、流程节点实例
                     if (workFlowInst.Id == Guid.Empty || workTodo == null)
                     {
                         string subPrex = workAction == WorkActionEnum.SubStarting ? "_SUB" : string.Empty;
@@ -1382,7 +1432,7 @@ namespace Rookey.Frame.Operate.Base
                         Guid workNodeInstId = CommonOperate.OperateRecord<Bpm_WorkNodeInstance>(workNodeInst, ModelRecordOperateType.Add, out errMsg, null, false, false, null, null, conn);
                         if (workNodeInstId == Guid.Empty)
                         {
-                            errMsg = string.Format("{0}流程结点实例初始化失败，{1}", errPrex, errMsg);
+                            errMsg = string.Format("{0}流程节点实例初始化失败，{1}", errPrex, errMsg);
                             throw new Exception(errMsg);
                         }
                         workNodeInst.Id = workNodeInstId;
@@ -1393,22 +1443,22 @@ namespace Rookey.Frame.Operate.Base
                     {
                         if (workAction != WorkActionEnum.Directing) //非指派操作
                         {
-                            #region 找下一审批结点及处理人
-                            //处理当前结点实例
+                            #region 找下一审批节点及处理人
+                            //处理当前节点实例
                             workNodeInst.FinishDate = DateTime.Now;
                             workNodeInst.StatusOfEnum = WorkNodeStatusEnum.Do;
                             Guid result = CommonOperate.OperateRecord<Bpm_WorkNodeInstance>(workNodeInst, ModelRecordOperateType.Edit, out errMsg, new List<string>() { "Status", "FinishDate" }, false, false, null, null, conn);
                             if (result == Guid.Empty)
-                                throw new Exception(string.Format("{0}流程结点实例状态更新失败，{1}", errPrex, errMsg));
+                                throw new Exception(string.Format("{0}流程节点实例状态更新失败，{1}", errPrex, errMsg));
                             //待办处理
-                            List<Guid> handleEmpIds = new List<Guid>(); //下一结点待办人
-                            Bpm_WorkNode nextApprovalNode = null; //下一审批结点
+                            List<Guid> handleEmpIds = new List<Guid>(); //下一节点待办人
+                            Bpm_WorkNode nextApprovalNode = null; //下一审批节点
                             List<string> updateWorkflowInstFields = new List<string>() { "Status" };
                             List<Bpm_WorkNode> nextNodes = new List<Bpm_WorkNode>();
                             if (workAction == WorkActionEnum.Approving || workAction == WorkActionEnum.Starting ||
                                 workAction == WorkActionEnum.SubStarting || workAction == WorkActionEnum.ReStarting)
                             {
-                                if (workAction == WorkActionEnum.Approving && isParallelHasRejectOver) //并行结点审批并且存在拒绝的情况
+                                if (workAction == WorkActionEnum.Approving && isParallelHasRejectOver) //并行节点审批并且存在拒绝的情况
                                     nextNodes = new List<Bpm_WorkNode>();
                                 else
                                     nextNodes = GetNextWorkNodes(workflow.Id, workNode.Id);
@@ -1425,7 +1475,13 @@ namespace Rookey.Frame.Operate.Base
                                 workflowStatus = WorkFlowStatusEnum.Refused;
                                 isStartSubFlow = false;
                             }
-                            if (nextNodes.Count > 1) //对应的下一结点有多个
+                            else if (workAction == WorkActionEnum.Obsoleting) //作废
+                            {
+                                nextNodes = new List<Bpm_WorkNode>();
+                                workflowStatus = WorkFlowStatusEnum.Obsoleted;
+                                isStartSubFlow = false;
+                            }
+                            if (nextNodes.Count > 1) //对应的下一节点有多个
                             {
                                 //调用自定义取流程节点接口
                                 object nextHandleNodeNameObj = CommonOperate.ExecuteCustomeOperateHandleMethod(workflow.Sys_ModuleId.Value, "GetFlowNextHandleNodeName", new object[] { workFlowInst.RecordId, workflow.Name, workNode.Name, currUser });
@@ -1440,7 +1496,7 @@ namespace Rookey.Frame.Operate.Base
                                 }
                                 if (nextApprovalNode == null)
                                 {
-                                    errMsg = string.Format("{0}找不到当前结点【{1}】的下一处理结点，指向所有下一结点流转条件均不满足", errPrex, workNode.Name);
+                                    errMsg = string.Format("{0}找不到【{1}】的下一处理节点，指向所有下一节点流转条件均不满足", errPrex, workNode.Name);
                                     throw new Exception(errMsg);
                                 }
                                 handleEmpIds = GetNextNodeHandler(nextApprovalNode, currUser, workFlowInst);
@@ -1453,15 +1509,15 @@ namespace Rookey.Frame.Operate.Base
                                 else
                                     handleEmpIds = GetNextNodeHandler(nextApprovalNode, currUser, workFlowInst);
                             }
-                            else //没有下一结点，流程结束
+                            else //没有下一节点，流程结束
                             {
-                                if (workAction != WorkActionEnum.Refusing && !isParallelHasRejectOver)
+                                if (workAction != WorkActionEnum.Refusing && workAction != WorkActionEnum.Obsoleting && !isParallelHasRejectOver)
                                     workflowStatus = WorkFlowStatusEnum.Over;
                                 workFlowInst.EndDate = DateTime.Now;
                                 updateWorkflowInstFields.Add("EndDate");
                             }
-                            if (nextApprovalNode != null && nextApprovalNode.HandleStrategyOfEnum == HandleStrategyTypeEnum.AllAgree && handleEmpIds.Count == 0) //下一结点为并行结点并且无处理人时
-                                throw new Exception(string.Format("{0}找不到当前结点【{1}】的下一结点【{2}】处理人", errPrex, workNode.Name, nextApprovalNode.Name));
+                            if (nextApprovalNode != null && nextApprovalNode.HandleStrategyOfEnum == HandleStrategyTypeEnum.AllAgree && handleEmpIds.Count == 0) //下一节点为并行节点并且无处理人时
+                                throw new Exception(string.Format("{0}找不到下一节点【{1}】处理人", errPrex, nextApprovalNode.Name));
                             //更新流程实例状态
                             workFlowInst.StatusOfEnum = isParallelHasRejectOver ? WorkFlowStatusEnum.Refused : workflowStatus;
                             result = CommonOperate.OperateRecord<Bpm_WorkFlowInstance>(workFlowInst, ModelRecordOperateType.Edit, out errMsg, updateWorkflowInstFields, false, false, null, null, conn);
@@ -1489,7 +1545,7 @@ namespace Rookey.Frame.Operate.Base
                                     Title = title,
                                     Bpm_WorkFlowInstanceId = workFlowInst.Id,
                                     Bpm_WorkNodeInstanceId = workNodeInst.Id,
-                                    OrgM_EmpId = currUser.UserName == "admin" && !currUser.EmpId.HasValue ? Guid.Empty : currUser.EmpId.Value,
+                                    OrgM_EmpId = currUser.UserName == "admin" ? Guid.Empty : (currUser.EmpId.HasValue ? currUser.EmpId.Value : currUser.UserId),
                                     Launcher = workFlowInst.OrgM_EmpName,
                                     LaunchTime = workFlowInst.StartDate,
                                     ModuleId = workflow.Sys_ModuleId.Value,
@@ -1527,7 +1583,8 @@ namespace Rookey.Frame.Operate.Base
                                 workTodo.IsDeleted = false;
                                 if (nextApprovalNode == null) //不存在下一审批节点
                                 {
-                                    if (workAction != WorkActionEnum.Refusing) //审批结束
+                                    if (workAction != WorkActionEnum.Refusing &&
+                                        workAction != WorkActionEnum.Obsoleting) //审批结束
                                     {
                                         Bpm_WorkNode endNode = GetEndNode(workflow.Id);
                                         if (endNode != null)
@@ -1538,7 +1595,7 @@ namespace Rookey.Frame.Operate.Base
                                             upFn.Add("NextNodeHandler");
                                         }
                                     }
-                                    else //审批拒绝
+                                    else //审批拒绝或作废
                                     {
                                         workTodo.NextNodeHandler = string.Empty;
                                         workTodo.Bpm_WorkNodeId = null;
@@ -1559,7 +1616,7 @@ namespace Rookey.Frame.Operate.Base
                                 #endregion
                             }
                             #endregion
-                            //处理下一结点
+                            //处理下一节点
                             if (nextApprovalNode != null)
                             {
                                 #region 自动跳转处理
@@ -1577,11 +1634,11 @@ namespace Rookey.Frame.Operate.Base
                                     handlerIsLastEmpAuto = workAction == WorkActionEnum.Approving && autoJumpToken[2] == "1";
                                 }
                                 #endregion
-                                #region 初始化下一审批结点实例和下一审批结点待办
-                                //初始化下一结点实例
+                                #region 初始化下一审批节点实例和下一审批节点待办
+                                //初始化下一节点实例
                                 Dictionary<Guid, Bpm_WorkNodeInstance> nextApprovalNodeInstDic = null;
                                 Bpm_WorkNodeInstance nextApprovalNodeInst = null;
-                                if (nextApprovalNode.HandleStrategyOfEnum == HandleStrategyTypeEnum.AllAgree) //下一结点为并行结点
+                                if (nextApprovalNode.HandleStrategyOfEnum == HandleStrategyTypeEnum.AllAgree) //下一节点为并行节点
                                 {
                                     nextApprovalNodeInstDic = new Dictionary<Guid, Bpm_WorkNodeInstance>();
                                     foreach (Guid tempEmpId in handleEmpIds)
@@ -1600,14 +1657,14 @@ namespace Rookey.Frame.Operate.Base
                                         };
                                         Guid tempNodeInstId = CommonOperate.OperateRecord<Bpm_WorkNodeInstance>(tempNodeInst, ModelRecordOperateType.Add, out errMsg, null, false, false, null, null, conn);
                                         if (tempNodeInstId == Guid.Empty)
-                                            throw new Exception(string.Format("{0}下一审批结点实例初始化失败,{1}", errPrex, errMsg));
+                                            throw new Exception(string.Format("{0}下一审批节点实例初始化失败,{1}", errPrex, errMsg));
                                         tempNodeInst.Id = tempNodeInstId;
                                         nextApprovalNodeInstDic.Add(tempEmpId, tempNodeInst);
                                     }
                                     if (nextApprovalNodeInstDic.Count == 1)
                                         nextApprovalNodeInst = nextApprovalNodeInstDic.FirstOrDefault().Value;
                                 }
-                                else //下一结点为串行结点
+                                else //下一节点为串行节点
                                 {
                                     nextApprovalNodeInst = new Bpm_WorkNodeInstance()
                                     {
@@ -1623,11 +1680,11 @@ namespace Rookey.Frame.Operate.Base
                                     };
                                     Guid nextApprovalNodeInstId = CommonOperate.OperateRecord<Bpm_WorkNodeInstance>(nextApprovalNodeInst, ModelRecordOperateType.Add, out errMsg, null, false, false, null, null, conn);
                                     if (nextApprovalNodeInstId == Guid.Empty)
-                                        throw new Exception(string.Format("{0}下一审批结点实例初始化失败,{1}", errPrex, errMsg));
+                                        throw new Exception(string.Format("{0}下一审批节点实例初始化失败,{1}", errPrex, errMsg));
                                     nextApprovalNodeInst.Id = nextApprovalNodeInstId;
                                 }
                                 bool isUpdateNextHandler = false;
-                                if (handleEmpIds.Count == 0) //找不到下一结点处理人
+                                if (handleEmpIds.Count == 0) //找不到下一节点处理人
                                 {
                                     if (notFindNextHandlerIsAuto && !isStartSubFlow) //找不到下一处理者自动跳转
                                     {
@@ -1641,7 +1698,7 @@ namespace Rookey.Frame.Operate.Base
                                     }
                                     else //否则弹出错误提示
                                     {
-                                        throw new Exception(string.Format("{0}找不到当前结点【{1}】的下一结点【{2}】处理人", errPrex, workNode.Name, nextApprovalNode.Name));
+                                        throw new Exception(string.Format("{0}找不到下一节点【{1}】处理人", errPrex, nextApprovalNode.Name));
                                     }
                                 }
                                 //生成待办
@@ -1703,7 +1760,7 @@ namespace Rookey.Frame.Operate.Base
                                 nextTodos = nextTodoList;
                                 if (!isStartSubFlow || workNode.SubFlowTypeOfEnum != SubFlowTypeEnum.ChildFlow) //有子流程时不允许自动跳转
                                 {
-                                    //下一结点为并行结点并且有多个处理人时不允许自动跳转
+                                    //下一节点为并行节点并且有多个处理人时不允许自动跳转
                                     if (nextApprovalNodeInstDic == null || nextApprovalNodeInstDic.Count == 1)
                                     {
                                         autoJumpNode = nextApprovalNode;
@@ -1713,14 +1770,15 @@ namespace Rookey.Frame.Operate.Base
                                 #endregion
                             }
                             #region 流程结束
-                            if (workflowStatus == WorkFlowStatusEnum.Over || workflowStatus == WorkFlowStatusEnum.Refused || isParallelHasRejectOver) //流程结束或拒绝
+                            if (workflowStatus == WorkFlowStatusEnum.Over || workflowStatus == WorkFlowStatusEnum.Refused ||
+                                workflowStatus == WorkFlowStatusEnum.Obsoleted || isParallelHasRejectOver) //流程结束或拒绝或作废
                             {
-                                //如果当前流程是子流程，如果所有子流程都结束，则主流程继续流到下一结点
+                                //如果当前流程是子流程，如果所有子流程都结束，则主流程继续流到下一节点
                                 if (isChildFlowHandle) //当前为子流程
                                 {
                                     if (parentNextNodeInstIds.Count > 0 && isAllChildFlowOver) //父流程下一审批节点存在并且所有子流程均结束
                                     {
-                                        //显示父流程下一结点的所有待办
+                                        //显示父流程下一节点的所有待办
                                         CommonOperate.UpdateRecordsByExpression<Bpm_WorkToDoList>(new { IsDeleted = false }, x => x.Bpm_WorkFlowInstanceId == workFlowInst.ParentId.Value && parentNextNodeInstIds.Contains(x.Bpm_WorkNodeInstanceId), out errMsg, null, null, conn);
                                     }
                                 }
@@ -1758,8 +1816,8 @@ namespace Rookey.Frame.Operate.Base
                             workTodo.ApprovalOpinions = approvalOpinions;
                             workTodo.FinishDate = DateTime.Now;
                             workTodo.WorkActionOfEnum = workAction;
-                            workTodo.Bpm_WorkNodeId = workNode.Id; //下一结点仍然指向当前结点
-                            workTodo.NextNodeHandler = directHandler.HasValue ? directHandler.Value.ObjToStr() : string.Empty; //下一结点处理人指向指派人
+                            workTodo.Bpm_WorkNodeId = workNode.Id; //下一节点仍然指向当前节点
+                            workTodo.NextNodeHandler = directHandler.HasValue ? directHandler.Value.ObjToStr() : string.Empty; //下一节点处理人指向指派人
                             tempNextHandlers = new List<Guid>() { directHandler.Value };
                             tempHandleEmpIds.Add(directHandler.Value, directTodo);
                             if (isChildFlowHandle) //当前为子流程
@@ -1816,8 +1874,8 @@ namespace Rookey.Frame.Operate.Base
                                 ModifyUserId = currUser.UserId,
                                 ModifyUserName = userAliasName,
                             };
-                            workTodo.Bpm_WorkNodeId = workNode.Id; //下一结点仍然指向当前结点
-                            workTodo.NextNodeHandler = directHandler.ObjToStr(); //下一结点处理人指向指派人
+                            workTodo.Bpm_WorkNodeId = workNode.Id; //下一节点仍然指向当前节点
+                            workTodo.NextNodeHandler = directHandler.ObjToStr(); //下一节点处理人指向指派人
                             upFn.Add("Bpm_WorkNodeId");
                             upFn.Add("NextNodeHandler");
                         }
@@ -1859,7 +1917,10 @@ namespace Rookey.Frame.Operate.Base
                 //执行流程操作完成事件
                 CommonOperate.ExecuteCustomeOperateHandleMethod(workflow.Sys_ModuleId.Value, "AfterFlowOperateCompleted", new object[] { workFlowInst.RecordId, workNode.Name, currUser, string.IsNullOrEmpty(errMsg), workAction, workflowStatus, approvalOpinions });
                 //事件通知
-                SystemOperate.TriggerEventNotify(workflow.Sys_ModuleId.Value, workFlowInst.RecordId, workNode.Id, workAction, currUser, workFlowInst.OrgM_EmpId, tempHandleEmpIds, workflowStatus, directHandler, workTodo);
+                if (workAction != WorkActionEnum.Obsoleting)
+                {
+                    SystemOperate.TriggerEventNotify(workflow.Sys_ModuleId.Value, workFlowInst.RecordId, workNode.Id, workAction, currUser, workFlowInst.OrgM_EmpId, tempHandleEmpIds, workflowStatus, directHandler, workTodo);
+                }
                 #endregion
                 #region 子流程待办显示处理
                 //子流程待办根据父待办ID及待办人，针对同一父待办同一流程同一待办人只显示一
@@ -1871,7 +1932,7 @@ namespace Rookey.Frame.Operate.Base
                     int noAction = (int)WorkActionEnum.NoAction;
                     if (workAction != WorkActionEnum.Starting && workAction != WorkActionEnum.SubStarting && workAction != WorkActionEnum.ReStarting)
                     {
-                        Guid currEmpId = currUser.EmpId.HasValue ? currUser.EmpId.Value : Guid.Empty; //当前待办人
+                        Guid currEmpId = currUser.EmpId.HasValue ? currUser.EmpId.Value : (currUser.UserName == "admin" ? Guid.Empty : currUser.UserId); //当前待办人
                         tempNextHandlers.Add(currEmpId);
                     }
                     foreach (Guid empId in tempNextHandlers) //对下一处理人待办处理包含当前待办人待办
@@ -1930,26 +1991,31 @@ namespace Rookey.Frame.Operate.Base
                     bool isParentFlowAuto = false;
                     if (isChildFlowHandle && parentNextNodeInstIds.Count > 0 && isAllChildFlowOver) //当前为子流程并且所有其他子流程均结束
                     {
-                        if (workflowStatus == WorkFlowStatusEnum.Over || workflowStatus == WorkFlowStatusEnum.Refused) //当前子流程已结束
+                        if (workflowStatus == WorkFlowStatusEnum.Over ||
+                            workflowStatus == WorkFlowStatusEnum.Refused ||
+                            workflowStatus == WorkFlowStatusEnum.Obsoleted) //当前子流程已结束
                         {
                             string tempMsg = string.Empty;
-                            //父流程下一审批结点待办集合
+                            //父流程下一审批节点待办集合
                             nextTodos = CommonOperate.GetEntities<Bpm_WorkToDoList>(out tempMsg, x => x.Bpm_WorkFlowInstanceId == workFlowInst.ParentId.Value && parentNextNodeInstIds.Contains(x.Bpm_WorkNodeInstanceId), null, false);
                             Bpm_WorkFlowInstance parentWorkflowInst = GetWorkflowInstanceById(workFlowInst.ParentId.Value);
                             tempWorkflow = GetWorkflow(parentWorkflowInst.Bpm_WorkFlowId.Value);
                             tempWorkFlowInst = parentWorkflowInst;
                             autoJumpNode = parentNextNode;
                             List<Bpm_WorkNode> tempNextNodes = GetNextWorkNodes(tempWorkflow.Id, autoJumpNode.Id);
-                            if (tempNextNodes.Count == 0 && workflowStatus == WorkFlowStatusEnum.Refused) //父流程当前自动审批结点为最后一个结点时，判断子流程只要有一个子流程审批通过则该父流程结点为同意，否则为拒绝
+                            if (tempNextNodes.Count == 0 && (workflowStatus == WorkFlowStatusEnum.Refused || workflowStatus == WorkFlowStatusEnum.Obsoleted)) //父流程当前自动审批节点为最后一个节点时，判断子流程只要有一个子流程审批通过则该父流程节点为同意，否则为拒绝
                             {
                                 List<object> statusObjs = CommonOperate.GetColumnFieldValues<Bpm_WorkFlowInstance>(out tempMsg, "Status", x => x.ParentId == parentWorkflowInst.Id); //获取所有子流程状态
                                 if (statusObjs.Count > 0)
                                 {
                                     int statusOver = (int)WorkFlowStatusEnum.Over;
+                                    int statusRefuse = (int)WorkFlowStatusEnum.Refused;
                                     if (statusObjs.Select(x => x.ObjToInt()).ToList().Contains(statusOver))
                                         autoWorkAction = WorkActionEnum.Approving;
-                                    else
+                                    if (statusObjs.Select(x => x.ObjToInt()).ToList().Contains(statusRefuse))
                                         autoWorkAction = WorkActionEnum.Refusing;
+                                    else
+                                        autoWorkAction = WorkActionEnum.Obsoleting;
                                 }
                             }
                             autoJumpNodeInst = GetWorkNodeInstanceById(parentNextNodeInstIds.FirstOrDefault().Value);
@@ -1964,10 +2030,10 @@ namespace Rookey.Frame.Operate.Base
                             handlerIsAppearedAuto = autoJumpToken[1] == "1";
                             handlerIsLastEmpAuto = workAction == WorkActionEnum.Approving && autoJumpToken[2] == "1";
                         }
-                        else
-                        {
-                            nextTodos = new List<Bpm_WorkToDoList>();
-                        }
+                        //else
+                        //{
+                        //    nextTodos = new List<Bpm_WorkToDoList>();
+                        //}
                     }
                     List<Bpm_WorkToDoList> autoJumpTodos = new List<Bpm_WorkToDoList>(); //自动跳转待办
                     int returnBackAction = (int)WorkActionEnum.Returning;
@@ -1977,7 +2043,7 @@ namespace Rookey.Frame.Operate.Base
                         {
                             if (!isParentFlowAuto)
                             {
-                                //下一处理人在下一处理结点有过回退处理则不能自动处理
+                                //下一处理人在下一处理节点有过回退处理则不能自动处理
                                 string tempMsg = string.Empty;
                                 List<Bpm_WorkToDoList> returnTodos = CommonOperate.GetEntities<Bpm_WorkToDoList>(out tempMsg, x => x.Bpm_WorkFlowInstanceId == tempWorkFlowInst.Id && x.WorkAction == returnBackAction && x.OrgM_EmpId == nextTodo.OrgM_EmpId.Value && !x.IsDeleted, null, false);
                                 if (returnTodos != null && returnTodos.Count > 0)
@@ -2100,7 +2166,7 @@ namespace Rookey.Frame.Operate.Base
                     }
                 }
                 #endregion
-                #region 迁移结点实例数据
+                #region 迁移节点实例数据
                 currDbLink = ModelConfigHelper.GetDbLinkArgs(typeof(Bpm_WorkNodeInstanceHistory));
                 string tableNameNode = ModelConfigHelper.GetModuleTableName(typeof(Bpm_WorkNodeInstance), currDbLink);
                 string sqlNode = string.Format("SELECT * FROM {0} WHERE Bpm_WorkFlowInstanceId='{1}'", tableNameNode, workFlowInst.Id);
@@ -2113,14 +2179,14 @@ namespace Rookey.Frame.Operate.Base
                         rs = CommonOperate.DeleteRecordsByExpression<Bpm_WorkNodeInstance>(x => x.Bpm_WorkFlowInstanceId == workFlowInst.Id, out errMsg, false);
                         if (!rs)
                         {
-                            errMsg = string.Format("流程结束后的流程结点实例删除失败，流程实例ID【{0}】，异常信息：{1}", workFlowInst.Id, errMsg);
-                            LogOperate.AddOperateLog(currUser, "结点实例", "流程结束后迁移流程结点实例", string.Format("流程实例ID【{0}】", workFlowInst.Id), false, errMsg);
+                            errMsg = string.Format("流程结束后的流程节点实例删除失败，流程实例ID【{0}】，异常信息：{1}", workFlowInst.Id, errMsg);
+                            LogOperate.AddOperateLog(currUser, "节点实例", "流程结束后迁移流程节点实例", string.Format("流程实例ID【{0}】", workFlowInst.Id), false, errMsg);
                         }
                     }
                     else
                     {
                         errMsg = string.Format("流程结束后写入流程实例历史数据失败，流程实例ID【{0}】，异常信息：{1}", workFlowInst.Id, errMsg);
-                        LogOperate.AddOperateLog(currUser, "结点实例", "流程结束后迁移流程结点实例", string.Format("流程实例ID【{0}】", workFlowInst.Id), false, errMsg);
+                        LogOperate.AddOperateLog(currUser, "节点实例", "流程结束后迁移流程节点实例", string.Format("流程实例ID【{0}】", workFlowInst.Id), false, errMsg);
                     }
                 }
                 #endregion
@@ -2176,6 +2242,10 @@ namespace Rookey.Frame.Operate.Base
                     workflowStatus = WorkFlowStatusEnum.Refused;
                     errPrex = "【流程拒绝】";
                     break;
+                case WorkActionEnum.Obsoleting:
+                    workflowStatus = WorkFlowStatusEnum.Obsoleted;
+                    errPrex = "【流程作废】";
+                    break;
             }
         }
 
@@ -2201,6 +2271,8 @@ namespace Rookey.Frame.Operate.Base
                     return "【流程回退】";
                 case WorkActionEnum.Refusing:
                     return "【流程拒绝】";
+                case WorkActionEnum.Obsoleting:
+                    return "【作废流程】";
             }
             return string.Empty;
         }
@@ -2229,6 +2301,8 @@ namespace Rookey.Frame.Operate.Base
                     return "发起子流程";
                 case WorkActionEnum.Communicating:
                     return "沟通流程";
+                case WorkActionEnum.Obsoleting:
+                    return "作废流程";
             }
             return string.Empty;
         }
@@ -2343,7 +2417,7 @@ namespace Rookey.Frame.Operate.Base
             if (workFlowInst == null) return approvalInfos;
             string errMsg = string.Empty;
             //是否从历史记录中取审批信息
-            bool getFromHistory = workFlowInst.StatusOfEnum == WorkFlowStatusEnum.Over || workFlowInst.StatusOfEnum == WorkFlowStatusEnum.Refused;
+            bool getFromHistory = workFlowInst.StatusOfEnum == WorkFlowStatusEnum.Over || workFlowInst.StatusOfEnum == WorkFlowStatusEnum.Refused || workFlowInst.StatusOfEnum == WorkFlowStatusEnum.Obsoleted;
             List<Bpm_WorkToDoList> todoList = null;
             if (getFromHistory) //从历史表中取
             {
@@ -2405,9 +2479,20 @@ namespace Rookey.Frame.Operate.Base
                     {
                         if (todo.OrgM_EmpId.HasValue && todo.OrgM_EmpId.Value != Guid.Empty)
                         {
-                            OrgM_Emp tempEmp = OrgMOperate.GetEmp(todo.OrgM_EmpId.Value);
-                            if (tempEmp != null)
+                            OrgM_Emp tempEmp = OrgMOperate.GetEmpContainsQuit(todo.OrgM_EmpId.Value);
+                            if (tempEmp == null)
+                            {
+                                if (currNode.HandlerTypeOfEnum == NodeHandlerTypeEnum.Role)
+                                {
+                                    Sys_User user = UserOperate.GetUser(todo.OrgM_EmpId.Value);
+                                    if (user != null)
+                                        empIdStr = string.IsNullOrEmpty(user.AliasName) ? user.UserName : user.AliasName;
+                                }
+                            }
+                            else
+                            {
                                 empIdStr = tempEmp.Name;
+                            }
                         }
                         else if (todo.OrgM_EmpId == Guid.Empty)
                         {
@@ -2422,9 +2507,20 @@ namespace Rookey.Frame.Operate.Base
                         }
                         else if (todo.OrgM_EmpId.HasValue)
                         {
-                            OrgM_Emp tempEmp = OrgMOperate.GetEmp(todo.OrgM_EmpId.Value);
-                            if (tempEmp != null)
+                            OrgM_Emp tempEmp = OrgMOperate.GetEmpContainsQuit(todo.OrgM_EmpId.Value);
+                            if (tempEmp == null)
+                            {
+                                if (currNode.HandlerTypeOfEnum == NodeHandlerTypeEnum.Role)
+                                {
+                                    Sys_User user = UserOperate.GetUser(todo.OrgM_EmpId.Value);
+                                    if (user != null)
+                                        empIdStr = string.IsNullOrEmpty(user.AliasName) ? user.UserName : user.AliasName;
+                                }
+                            }
+                            else
+                            {
                                 empIdStr = tempEmp.Name;
+                            }
                         }
                     }
                     string handleTime = todo.FinishDate.HasValue ? todo.FinishDate.Value.ToString() : string.Empty;
@@ -2433,33 +2529,41 @@ namespace Rookey.Frame.Operate.Base
                         todo.WorkActionOfEnum != WorkActionEnum.ReStarting &&
                         todo.WorkActionOfEnum != WorkActionEnum.SubStarting)
                     {
-                        int btnType = (int)FlowButtonTypeEnum.AgreeBtn;
-                        switch (todo.WorkActionOfEnum)
+                        if (todo.WorkActionOfEnum != WorkActionEnum.Obsoleting)
                         {
-                            case WorkActionEnum.Returning:
-                                btnType = (int)FlowButtonTypeEnum.BackBtn;
-                                break;
-                            case WorkActionEnum.Refusing:
-                                btnType = (int)FlowButtonTypeEnum.RejectBtn;
-                                break;
-                            case WorkActionEnum.Directing:
-                                btnType = (int)FlowButtonTypeEnum.AssignBtn;
-                                break;
+                            int btnType = (int)FlowButtonTypeEnum.AgreeBtn;
+                            switch (todo.WorkActionOfEnum)
+                            {
+                                case WorkActionEnum.Returning:
+                                    btnType = (int)FlowButtonTypeEnum.BackBtn;
+                                    break;
+                                case WorkActionEnum.Refusing:
+                                    btnType = (int)FlowButtonTypeEnum.RejectBtn;
+                                    break;
+                                case WorkActionEnum.Directing:
+                                    btnType = (int)FlowButtonTypeEnum.AssignBtn;
+                                    break;
+                            }
+                            Bpm_FlowBtn flowBtn = GetAllWorkButtons(x => x.ButtonType == btnType).FirstOrDefault();
+                            if (flowBtn != null)
+                            {
+                                Bpm_NodeBtnConfig btnConfig = GetAllApprovalBtnConfigs(x => x.Bpm_FlowBtnId == flowBtn.Id && x.Bpm_WorkFlowId == currNode.Bpm_WorkFlowId.Value && x.Bpm_WorkNodeId == currNode.Id).FirstOrDefault();
+                                if (btnConfig != null)
+                                    handleResult = btnConfig.BtnDisplay;
+                                else
+                                    handleResult = flowBtn.ButtonText;
+                            }
                         }
-                        Bpm_FlowBtn flowBtn = GetAllWorkButtons(x => x.ButtonType == btnType).FirstOrDefault();
-                        if (flowBtn != null)
+                        else //作废
                         {
-                            Bpm_NodeBtnConfig btnConfig = GetAllApprovalBtnConfigs(x => x.Bpm_FlowBtnId == flowBtn.Id && x.Bpm_WorkFlowId == currNode.Bpm_WorkFlowId.Value && x.Bpm_WorkNodeId == currNode.Id).FirstOrDefault();
-                            if (btnConfig != null)
-                                handleResult = btnConfig.BtnDisplay;
-                            else
-                                handleResult = flowBtn.ButtonText;
+                            handleResult = "作废";
                         }
                     }
                     else
                     {
                         handleResult = "发起";
                     }
+                    Bpm_WorkNode nextNode = todo.Bpm_WorkNodeId.HasValue ? GetWorkNode(todo.Bpm_WorkNodeId.Value) : null;
                     string nextHandlerStr = string.Empty;
                     if (!string.IsNullOrEmpty(todo.NextNodeHandler))
                     {
@@ -2476,12 +2580,23 @@ namespace Rookey.Frame.Operate.Base
                                 string empName = string.Empty;
                                 if (tempEmpId != Guid.Empty)
                                 {
-                                    OrgM_Emp tempEmp = OrgMOperate.GetEmp(tempEmpId);
-                                    if (tempEmp == null) continue;
-                                    empName = tempEmp.Name;
-                                    if (currFlow.OrgM_EmpId.HasValue && currFlow.OrgM_EmpId.Value == tempEmpId)
+                                    OrgM_Emp tempEmp = OrgMOperate.GetEmpContainsQuit(tempEmpId);
+                                    if (tempEmp == null)
                                     {
-                                        empName += "(找不到处理人转由流程管理人处理)";
+                                        if (nextNode != null && nextNode.HandlerTypeOfEnum == NodeHandlerTypeEnum.Role)
+                                        {
+                                            Sys_User user = UserOperate.GetUser(tempEmpId);
+                                            if (user != null)
+                                                empName = string.IsNullOrEmpty(user.AliasName) ? user.UserName : user.AliasName;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        empName = tempEmp.Name;
+                                        if (currFlow.OrgM_EmpId.HasValue && currFlow.OrgM_EmpId.Value == tempEmpId)
+                                        {
+                                            empName += "(找不到处理人转由流程管理人处理)";
+                                        }
                                     }
                                 }
                                 else
@@ -2494,7 +2609,6 @@ namespace Rookey.Frame.Operate.Base
                             }
                         }
                     }
-                    Bpm_WorkNode nextNode = todo.Bpm_WorkNodeId.HasValue ? GetWorkNode(todo.Bpm_WorkNodeId.Value) : null;
                     ApprovalInfo item = new ApprovalInfo()
                     {
                         NodeId = currNode.Id,
@@ -2593,7 +2707,7 @@ namespace Rookey.Frame.Operate.Base
 
         #endregion
 
-        #region 结点表单处理
+        #region 节点表单处理
 
         /// <summary>
         /// 获取当前审批节点
@@ -2614,9 +2728,9 @@ namespace Rookey.Frame.Operate.Base
         }
 
         /// <summary>
-        /// 获取流程结点表单
+        /// 获取流程节点表单
         /// </summary>
-        /// <param name="workNodeId">流程结点ID</param>
+        /// <param name="workNodeId">流程节点ID</param>
         /// <returns></returns>
         public static Sys_Form GetWorkNodeForm(Guid workNodeId)
         {
@@ -2629,7 +2743,7 @@ namespace Rookey.Frame.Operate.Base
         /// <summary>
         /// 获取自定义流程表单URL
         /// </summary>
-        /// <param name="workNodeId">流程结点ID</param>
+        /// <param name="workNodeId">流程节点ID</param>
         /// <returns></returns>
         public static string GetCustomerWorkNodeFormUrl(Guid workNodeId)
         {
@@ -2640,7 +2754,7 @@ namespace Rookey.Frame.Operate.Base
         }
 
         /// <summary>
-        /// 获取发起结点表单
+        /// 获取发起节点表单
         /// </summary>
         /// <param name="moduleId">模块ID</param>
         /// <returns></returns>
@@ -2657,7 +2771,7 @@ namespace Rookey.Frame.Operate.Base
         }
 
         /// <summary>
-        /// 获取发起结点自定义表单
+        /// 获取发起节点自定义表单
         /// </summary>
         /// <param name="moduleId">模块ID</param>
         /// <returns></returns>
@@ -2674,7 +2788,7 @@ namespace Rookey.Frame.Operate.Base
         }
 
         /// <summary>
-        /// 根据流程待办任务获取流程结点ID
+        /// 根据流程待办任务获取流程节点ID
         /// </summary>
         /// <param name="workTodoId">待办任务ID</param>
         /// <returns></returns>
@@ -2724,8 +2838,6 @@ namespace Rookey.Frame.Operate.Base
         public static bool IsCurrentToDoTaskHandler(Guid todoTaskId, UserInfo currUser)
         {
             if (currUser == null) return false;
-            //if (currUser.UserName == "admin") return true;
-            if (!currUser.EmpId.HasValue) return false;
             string errMsg = string.Empty;
             bool isParentTodo = false;
             Bpm_WorkToDoList todo = CommonOperate.GetEntityById<Bpm_WorkToDoList>(todoTaskId, out errMsg);
@@ -2749,7 +2861,10 @@ namespace Rookey.Frame.Operate.Base
                         Bpm_WorkNodeInstance workNodeInst = CommonOperate.GetEntityById<Bpm_WorkNodeInstance>(todo.Bpm_WorkNodeInstanceId.Value, out errMsg);
                         if (workNodeInst != null && workNodeInst.StatusOfEnum == WorkNodeStatusEnum.Undo)
                         {
-                            return currUser.EmpId.HasValue && todo.OrgM_EmpId.HasValue && todo.OrgM_EmpId.Value == currUser.EmpId.Value;
+                            if (currUser.EmpId.HasValue)
+                                return todo.OrgM_EmpId.HasValue && todo.OrgM_EmpId.Value == currUser.EmpId.Value;
+                            else
+                                return todo.OrgM_EmpId.HasValue && todo.OrgM_EmpId.Value == currUser.UserId;
                         }
                     }
                 }
@@ -2758,7 +2873,8 @@ namespace Rookey.Frame.Operate.Base
             else //当前为父待办，子流程
             {
                 int noAction = (int)WorkActionEnum.NoAction;
-                long count = CommonOperate.Count<Bpm_WorkToDoList>(out errMsg, false, x => x.ParentId == todoTaskId && x.OrgM_EmpId == currUser.EmpId.Value && x.WorkAction == noAction && x.IsDeleted == false);
+                Guid empId = currUser.EmpId.HasValue ? currUser.EmpId.Value : currUser.UserId;
+                long count = CommonOperate.Count<Bpm_WorkToDoList>(out errMsg, false, x => x.ParentId == todoTaskId && x.OrgM_EmpId == empId && x.WorkAction == noAction && x.IsDeleted == false);
                 return count > 0;
             }
         }
@@ -2774,11 +2890,16 @@ namespace Rookey.Frame.Operate.Base
         {
             if (currUser == null) return false;
             if (currUser.UserName == "admin") return true;
-            if (!currUser.EmpId.HasValue || currUser.EmpId.Value == Guid.Empty)
-                return false;
-            Guid empId = currUser.EmpId.Value;
+            Bpm_WorkNode launchNode = GetLaunchNodeByModuleId(moduleId);
+            if (launchNode == null) return false;
+            if (launchNode.HandlerTypeOfEnum != NodeHandlerTypeEnum.Role) //处理类型不是角色时验证员工
+            {
+                if (!currUser.EmpId.HasValue || currUser.EmpId.Value == Guid.Empty)
+                    return false;
+            }
             if (id.HasValue && id.Value != Guid.Empty)
             {
+                Guid empId = currUser.EmpId.HasValue ? currUser.EmpId.Value : currUser.UserId;
                 Bpm_WorkFlowInstance workflowInst = GetWorkflowInstance(moduleId, id.Value);
                 if (workflowInst != null || (workflowInst != null && workflowInst.StatusOfEnum != WorkFlowStatusEnum.NoStatus))
                     return false;
@@ -2787,8 +2908,11 @@ namespace Rookey.Frame.Operate.Base
                 Bpm_WorkToDoList todo = CommonOperate.GetEntity<Bpm_WorkToDoList>(x => x.Bpm_WorkFlowInstanceId == workflowInst.Id && x.OrgM_EmpId == empId && statusList.Contains(x.Status), null, out errMsg);
                 if (todo != null) return false;
             }
-            List<Guid> empIds = GetLaunchNodeHandler(moduleId);
-            return empIds.Contains(currUser.EmpId.Value);
+            List<Guid> empIds = GetLaunchNodeHandler(moduleId, launchNode);
+            if (currUser.EmpId.HasValue)
+                return empIds.Contains(currUser.EmpId.Value);
+            else
+                return empIds.Contains(currUser.UserId);
         }
 
         /// <summary>
@@ -2908,7 +3032,7 @@ namespace Rookey.Frame.Operate.Base
             }
             return null;
         }
-        
+
         /// <summary>
         /// 获取流程发起者
         /// </summary>

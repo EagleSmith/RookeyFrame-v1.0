@@ -159,7 +159,6 @@
     <Content Include="Config\webConfig.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Css\bootstrap\bootstrap.min.css" />
     <Content Include="Css\common\easyui_ext.css" />
     <Content Include="Css\common\main.css" />
     <Content Include="Css\common\main_bak.css" />
@@ -2071,6 +2070,7 @@
     <Content Include="FileManage\main.html" />
     <Content Include="Global.asax" />
     <Content Include="Images\Attach\pickpad.gif" />
+    <Content Include="Images\Emp\male.jpg" />
     <Content Include="Images\Main\logo-109-35.png" />
     <Content Include="Images\Main\logo-109-40.png" />
     <Content Include="Images\Main\logo48.png" />
@@ -2333,6 +2333,7 @@
     <Content Include="Scripts\jquery-easyui\themes\metro-red\tree.css" />
     <Content Include="Scripts\jquery-easyui\themes\metro-red\validatebox.css" />
     <Content Include="Scripts\jquery-easyui\themes\metro-red\window.css" />
+    <Content Include="Scripts\jquery-easyui\themes\metro\easyui-ext.css" />
     <Content Include="Scripts\jquery-easyui\themes\ui-cupertino\accordion.css" />
     <Content Include="Scripts\jquery-easyui\themes\ui-cupertino\calendar.css" />
     <Content Include="Scripts\jquery-easyui\themes\ui-cupertino\combo.css" />
@@ -2531,11 +2532,10 @@
     <Content Include="Scripts\jquery-easyui\themes\ui-sunny\window.css" />
     <Content Include="Scripts\jquery-plug\jquery-migrate-1.2.1.min.js" />
     <Content Include="Scripts\jquery-plug\jquery.jqprint-0.3.js" />
-    <Content Include="Scripts\login\Images\loig.jpg" />
-    <Content Include="Scripts\login\Images\password-icon.png" />
-    <Content Include="Scripts\login\Images\userName-icon.png" />
-    <Content Include="Scripts\login\Login.css" />
-    <Content Include="Scripts\login\login_head.png" />
+    <Content Include="Scripts\login\global.css" />
+    <Content Include="Scripts\login\login.css" />
+    <Content Include="Scripts\login\Login.js" />
+    <Content Include="Scripts\login\login.png" />
     <Content Include="Images\Main\headbg.png" />
     <Content Include="Images\Main\head_bg.gif" />
     <Content Include="Scripts\base\Base.js" />
@@ -2568,7 +2568,8 @@
     <Content Include="Scripts\Bpm\GooFlow\GooFlow2.css" />
     <Content Include="Scripts\Bpm\GooFlow\GooFlow_color.js" />
     <Content Include="Scripts\Bpm\GooFlow\GooFunc.js" />
-    <Content Include="Scripts\login\Login.js" />
+    <Content Include="Scripts\login\Reg.js" />
+    <Content Include="Scripts\model\Bpm\Bpm_FlowProxy.js" />
     <Content Include="Scripts\model\Bpm\Bpm_NodeBtnConfig.js" />
     <Content Include="Scripts\model\Bpm\Bpm_WorkFlow.js" />
     <Content Include="Scripts\model\Bpm\Bpm_WorkToDoList.js" />
@@ -2577,6 +2578,7 @@
     <Content Include="Scripts\model\Monitor\Monitor_OpExecuteTime.js" />
     <Content Include="Scripts\model\Msg\Msg_EventNotify.js" />
     <Content Include="Scripts\model\OrgM\OrgM_DeptDuty.js" />
+    <Content Include="Scripts\model\OrgM\OrgM_Emp.js" />
     <Content Include="Scripts\model\OrgM\OrgM_EmpDeptDuty.js" />
     <Content Include="Scripts\model\System\Sys_CacheConfig.js" />
     <Content Include="Scripts\permission\RoleDataPermissionSet.js" />
@@ -2997,7 +2999,6 @@
     <Content Include="Scripts\FlexPaper\js\swfobject\expressInstall.swf" />
     <Content Include="Scripts\FlexPaper\js\swfobject\swfobject.js" />
     <Content Include="Scripts\FlexPaper\Paper.swf" />
-    <Content Include="Scripts\login\Login_Old.js" />
     <Content Include="Scripts\extension\WdatePicker.js" />
     <Content Include="Scripts\images\loading.gif" />
     <Content Include="Scripts\images\top.jpg" />
@@ -3399,7 +3400,6 @@
     <Content Include="Views\Page\Desktop\DesktopIndex.cshtml" />
     <Content Include="Views\Page\Desktop\DesktopGrid.cshtml" />
     <Content Include="Views\Page\Common\AddQuckMenu.cshtml" />
-    <Content Include="Views\User\Login_Old.cshtml" />
     <Content Include="Views\Page\System\WebConfig.cshtml" />
     <Content Include="Views\Page\Email\EmailIndex.cshtml" />
     <Content Include="Views\Page\System\AddCommonBtn.cshtml" />
@@ -3408,7 +3408,6 @@
     <Content Include="Views\Bpm\FlowCanvas.cshtml" />
     <Content Include="Views\Bpm\NodeParamSet.cshtml" />
     <Content Include="Views\Bpm\LineParamSet.cshtml" />
-    <Content Include="Views\User\DialogLogin.cshtml" />
     <Content Include="Views\Shared\_LoginLayout.cshtml" />
     <Content Include="Views\Bpm\SelectBackNode.cshtml" />
     <Content Include="Views\Page\Permission\UserDataPermissionSet.cshtml" />
@@ -3425,7 +3424,11 @@
     <Content Include="FileManage\WebExplorer.ashx" />
     <None Include="Properties\PublishProfiles\Publish.pubxml" />
     <Content Include="Views\Bpm\FlowOpGuide.cshtml" />
+    <Content Include="Views\User\ForgetPwd.cshtml" />
     <Content Include="Views\User\Login.cshtml" />
+    <Content Include="Views\User\Reg.cshtml" />
+    <Content Include="Views\User\ResetPwd.cshtml" />
+    <Content Include="Views\Bpm\FlowTips.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

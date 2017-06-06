@@ -42,7 +42,7 @@ namespace Rookey.Frame.Model.OrgM
         /// <summary>
         /// 部门信息
         /// </summary>
-        [FieldConfig(Display = "部门", ControlType = (int)ControlTypeEnum.DialogGrid, IsFrozen = true, IsRequired = true, RowNum = 2, ColNum = 1, HeadSort = 3, ForeignModuleName = "部门管理")]
+        [FieldConfig(Display = "部门", ControlType = (int)ControlTypeEnum.DialogTree, IsFrozen = true, IsRequired = true, RowNum = 2, ColNum = 1, HeadSort = 3, ForeignModuleName = "部门管理")]
         public Guid? OrgM_DeptId { get; set; }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace Rookey.Frame.Model.OrgM
         /// <summary>
         /// 生效日期
         /// </summary>
-        [FieldConfig(Display = "生效日期", ControlType = (int)ControlTypeEnum.DateBox, RowNum = 4, ColNum = 1, IsRequired = true, HeadSort = 7)]
+        [FieldConfig(Display = "生效日期", ControlType = (int)ControlTypeEnum.DateBox, RowNum = 4, ColNum = 1, IsRequired = true, DefaultValue = "currDate", HeadSort = 7)]
         public DateTime? EffectiveDate { get; set; }
 
         /// <summary>

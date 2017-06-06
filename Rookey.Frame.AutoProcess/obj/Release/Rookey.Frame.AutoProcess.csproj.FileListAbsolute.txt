@@ -13,3 +13,8 @@ D:\rookey\git.oschina\Rookey.Frame.Lib\web\Rookey.Frame.AutoProcess.dll
 D:\rookey\git.oschina\Rookey.Frame.Lib\web\Rookey.Frame.AutoProcess.pdb
 D:\rookey\git.oschina\Rookey.Frame.AutoProcess\obj\Release\Rookey.Frame.AutoProcess.dll
 D:\rookey\git.oschina\Rookey.Frame.AutoProcess\obj\Release\Rookey.Frame.AutoProcess.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.AutoProcess.XML
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.AutoProcess.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.AutoProcess.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.AutoProcess\obj\Release\Rookey.Frame.AutoProcess.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.AutoProcess\obj\Release\Rookey.Frame.AutoProcess.pdb

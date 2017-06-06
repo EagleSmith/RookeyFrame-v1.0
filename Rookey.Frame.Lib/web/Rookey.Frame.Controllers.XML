@@ -1685,6 +1685,24 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:Rookey.Frame.Controllers.UserController.Reg">
+            <summary>
+            注册页面
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Rookey.Frame.Controllers.UserController.ForgetPwd">
+            <summary>
+            忘记密码页面
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Rookey.Frame.Controllers.UserController.ResetPwd">
+            <summary>
+            重置密码页面
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:Rookey.Frame.Controllers.UserController.UserLogin(System.String,System.String,System.String)">
             <summary>
             用户登录
@@ -1729,6 +1747,36 @@
         <member name="M:Rookey.Frame.Controllers.UserController.ChangePwd">
             <summary>
             修改密码
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Rookey.Frame.Controllers.UserController.UserReg(System.String,System.String,System.String)">
+            <summary>
+            用户注册
+            </summary>
+            <param name="username">用户名</param>
+            <param name="userpwd">密码</param>
+            <param name="useralias">用户别名</param>
+            <returns></returns>
+        </member>
+        <member name="M:Rookey.Frame.Controllers.UserController.UserForgetPwd(System.String)">
+            <summary>
+            忘记密码，忘记密码给用户发送邮件将修改密码链接发送给用户
+            用户点击链接进行密码修改
+            </summary>
+            <param name="username">用户名</param>
+            <returns></returns>
+        </member>
+        <member name="M:Rookey.Frame.Controllers.UserController.GetForgetPwdSendContent(Rookey.Frame.Model.Sys.Sys_User)">
+            <summary>
+            获取重置密码邮件内容
+            </summary>
+            <param name="user">用户</param>
+            <returns></returns>
+        </member>
+        <member name="M:Rookey.Frame.Controllers.UserController.ChangePwdNoLogin">
+            <summary>
+            未登录修改密码
             </summary>
             <returns></returns>
         </member>
@@ -2301,6 +2349,24 @@
         <member name="M:Rookey.Frame.Controllers.OrgM.OrgMController.GetEmpLevelDepthDept">
             <summary>
             获取员工的层级部门信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Rookey.Frame.Controllers.OrgM.OrgMController.UploadEmpPhoto">
+            <summary>
+            上传员工照片，照片路径/Upload/
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Rookey.Frame.Controllers.OrgM.OrgMController.AddDept">
+            <summary>
+            添加部门
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Rookey.Frame.Controllers.OrgM.OrgMController.AddDuty">
+            <summary>
+            添加职务
             </summary>
             <returns></returns>
         </member>

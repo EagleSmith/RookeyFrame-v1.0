@@ -88,21 +88,21 @@
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetAllWorkNodes(System.Linq.Expressions.Expression{System.Func{Rookey.Frame.Model.Bpm.Bpm_WorkNode,System.Boolean}})">
             <summary>
-            获取所有流程结点
+            获取所有流程节点
             </summary>
             <param name="expression">条件表达式</param>
             <returns></returns>
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetWorkNode(System.Guid)">
             <summary>
-            获取流程结点
+            获取流程节点
             </summary>
-            <param name="workNodeId">流程结点ID</param>
+            <param name="workNodeId">流程节点ID</param>
             <returns></returns>
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetWorkNodesOfFlow(System.Guid)">
             <summary>
-            获取流程的所有流程结点
+            获取流程的所有流程节点
             </summary>
             <param name="workflowId">流程ID</param>
             <returns></returns>
@@ -116,32 +116,32 @@
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetEndNode(System.Guid)">
             <summary>
-            获取结束结点
+            获取结束节点
             </summary>
             <param name="workflowId">流程ID</param>
             <returns></returns>
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetLaunchNodeByModuleId(System.Guid)">
             <summary>
-            根据模块ID获取发起结点
+            根据模块ID获取发起节点
             </summary>
             <param name="moduleId">模块ID</param>
             <returns></returns>
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetPrexNode(System.Guid,System.Guid)">
             <summary>
-            获取当前结点的前一结点
+            获取当前节点的前一节点集合
             </summary>
             <param name="workflowId">流程ID</param>
-            <param name="workNodeId">当前结点ID</param>
+            <param name="workNodeId">当前节点ID</param>
             <returns></returns>
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetPrexNodes(System.Guid,System.Guid)">
             <summary>
-            获取当前结点的所有前面结点集合
+            获取当前节点的所有前面节点集合（递归）
             </summary>
             <param name="workflowId">流程ID</param>
-            <param name="workNodeId">当前结点ID</param>
+            <param name="workNodeId">当前节点ID</param>
             <returns></returns>
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetNextWorkNodes(System.Guid,System.Guid)">
@@ -156,16 +156,16 @@
             <summary>
             获取下一审批节点
             </summary>
-            <param name="nextNodes">下一结点集合</param>
+            <param name="nextNodes">下一节点集合</param>
             <param name="workflow">流程</param>
-            <param name="currNode">当前结点</param>
+            <param name="currNode">当前节点</param>
             <param name="workFlowInst">流程实例</param>
-            <param name="currNodeInst">当前实例结点</param>
+            <param name="currNodeInst">当前实例节点</param>
             <returns></returns>
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetWorkNodeByTagId(System.Guid,System.String)">
             <summary>
-            根据tagId获取流程结点
+            根据tagId获取流程节点
             </summary>
             <param name="workflowId">流程ID</param>
             <param name="tagId">tagid</param>
@@ -173,47 +173,48 @@
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetNextNodeHandler(Rookey.Frame.Model.Bpm.Bpm_WorkNode,Rookey.Frame.Base.UserInfo,Rookey.Frame.Model.Bpm.Bpm_WorkFlowInstance)">
             <summary>
-            获取下一结点的处理者
+            获取下一节点的处理者
             </summary>
-            <param name="nextNode">下一结点</param>
-            <param name="currUser">当前结点处理人</param>
+            <param name="nextNode">下一节点</param>
+            <param name="currUser">当前节点处理人</param>
             <param name="workFlowInst">流程实例</param>
             <returns>返回员工ID集合</returns>
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetPreNodeHandler(Rookey.Frame.Model.Bpm.Bpm_WorkNode,Rookey.Frame.Model.Bpm.Bpm_WorkFlowInstance)">
             <summary>
-            获取前一结点的处理人集合
+            获取前一节点的处理人集合
             </summary>
-            <param name="currNode">当前结点</param>
+            <param name="currNode">当前节点</param>
             <param name="workflowInst">流程实例</param>
             <returns></returns>
         </member>
-        <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetLaunchNodeHandler(System.Guid)">
+        <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetLaunchNodeHandler(System.Guid,Rookey.Frame.Model.Bpm.Bpm_WorkNode)">
             <summary>
-            获取发起结点处理者
+            获取发起节点处理者
             </summary>
             <param name="moduleId">模块ID</param>
+            <param name="tempLaunchNode">发起节点</param>
             <returns></returns>
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetParentFlowNode(System.Guid)">
             <summary>
-            获取子流程的父流程当前结点
+            获取子流程的父流程当前节点
             </summary>
-            <param name="subWorkflowId">子流程结点</param>
+            <param name="subWorkflowId">子流程节点</param>
             <returns></returns>
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetBackNodes(System.Guid)">
             <summary>
-            获取回退结点集合
+            获取回退节点集合
             </summary>
             <param name="toDoTaskId">待办ID</param>
             <returns></returns>
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetWorkNodeInstanceById(System.Guid)">
             <summary>
-            获取流程结点实例
+            获取流程节点实例
             </summary>
-            <param name="id">结点ID</param>
+            <param name="id">节点ID</param>
             <returns></returns>
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetAllWorkLines(System.Linq.Expressions.Expression{System.Func{Rookey.Frame.Model.Bpm.Bpm_WorkLine,System.Boolean}})">
@@ -257,14 +258,14 @@
             获取流程表单按钮集合
             </summary>
             <param name="workflowId">流程ID</param>
-            <param name="workNodeId">流程结点ID</param>
+            <param name="workNodeId">流程节点ID</param>
             <returns></returns>
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetLaunchNodeFlowBtns(System.Nullable{System.Guid})">
             <summary>
-            获取发起结点流程操作按钮集合
+            获取发起节点流程操作按钮集合
             </summary>
-            <param name="todoTaskId">待办ID，针对回退到发起结点时的待办ID</param>
+            <param name="todoTaskId">待办ID，针对回退到发起节点时的待办ID</param>
             <returns></returns>
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetNodeFlowBtns(System.Guid,Rookey.Frame.Base.UserInfo)">
@@ -310,13 +311,13 @@
             </summary>
             <param name="workflow">流程</param>
             <param name="workFlowInst">流程实例</param>
-            <param name="workNode">流程结点</param>
-            <param name="workNodeInst">流程结点实例</param>
+            <param name="workNode">流程节点</param>
+            <param name="workNodeInst">流程节点实例</param>
             <param name="currUser">当前用户</param>
             <param name="workAction">操作动作</param>
             <param name="approvalOpinions">审批意见</param>
             <param name="workTodo">审批时处理的当前待办任务</param>
-            <param name="returnNode">回退时的回退结点</param>
+            <param name="returnNode">回退时的回退节点</param>
             <param name="directHandler">指派时的人员ID</param>
             <param name="parentWorkTodoId">父待办ID，针对发起子流程</param>
             <param name="detailIds">当前子流程需要发起的所有明细ID集合，判断所有子流程是否结束时用到</param>
@@ -432,35 +433,35 @@
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetWorkNodeForm(System.Guid)">
             <summary>
-            获取流程结点表单
+            获取流程节点表单
             </summary>
-            <param name="workNodeId">流程结点ID</param>
+            <param name="workNodeId">流程节点ID</param>
             <returns></returns>
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetCustomerWorkNodeFormUrl(System.Guid)">
             <summary>
             获取自定义流程表单URL
             </summary>
-            <param name="workNodeId">流程结点ID</param>
+            <param name="workNodeId">流程节点ID</param>
             <returns></returns>
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetLaunchNodeForm(System.Guid)">
             <summary>
-            获取发起结点表单
+            获取发起节点表单
             </summary>
             <param name="moduleId">模块ID</param>
             <returns></returns>
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetLaunchNodeCustomerFormUrl(System.Guid)">
             <summary>
-            获取发起结点自定义表单
+            获取发起节点自定义表单
             </summary>
             <param name="moduleId">模块ID</param>
             <returns></returns>
         </member>
         <member name="M:Rookey.Frame.Operate.Base.BpmOperate.GetWorkNodeIdByTodoId(System.Guid)">
             <summary>
-            根据流程待办任务获取流程结点ID
+            根据流程待办任务获取流程节点ID
             </summary>
             <param name="workTodoId">待办任务ID</param>
             <returns></returns>
@@ -2600,6 +2601,11 @@
             审批指派
             </summary>
         </member>
+        <member name="F:Rookey.Frame.Operate.Base.EnumDef.ButtonIconType.FlowObsoleted">
+            <summary>
+            审批作废
+            </summary>
+        </member>
         <member name="F:Rookey.Frame.Operate.Base.EnumDef.ButtonIconType.Other">
             <summary>
             其他
@@ -2631,6 +2637,18 @@
         <member name="M:Rookey.Frame.Operate.Base.InitFactory.CustomerInit">
             <summary>
             自定义初始化，包括菜单、模块、字段、字典等数据初始化
+            </summary>
+        </member>
+        <member name="M:Rookey.Frame.Operate.Base.InitFactory.GetDesktopPageUrl(Rookey.Frame.Base.UserInfo)">
+            <summary>
+            获取自定义桌面URL
+            </summary>
+            <param name="currUser">当前用户</param>
+            <returns></returns>
+        </member>
+        <member name="M:Rookey.Frame.Operate.Base.InitFactory.AddBackgroundTask">
+            <summary>
+            添加自定义后台任务
             </summary>
         </member>
         <member name="T:Rookey.Frame.Operate.Base.LogOperate">
@@ -2981,6 +2999,61 @@
             员工操作处理类
             </summary>
         </member>
+        <member name="T:Rookey.Frame.Operate.Base.OperateHandle.IFormOperateHandle`1">
+            <summary>
+            表单操作处理接口
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:Rookey.Frame.Operate.Base.OperateHandle.IFormOperateHandle`1.FormDataHandle(`0,Rookey.Frame.Model.EnumSpace.FormTypeEnum,Rookey.Frame.Base.UserInfo)">
+            <summary>
+            返回表单数据前对表单数据进行处理
+            </summary>
+            <param name="t">实体对象</param>
+            <param name="formType">表单类型</param>
+            <param name="currUser">当前用户</param>
+        </member>
+        <member name="M:Rookey.Frame.Operate.Base.OperateHandle.IFormOperateHandle`1.GetFormButtons(Rookey.Frame.Model.EnumSpace.FormTypeEnum,System.Collections.Generic.List{Rookey.Frame.Operate.Base.TempModel.FormButton},System.Boolean,System.Boolean,Rookey.Frame.Base.UserInfo)">
+            <summary>
+            取表单页面按钮
+            </summary>
+            <param name="formType">表单类型</param>
+            <param name="buttons">原有表单按钮</param>
+            <param name="isAdd">是否新增页面</param>
+            <param name="isDraft">是否草稿</param>
+            <param name="currUser">当前用户</param>
+            <returns></returns>
+        </member>
+        <member name="M:Rookey.Frame.Operate.Base.OperateHandle.IFormOperateHandle`1.GetFormToolTags(Rookey.Frame.Model.EnumSpace.FormTypeEnum,System.Collections.Generic.List{Rookey.Frame.Operate.Base.TempModel.FormToolTag},System.Boolean,Rookey.Frame.Base.UserInfo)">
+            <summary>
+            获取表单工具标签按钮集合
+            </summary>
+            <param name="formType">表单类型</param>
+            <param name="tags">tags</param>
+            <param name="isAdd">是否新增页面</param>
+            <param name="currUser">当前用户</param>
+            <returns></returns>
+        </member>
+        <member name="M:Rookey.Frame.Operate.Base.OperateHandle.IFormOperateHandle`1.GetAutoCompleteDisplay(`0,System.String,System.String,System.Object[],Rookey.Frame.Base.UserInfo)">
+            <summary>
+            获取智能提示下拉面板显示值，各模块通过重写此方法可以任意设置下拉显示格式
+            </summary>
+            <param name="t">实体对象</param>
+            <param name="initModule">针对编辑表单时，原始模块</param>
+            <param name="initField">针对编辑表单时，原始字段</param>
+            <param name="otherParams">其他参数</param>
+            <param name="currUser">当前用户</param>
+            <returns></returns>
+        </member>
+        <member name="M:Rookey.Frame.Operate.Base.OperateHandle.IFormOperateHandle`1.OverSaveDetailData(Rookey.Frame.Operate.Base.TempModel.DetailFormObject,System.String@,Rookey.Frame.Base.UserInfo)">
+            <summary>
+            重写表单明细保存数据
+            </summary>
+            <param name="detailObj">明细表单数据对象</param>
+            <param name="errMsg">异常信息</param>
+            <param name="currUser">当前用户</param>
+            <returns>返回是否执行了自定义明细保存方法</returns>
+        </member>
         <member name="M:Rookey.Frame.Operate.Base.OperateHandle.Implement.OrgM_EmpOperateHandle.OperateCompeletedHandle(Rookey.Frame.Operate.Base.OperateHandle.ModelRecordOperateType,Rookey.Frame.Model.OrgM.OrgM_Emp,System.Boolean,Rookey.Frame.Base.UserInfo,System.Object[])">
             <summary>
             员工操作完成
@@ -3068,65 +3141,59 @@
             <param name="currUser">当前用户</param>
             <returns></returns>
         </member>
+        <member name="M:Rookey.Frame.Operate.Base.OperateHandle.Implement.OrgM_EmpOperateHandle.FormDataHandle(Rookey.Frame.Model.OrgM.OrgM_Emp,Rookey.Frame.Model.EnumSpace.FormTypeEnum,Rookey.Frame.Base.UserInfo)">
+            <summary>
+            表单数据处理
+            </summary>
+            <param name="t">对象</param>
+            <param name="formType">表单类型</param>
+            <param name="currUser">当前用户</param>
+        </member>
+        <member name="M:Rookey.Frame.Operate.Base.OperateHandle.Implement.OrgM_EmpOperateHandle.GetFormButtons(Rookey.Frame.Model.EnumSpace.FormTypeEnum,System.Collections.Generic.List{Rookey.Frame.Operate.Base.TempModel.FormButton},System.Boolean,System.Boolean,Rookey.Frame.Base.UserInfo)">
+            <summary>
+            获取表单按钮
+            </summary>
+            <param name="formType"></param>
+            <param name="buttons"></param>
+            <param name="isAdd"></param>
+            <param name="isDraft"></param>
+            <param name="currUser"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Rookey.Frame.Operate.Base.OperateHandle.Implement.OrgM_EmpOperateHandle.GetFormToolTags(Rookey.Frame.Model.EnumSpace.FormTypeEnum,System.Collections.Generic.List{Rookey.Frame.Operate.Base.TempModel.FormToolTag},System.Boolean,Rookey.Frame.Base.UserInfo)">
+            <summary>
+            获取表单tags
+            </summary>
+            <param name="formType"></param>
+            <param name="tags"></param>
+            <param name="isAdd"></param>
+            <param name="currUser"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Rookey.Frame.Operate.Base.OperateHandle.Implement.OrgM_EmpOperateHandle.GetAutoCompleteDisplay(Rookey.Frame.Model.OrgM.OrgM_Emp,System.String,System.String,System.Object[],Rookey.Frame.Base.UserInfo)">
+            <summary>
+            获取智能提示模板
+            </summary>
+            <param name="t"></param>
+            <param name="initModule"></param>
+            <param name="initField"></param>
+            <param name="otherParams"></param>
+            <param name="currUser"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Rookey.Frame.Operate.Base.OperateHandle.Implement.OrgM_EmpOperateHandle.OverSaveDetailData(Rookey.Frame.Operate.Base.TempModel.DetailFormObject,System.String@,Rookey.Frame.Base.UserInfo)">
+            <summary>
+            自定义保存明细数据
+            </summary>
+            <param name="detailObj"></param>
+            <param name="errMsg"></param>
+            <param name="currUser"></param>
+            <returns>返回是否执行了明细保存</returns>
+        </member>
         <member name="T:Rookey.Frame.Operate.Base.OperateHandle.Implement.Sys_DbConfigOperateHandle">
             <summary>
             数据库配置操作处理类
             </summary>
-        </member>
-        <member name="T:Rookey.Frame.Operate.Base.OperateHandle.IFormOperateHandle`1">
-            <summary>
-            表单操作处理接口
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:Rookey.Frame.Operate.Base.OperateHandle.IFormOperateHandle`1.FormDataHandle(`0,Rookey.Frame.Model.EnumSpace.FormTypeEnum,Rookey.Frame.Base.UserInfo)">
-            <summary>
-            返回表单数据前对表单数据进行处理
-            </summary>
-            <param name="t">实体对象</param>
-            <param name="formType">表单类型</param>
-            <param name="currUser">当前用户</param>
-        </member>
-        <member name="M:Rookey.Frame.Operate.Base.OperateHandle.IFormOperateHandle`1.GetFormButtons(Rookey.Frame.Model.EnumSpace.FormTypeEnum,System.Collections.Generic.List{Rookey.Frame.Operate.Base.TempModel.FormButton},System.Boolean,System.Boolean,Rookey.Frame.Base.UserInfo)">
-            <summary>
-            取表单页面按钮
-            </summary>
-            <param name="formType">表单类型</param>
-            <param name="buttons">原有表单按钮</param>
-            <param name="isAdd">是否新增页面</param>
-            <param name="isDraft">是否草稿</param>
-            <param name="currUser">当前用户</param>
-            <returns></returns>
-        </member>
-        <member name="M:Rookey.Frame.Operate.Base.OperateHandle.IFormOperateHandle`1.GetFormToolTags(Rookey.Frame.Model.EnumSpace.FormTypeEnum,System.Collections.Generic.List{Rookey.Frame.Operate.Base.TempModel.FormToolTag},System.Boolean,Rookey.Frame.Base.UserInfo)">
-            <summary>
-            获取表单工具标签按钮集合
-            </summary>
-            <param name="formType">表单类型</param>
-            <param name="tags">tags</param>
-            <param name="isAdd">是否新增页面</param>
-            <param name="currUser">当前用户</param>
-            <returns></returns>
-        </member>
-        <member name="M:Rookey.Frame.Operate.Base.OperateHandle.IFormOperateHandle`1.GetAutoCompleteDisplay(`0,System.String,System.String,System.Object[],Rookey.Frame.Base.UserInfo)">
-            <summary>
-            获取智能提示下拉面板显示值，各模块通过重写此方法可以任意设置下拉显示格式
-            </summary>
-            <param name="t">实体对象</param>
-            <param name="initModule">针对编辑表单时，原始模块</param>
-            <param name="initField">针对编辑表单时，原始字段</param>
-            <param name="otherParams">其他参数</param>
-            <param name="currUser">当前用户</param>
-            <returns></returns>
-        </member>
-        <member name="M:Rookey.Frame.Operate.Base.OperateHandle.IFormOperateHandle`1.OverSaveDetailData(Rookey.Frame.Operate.Base.TempModel.DetailFormObject,System.String@,Rookey.Frame.Base.UserInfo)">
-            <summary>
-            重写表单明细保存数据
-            </summary>
-            <param name="detailObj">明细表单数据对象</param>
-            <param name="errMsg">异常信息</param>
-            <param name="currUser">当前用户</param>
-            <returns>返回是否执行了自定义明细保存方法</returns>
         </member>
         <member name="M:Rookey.Frame.Operate.Base.OperateHandle.Implement.Sys_DbConfigOperateHandle.GridLoadDataParamsSet(Rookey.Frame.Model.Sys.Sys_Module,Rookey.Frame.Operate.Base.TempModel.GridDataParmas,System.Web.HttpRequestBase)">
             <summary>
@@ -3873,6 +3940,13 @@
             <param name="empId">员工ID</param>
             <returns></returns>
         </member>
+        <member name="M:Rookey.Frame.Operate.Base.OrgMOperate.GetEmpContainsQuit(System.Guid)">
+            <summary>
+            获取员工信息，包含离职人员
+            </summary>
+            <param name="empId">员工ID</param>
+            <returns></returns>
+        </member>
         <member name="M:Rookey.Frame.Operate.Base.OrgMOperate.GetEmpByCode(System.String)">
             <summary>
             根据员工编号获取员工信息
@@ -3890,6 +3964,13 @@
         <member name="M:Rookey.Frame.Operate.Base.OrgMOperate.GetEmpName(System.Guid)">
             <summary>
             获取员工姓名
+            </summary>
+            <param name="empId">员工ID</param>
+            <returns></returns>
+        </member>
+        <member name="M:Rookey.Frame.Operate.Base.OrgMOperate.GetEmpNameContainsQuit(System.Guid)">
+            <summary>
+            获取员工姓名，包含离职人员
             </summary>
             <param name="empId">员工ID</param>
             <returns></returns>
@@ -5315,29 +5396,32 @@
             <param name="isAllowEditField">字段是否允许编辑</param>
             <returns></returns>
         </member>
-        <member name="M:Rookey.Frame.Operate.Base.SystemOperate.GetFieldEditor(Rookey.Frame.Model.Sys.Sys_Module,System.String)">
+        <member name="M:Rookey.Frame.Operate.Base.SystemOperate.GetFieldEditor(Rookey.Frame.Model.Sys.Sys_Module,System.String,System.Nullable{System.Guid})">
             <summary>
             获取字段编辑器
             </summary>
             <param name="module">模块</param>
             <param name="fieldName">字段名称</param>
+            <param name="userId">当前用户ID</param>
             <returns></returns>
         </member>
-        <member name="M:Rookey.Frame.Operate.Base.SystemOperate.GetFieldEditor(Rookey.Frame.Model.Sys.Sys_Module,Rookey.Frame.Model.Sys.Sys_Field)">
+        <member name="M:Rookey.Frame.Operate.Base.SystemOperate.GetFieldEditor(Rookey.Frame.Model.Sys.Sys_Module,Rookey.Frame.Model.Sys.Sys_Field,System.Nullable{System.Guid})">
             <summary>
             获取字段编辑器
             </summary>
             <param name="module">模块</param>
             <param name="sysField">字段</param>
+            <param name="userId">当前用户ID</param>
             <returns></returns>
         </member>
-        <member name="M:Rookey.Frame.Operate.Base.SystemOperate.GetFieldEditor(Rookey.Frame.Model.Sys.Sys_Module,Rookey.Frame.Model.Sys.Sys_Field,Rookey.Frame.Model.Sys.Sys_FormField)">
+        <member name="M:Rookey.Frame.Operate.Base.SystemOperate.GetFieldEditor(Rookey.Frame.Model.Sys.Sys_Module,Rookey.Frame.Model.Sys.Sys_Field,Rookey.Frame.Model.Sys.Sys_FormField,System.Nullable{System.Guid})">
             <summary>
             获取字段编辑器
             </summary>
             <param name="module">模块</param>
             <param name="sysField">字段</param>
             <param name="formField">表单字段</param>
+            <param name="userId">当前用户ID</param>
             <returns></returns>
         </member>
         <member name="M:Rookey.Frame.Operate.Base.SystemOperate.GetNfDefaultFormSingleField(Rookey.Frame.Model.Sys.Sys_Field)">
@@ -7017,6 +7101,11 @@
         <member name="F:Rookey.Frame.Operate.Base.OperateHandle.ModelRecordOperateType.View">
             <summary>
             查看
+            </summary>
+        </member>
+        <member name="F:Rookey.Frame.Operate.Base.OperateHandle.ModelRecordOperateType.Restore">
+            <summary>
+            删除后还原
             </summary>
         </member>
         <member name="T:Rookey.Frame.Operate.Base.OperateHandle.OperateInterfaceType">

@@ -146,6 +146,12 @@ namespace Rookey.Frame.Operate.Base.EnumDef
         FlowDirect = 9,
 
         /// <summary>
+        /// 审批作废
+        /// </summary>
+        [Description("审批作废")]
+        FlowObsoleted = 11,
+
+        /// <summary>
         /// 其他
         /// </summary>
         [Description("其他")]

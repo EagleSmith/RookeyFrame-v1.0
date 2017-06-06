@@ -122,7 +122,7 @@ namespace Rookey.Frame.Model.OrgM
         /// <summary>
         /// 生效日期
         /// </summary>
-        [FieldConfig(Display = "生效日期", ControlType = (int)ControlTypeEnum.DateBox, RowNum = 9, ColNum = 2, IsRequired = true, HeadSort = 13)]
+        [FieldConfig(Display = "生效日期", ControlType = (int)ControlTypeEnum.DateBox, RowNum = 9, ColNum = 2, IsRequired = true, DefaultValue = "currDate", HeadSort = 13)]
         public DateTime EffectiveDate { get; set; }
 
         /// <summary>

@@ -16,3 +16,9 @@ D:\rookey\git.oschina\Rookey.Frame.Lib\web\Rookey.Frame.Cache.Factory.pdb
 D:\rookey\git.oschina\Rookey.Frame.Cache.Factory\obj\Release\Rookey.Frame.Cache.Factory.csprojResolveAssemblyReference.cache
 D:\rookey\git.oschina\Rookey.Frame.Cache.Factory\obj\Release\Rookey.Frame.Cache.Factory.dll
 D:\rookey\git.oschina\Rookey.Frame.Cache.Factory\obj\Release\Rookey.Frame.Cache.Factory.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Cache.Factory.XML
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Cache.Factory.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Cache.Factory.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Cache.Factory\obj\Release\Rookey.Frame.Cache.Factory.csprojResolveAssemblyReference.cache
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Cache.Factory\obj\Release\Rookey.Frame.Cache.Factory.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Cache.Factory\obj\Release\Rookey.Frame.Cache.Factory.pdb

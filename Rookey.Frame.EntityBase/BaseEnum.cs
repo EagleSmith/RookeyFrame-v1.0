@@ -40,9 +40,9 @@ namespace Rookey.Frame.EntityBase
         ComboBox = 3,
 
         /// <summary>
-        /// 下拉弹出列表框
+        /// 下拉网格列表
         /// </summary>
-        [Description("下拉弹出列表")]
+        [Description("下拉网格")]
         ComboGrid = 4,
 
         /// <summary>

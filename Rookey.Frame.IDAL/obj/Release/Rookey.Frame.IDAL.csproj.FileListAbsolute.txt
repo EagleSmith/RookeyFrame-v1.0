@@ -16,3 +16,9 @@ D:\rookey\git.oschina\Rookey.Frame.Lib\web\Rookey.Frame.IDAL.pdb
 D:\rookey\git.oschina\Rookey.Frame.IDAL\obj\Release\Rookey.Frame.IDAL.csprojResolveAssemblyReference.cache
 D:\rookey\git.oschina\Rookey.Frame.IDAL\obj\Release\Rookey.Frame.IDAL.dll
 D:\rookey\git.oschina\Rookey.Frame.IDAL\obj\Release\Rookey.Frame.IDAL.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.IDAL.XML
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.IDAL.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.IDAL.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.IDAL\obj\Release\Rookey.Frame.IDAL.csprojResolveAssemblyReference.cache
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.IDAL\obj\Release\Rookey.Frame.IDAL.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.IDAL\obj\Release\Rookey.Frame.IDAL.pdb

@@ -31,6 +31,7 @@ $.fn.extend({
                             if (!textValue) {
                                 v = '';
                             }
+                            obj.attr('v', v);
                             obj.attr('value', v);
                         }
                         else { //搜索表单
@@ -38,6 +39,7 @@ $.fn.extend({
                             if (v == undefined || v == null || v == '') {
                                 v = $(this).next('span').find('input.textbox-text').val();
                             }
+                            obj.attr('v', v);
                             obj.attr('value', v);
                         }
                     }

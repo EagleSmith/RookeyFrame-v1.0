@@ -27,6 +27,12 @@
     <folder>Upload/Attachment</folder>
   </Attachment>
 
+  <Temp>
+    <allowType>*.jpg;*.gif;*.png;*.doc;*.docx;*.xls;*.xlsx;*.pdf;*.txt;*.rtf;*.ppt;*.pptx;*.rar;*.zip</allowType>
+    <maxFileSize>102400</maxFileSize>
+    <folder>Upload/Temp</folder>
+  </Temp>
+  
   <UEImage>
     <allowType>*.gif; *.png;*.jpg;*.jpeg;*.bmp</allowType>
     <maxFileSize>2048</maxFileSize>

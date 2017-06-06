@@ -1,8 +1,13 @@
 ﻿var page = GetLocalQueryString("page"); //源页面类型
 var id = GetLocalQueryString("id"); //记录Id
+var num = GetLocalQueryString("num"); //附件数
 
 $(function () {
     AddUpFile();
+    if (num == 1) { //只允许一个附件
+        $("a[name='a_Add']").remove();
+        $("a[name='a_Remove']").remove();
+    }
 });
 
 //添加上传控件

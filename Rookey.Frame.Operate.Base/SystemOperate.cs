@@ -1577,6 +1577,12 @@ namespace Rookey.Frame.Operate.Base
                     ObjectHelper.CopyValue<Sys_GridField>(field, tempNameGridField);
                     //字段名称为原字段名称去掉最后的Id加上Name
                     tempNameGridField.Sys_FieldName = sysField.Name.EndsWith("Id") ? sysField.Name.Substring(0, sysField.Name.Length - 2) + "Name" : sysField.Name + "Name";
+                    if (sysField.Name.EndsWith("Id"))
+                    {
+                        Sys_Module parentModule = GetParentModule(grid.Sys_ModuleId.Value);
+                        if (parentModule != null && parentModule.Name == sysField.ForeignModuleName)
+                            tempNameGridField.IsVisible = false;
+                    }
                     list.Add(tempNameGridField);
                     #endregion
                     tempGridField.IsVisible = false; //原字段不可见
@@ -2402,11 +2408,12 @@ namespace Rookey.Frame.Operate.Base
         /// </summary>
         /// <param name="module">模块</param>
         /// <param name="fieldName">字段名称</param>
+        /// <param name="userId">当前用户ID</param>
         /// <returns></returns>
-        public static string GetFieldEditor(Sys_Module module, string fieldName)
+        public static string GetFieldEditor(Sys_Module module, string fieldName, Guid? userId = null)
         {
             Sys_Field sysField = GetFieldInfo(module.Id, fieldName);
-            return GetFieldEditor(module, sysField);
+            return GetFieldEditor(module, sysField, userId);
         }
 
         /// <summary>
@@ -2414,14 +2421,15 @@ namespace Rookey.Frame.Operate.Base
         /// </summary>
         /// <param name="module">模块</param>
         /// <param name="sysField">字段</param>
+        /// <param name="userId">当前用户ID</param>
         /// <returns></returns>
-        public static string GetFieldEditor(Sys_Module module, Sys_Field sysField)
+        public static string GetFieldEditor(Sys_Module module, Sys_Field sysField, Guid? userId = null)
         {
             if (module == null || sysField == null) return string.Empty;
             Sys_FormField formField = GetNfDefaultFormSingleField(sysField);
             if (formField == null || !formField.IsAllowEdit.HasValue || !formField.IsAllowEdit.Value)
                 return string.Empty;
-            return GetFieldEditor(module, sysField, formField);
+            return GetFieldEditor(module, sysField, formField, userId);
         }
 
         /// <summary>
@@ -2430,8 +2438,9 @@ namespace Rookey.Frame.Operate.Base
         /// <param name="module">模块</param>
         /// <param name="sysField">字段</param>
         /// <param name="formField">表单字段</param>
+        /// <param name="userId">当前用户ID</param>
         /// <returns></returns>
-        public static string GetFieldEditor(Sys_Module module, Sys_Field sysField, Sys_FormField formField)
+        public static string GetFieldEditor(Sys_Module module, Sys_Field sysField, Sys_FormField formField, Guid? userId = null)
         {
             if (module == null || sysField == null) return string.Empty;
             if (formField == null || !formField.IsAllowEdit.HasValue || !formField.IsAllowEdit.Value)
@@ -2467,7 +2476,11 @@ namespace Rookey.Frame.Operate.Base
             }
             #endregion
             #region 验证处理
-            string options = "onChange:function(newValue,oldValue){if(typeof(OnFieldValueChanged)=='function'){OnFieldValueChanged({moduleId:'" + module.Id + "',moduleName:'" + module.Name + "'},'" + sysField.Name + "',newValue,oldValue);}}";
+            string options = "tipPosition:'right'";
+            if (formField.ControlTypeOfEnum != ControlTypeEnum.DialogGrid && formField.ControlTypeOfEnum != ControlTypeEnum.DialogTree)
+            {
+                options += ",onChange:function(newValue,oldValue){if(typeof(OnFieldValueChanged)=='function'){OnFieldValueChanged({moduleId:'" + module.Id + "',moduleName:'" + module.Name + "'},'" + sysField.Name + "',newValue,oldValue);}}";
+            }
             if (!string.IsNullOrEmpty(formField.NullTipText))
                 options += string.Format(",prompt:'{0}'", formField.NullTipText);
             //必填性验证
@@ -2582,7 +2595,7 @@ namespace Rookey.Frame.Operate.Base
                         if (formField.ControlTypeOfEnum == ControlTypeEnum.DateTimeBox)
                             boxType = "datetimebox";
                         sb.Append("{type:'" + boxType + "',options:{");
-                        options += string.Format(",value:'{0}'", value.ObjToStr());
+                        options += string.Format(",editable:false,value:'{0}'", value.ObjToStr());
                         sb.Append(options);
                         sb.Append("}}");
                     }
@@ -2635,6 +2648,68 @@ namespace Rookey.Frame.Operate.Base
                         options += ",panelMinWidth:200";
                         sb.Append(options);
                         sb.Append("}}");
+                    }
+                    break;
+                case ControlTypeEnum.ComboGrid: //下拉网格
+                    {
+                        Guid foreignModuleId = SystemOperate.GetModuleIdByName(sysField.ForeignModuleName);
+                        Sys_Module foreignModule = SystemOperate.GetModuleById(foreignModuleId);
+                        if (foreignModule != null)
+                        {
+                            sb.Append("{type:'combogrid',options:{");
+                            if (string.IsNullOrEmpty(valueField)) valueField = "Id";
+                            if (string.IsNullOrEmpty(textField)) textField = module.TitleKey.ObjToStr();
+                            if (string.IsNullOrEmpty(fieldUrl))
+                                fieldUrl = string.Format("/DataAsync/LoadGridData.html?moduleId={0}&tgt={1}", foreignModuleId.ToString(), (int)DataGridType.Other);
+                            string sortfield = ModelConfigHelper.IsModelEnableMemeryCache(CommonOperate.GetModelType(foreignModule.TableName)) ? "CreateDate" : "AutoIncrmId";
+                            options += string.Format(",delay:500,mode:'remote',striped:true,rownumbers:true,pagination:true,idField:'Id',textField:'{0}',url:'{1}',sortName:'{2}',sortOrder:'desc'", textField, fieldUrl, sortfield);
+                            if (!string.IsNullOrEmpty(value.ObjToStr())) //设置默认值
+                                options += string.Format(",value:'{0}'", value.ObjToStr());
+                            Sys_Grid grid = SystemOperate.GetDefaultGrid(foreignModuleId);
+                            List<Sys_GridField> gridFields = grid.GridFields != null && grid.GridFields.Count > 0 ? grid.GridFields : SystemOperate.GetGridFields(grid, true, true);
+                            if (grid.GridFields == null && gridFields.Count > 0)
+                            {
+                                grid.GridFields = gridFields;
+                            }
+                            if (!string.IsNullOrEmpty(formField.NullTipText)) //有过滤字段
+                            {
+                                List<string> filterFields = formField.NullTipText.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
+                                if (filterFields.Count > 0)
+                                    gridFields = gridFields.Where(x => filterFields.Contains(x.Sys_FieldName)).ToList();
+                            }
+                            if (userId.HasValue && userId.Value != Guid.Empty)
+                            {
+                                //过滤字段权限
+                                List<string> canViewFields = PermissionOperate.GetUserFieldsPermissions(userId.Value, foreignModuleId, FieldPermissionTypeEnum.ViewField);
+                                if (canViewFields != null && canViewFields.Count > 0 && !canViewFields.Contains("-1"))
+                                    gridFields = gridFields.Where(x => canViewFields.Contains(x.Sys_FieldName)).ToList();
+                            }
+                            options += ",columns: [[";
+                            int panelWidth = 0;
+                            string fieldStr = string.Empty;
+                            foreach (Sys_GridField gf in gridFields)
+                            {
+                                if (!gf.Sys_FieldId.HasValue || gf.Sys_FieldId.Value == Guid.Empty)
+                                    continue;
+                                int w = gf.Width.HasValue && gf.Width.Value > 0 ? gf.Width.Value : 120;
+                                panelWidth += w;
+                                if (!string.IsNullOrEmpty(fieldStr))
+                                    fieldStr += ",";
+                                fieldStr += "{";
+                                string editorStr = string.Empty;
+                                Sys_Field tempSysField = SystemOperate.GetFieldById(gf.Sys_FieldId.Value);
+                                string formatStr = GetGridFormatFunction(foreignModule, tempSysField);
+                                fieldStr += string.Format("field:'{0}',title:'{1}',width:{2},hidden:{3}", gf.Sys_FieldName, gf.Display, w, (!gf.IsVisible || gf.Sys_FieldName == "Id").ToString().ToLower());
+                                if (!string.IsNullOrEmpty(formatStr))
+                                    fieldStr += string.Format(",formatter:{0}", formatStr);
+                                fieldStr += "}";
+                            }
+                            options += fieldStr;
+                            if (panelWidth > 700) panelWidth = 700;
+                            options += string.Format("]],panelWidth:{0},panelHeight:320", panelWidth);
+                            sb.Append(options);
+                            sb.Append("}}");
+                        }
                     }
                     break;
             }
@@ -4291,6 +4366,13 @@ namespace Rookey.Frame.Operate.Base
                 object obj = CommonOperate.ExecuteScale(out errMsg, sql, null, connStr, dbLinkArgs.DbType);
                 return obj != null;
             }
+            else if (dbLinkArgs.DbType == DatabaseType.MySql)
+            {
+                sql = string.Format("SELECT COUNT(1) FROM information_schema.SCHEMATA where SCHEMA_NAME='{0}';", dbLinkArgs.DbName);
+                string connStr = string.Format("server={0};user id={1};password={2};database={3};pooling=true;", dbLinkArgs.DataSource, dbLinkArgs.UserId, dbLinkArgs.Pwd, dbLinkArgs.DbName);
+                object obj = CommonOperate.ExecuteScale(out errMsg, sql, null, connStr, dbLinkArgs.DbType);
+                return obj != null;
+            }
             return false;
         }
 
@@ -4305,8 +4387,10 @@ namespace Rookey.Frame.Operate.Base
             {
                 string sql = string.Empty;
                 if (linkArgs.DbType == DatabaseType.MsSqlServer)
+                {
                     sql = string.Format("exec sp_dropserver '{0}','droplogins';exec sp_addlinkedserver  '{0}','','SQLOLEDB','{0}';exec sp_addlinkedsrvlogin '{0}','false',null,'{1}','{2}'", linkArgs.DataSource, linkArgs.UserId, linkArgs.Pwd);
-                CommonOperate.ExecuteNonQuery(out errMsg, sql);
+                    CommonOperate.ExecuteNonQuery(out errMsg, sql);
+                }
             }
         }
 
@@ -5337,7 +5421,7 @@ namespace Rookey.Frame.Operate.Base
                     string url = nextHandlerReturns[empId];
                     string content = string.Format("{0}，转到流程处理页面请点击以下链接：<br />{1}", title, url);
                     Dictionary<string, string> otherDicTos = directHandler.HasValue ? OrgMOperate.GetEmployeeEmails(new List<Guid>() { directHandler.Value }) : OrgMOperate.GetEmployeeEmails(new List<Guid>() { empId });
-                    
+
                     if (subjectContens != null && subjectContens.Count > 1 && !string.IsNullOrEmpty(subjectContens[1]))
                         content = subjectContens[1] + "<br />" + content;  //加上自定义内容
 

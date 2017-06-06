@@ -16,3 +16,9 @@ D:\rookey\git.oschina\Rookey.Frame.Lib\web\Rookey.Frame.Bridge.pdb
 D:\rookey\git.oschina\Rookey.Frame.Bridge\obj\Release\Rookey.Frame.Bridge.csprojResolveAssemblyReference.cache
 D:\rookey\git.oschina\Rookey.Frame.Bridge\obj\Release\Rookey.Frame.Bridge.dll
 D:\rookey\git.oschina\Rookey.Frame.Bridge\obj\Release\Rookey.Frame.Bridge.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Bridge.XML
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Bridge.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.Bridge.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Bridge\obj\Release\Rookey.Frame.Bridge.csprojResolveAssemblyReference.cache
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Bridge\obj\Release\Rookey.Frame.Bridge.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Bridge\obj\Release\Rookey.Frame.Bridge.pdb

@@ -16,3 +16,9 @@ D:\rookey\git.oschina\Rookey.Frame.Lib\web\Rookey.Frame.IBLL.pdb
 D:\rookey\git.oschina\Rookey.Frame.IBLL\obj\Release\Rookey.Frame.IBLL.csprojResolveAssemblyReference.cache
 D:\rookey\git.oschina\Rookey.Frame.IBLL\obj\Release\Rookey.Frame.IBLL.dll
 D:\rookey\git.oschina\Rookey.Frame.IBLL\obj\Release\Rookey.Frame.IBLL.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.IBLL.XML
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.IBLL.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Lib\web\Rookey.Frame.IBLL.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.IBLL\obj\Release\Rookey.Frame.IBLL.csprojResolveAssemblyReference.cache
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.IBLL\obj\Release\Rookey.Frame.IBLL.dll
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.IBLL\obj\Release\Rookey.Frame.IBLL.pdb

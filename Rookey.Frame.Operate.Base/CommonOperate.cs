@@ -228,7 +228,12 @@ namespace Rookey.Frame.Operate.Base
                     {
                         Guid foreignValue = foreignFieldProperty.GetValue2(t, null).ObjToGuid();
                         if (dic.ContainsKey(foreignValue))
-                            p.SetValue2(t, dic[foreignValue], null);
+                        {
+                            object v = dic[foreignValue];
+                            if (p.PropertyType == typeof(String))
+                                v = dic[foreignValue].ObjToStr();
+                            p.SetValue2(t, v, null);
+                        }
                     }
                 }
                 foreach (PropertyInfo p in mutiForeignNavList.Keys)
@@ -1452,7 +1457,7 @@ namespace Rookey.Frame.Operate.Base
                                             if (!viewId.HasValue) continue;
                                             //明细主模块或外键字段处理
                                             Sys_GridField gridField = SystemOperate.GetGridField(viewId.Value, fieldName);
-                                            if (!gridField.Sys_FieldId.HasValue) continue;
+                                            if (gridField == null || !gridField.Sys_FieldId.HasValue) continue;
                                             sysField = SystemOperate.GetFieldById(gridField.Sys_FieldId.Value);
                                             if (sysField == null) continue;
                                         }
@@ -4164,11 +4169,11 @@ namespace Rookey.Frame.Operate.Base
             List<string> fieldNames = new List<string>(); //要更新的字段
             if (operateType == ModelRecordOperateType.Edit)
             {
-                if (currUser == null || ((!formDataObj.ToDoTaskId.HasValue || formDataObj.ToDoTaskId.Value == Guid.Empty) && !PermissionOperate.HasButtonPermission(currUser, module.Id, "编辑")))
-                {
-                    errMsg = string.Format("您没有模块【{0}】的编辑权限，如有疑问请联系管理员！", module.Name);
-                    return Guid.Empty;
-                }
+                //if (currUser == null || ((!formDataObj.ToDoTaskId.HasValue || formDataObj.ToDoTaskId.Value == Guid.Empty) && !PermissionOperate.HasButtonPermission(currUser, module.Id, "编辑")))
+                //{
+                //    errMsg = string.Format("您没有模块【{0}】的编辑权限，如有疑问请联系管理员！", module.Name);
+                //    return Guid.Empty;
+                //}
                 //mainModelObj = GetEntityById(module.Id, mainId, out errMsg);
                 PropertyInfo pId = modelType.GetProperty("Id");
                 pId.SetValue2(mainModelObj, mainId, null);
@@ -4180,14 +4185,14 @@ namespace Rookey.Frame.Operate.Base
                     fieldNames.Add("OrgId");
                 }
             }
-            else
-            {
-                if (currUser == null || !PermissionOperate.HasButtonPermission(currUser, module.Id, "新增"))
-                {
-                    errMsg = string.Format("您没有模块【{0}】的新增权限，如有疑问请联系管理员！", module.Name);
-                    return Guid.Empty;
-                }
-            }
+            //else
+            //{
+            //    if (currUser == null || !PermissionOperate.HasButtonPermission(currUser, module.Id, "新增"))
+            //    {
+            //        errMsg = string.Format("您没有模块【{0}】的新增权限，如有疑问请联系管理员！", module.Name);
+            //        return Guid.Empty;
+            //    }
+            //}
             #endregion
             #region 属性斌值
             //基类字段赋值
@@ -4676,11 +4681,12 @@ namespace Rookey.Frame.Operate.Base
             {
                 if (formObj.NeedUpdateFields == null)
                     formObj.NeedUpdateFields = new List<string>();
-                if ((!formObj.ToDoTaskId.HasValue || formObj.ToDoTaskId.Value == Guid.Empty) && !PermissionOperate.HasButtonPermission(currUser, module.Id, "编辑"))
-                {
-                    errMsg = string.Format("您没有模块【{0}】的编辑权限，如有疑问请联系管理员！", module.Name);
-                    return Guid.Empty;
-                }
+                //这里不验证权限
+                //if ((!formObj.ToDoTaskId.HasValue || formObj.ToDoTaskId.Value == Guid.Empty) && !PermissionOperate.HasButtonPermission(currUser, module.Id, "编辑"))
+                //{
+                //    errMsg = string.Format("您没有模块【{0}】的编辑权限，如有疑问请联系管理员！", module.Name);
+                //    return Guid.Empty;
+                //}
                 formObj.NeedUpdateFields.Add("ModifyUserId");
                 formObj.NeedUpdateFields.Add("ModifyUserName");
                 formObj.NeedUpdateFields.Add("ModifyDate");
@@ -4697,11 +4703,12 @@ namespace Rookey.Frame.Operate.Base
             }
             else //新增
             {
-                if (!PermissionOperate.HasButtonPermission(currUser, module.Id, "新增"))
-                {
-                    errMsg = string.Format("您没有模块【{0}】的新增权限，如有疑问请联系管理员！", module.Name);
-                    return Guid.Empty;
-                }
+                //这里不验证权限
+                //if (!PermissionOperate.HasButtonPermission(currUser, module.Id, "新增"))
+                //{
+                //    errMsg = string.Format("您没有模块【{0}】的新增权限，如有疑问请联系管理员！", module.Name);
+                //    return Guid.Empty;
+                //}
                 if (formObj.IsDraft && module.IsEnabledDraft)
                     mainObj.IsDraft = true;
                 mainObj.CreateUserId = currUser.UserId;
@@ -4885,6 +4892,11 @@ namespace Rookey.Frame.Operate.Base
                                 #region 新增时对外键模块是父模块的外键字段赋值
                                 //字段赋值
                                 Sys_Field idField = SystemOperate.GetAllSysFields(x => x.Sys_ModuleId == detailModule.Id && x.ForeignModuleName == module.Name && x.Name == string.Format("{0}Id", module.TableName)).FirstOrDefault();
+                                if (idField == null)
+                                {
+                                    errMsg = string.Format("明细模块【{0}】对应父模块【{1}】外键字段【{2}Id】不存在！", detailModule.Name, module.Name, module.TableName);
+                                    return Guid.Empty;
+                                }
                                 //外键Id字段赋值
                                 PropertyInfo p1 = detailModelType.GetProperty(idField.Name);
                                 p1.SetValue2(detailObj, mainId, null);
@@ -5898,7 +5910,7 @@ namespace Rookey.Frame.Operate.Base
                 searchDic = JsonHelper.Deserialize<Dictionary<string, string>>(q);
                 //将自定义条件和搜索条件转成lamda表达式
                 conditionExpression = GetGridFilterCondition(ref whereSql, gridDataParmas.ModuleId, searchDic, DataGridType.DialogGrid, customerCondition, dialogDataParams.InitModule, dialogDataParams.InitField, gridDataParmas.OtherParams, gridDataParmas.ViewId, currUser);
-                //弹出框时
+                //弹出框时，表单字段配置条件
                 object formFieldConditionExp = SystemOperate.GetFormFieldFilterCondition(ref whereSql, dialogDataParams.InitModule, dialogDataParams.InitField, gridDataParmas.ModuleId, dialogDataParams.RelyFieldsValue);
                 //合并条件
                 conditionExpression = ConditionMerge(gridDataParmas.ModuleId, conditionExpression, formFieldConditionExp, true, currUser);
@@ -5922,9 +5934,26 @@ namespace Rookey.Frame.Operate.Base
                 else //默认网格参数类型
                 {
                     searchDic = JsonHelper.Deserialize<Dictionary<string, string>>(q);
+                    if (searchDic == null && !string.IsNullOrEmpty(q))
+                    {
+                        q = StringHelper.GetExpressionReplaceString(q);
+                        string titleKey = SystemOperate.GetModuleTitleKey(gridDataParmas.ModuleId);
+                        if (!string.IsNullOrEmpty(titleKey))
+                        {
+                            searchDic = new Dictionary<string, string>();
+                            searchDic.Add(titleKey, q);
+                        }
+                    }
                 }
                 //将自定义条件和搜索条件转成lamda表达式
                 conditionExpression = GetGridFilterCondition(ref whereSql, gridDataParmas.ModuleId, searchDic, gridDataParmas.GridType, customerCondition, initModule, initField, gridDataParmas.OtherParams, gridDataParmas.ViewId, currUser);
+                if (type == typeof(AutoCompelteDataParams) && !string.IsNullOrEmpty(initModule) && !string.IsNullOrEmpty(initField))
+                {
+                    //表单字段配置条件
+                    object formFieldConditionExp = SystemOperate.GetFormFieldFilterCondition(ref whereSql, initModule, initField, gridDataParmas.ModuleId);
+                    //合并条件
+                    conditionExpression = ConditionMerge(gridDataParmas.ModuleId, conditionExpression, formFieldConditionExp, true, currUser);
+                }
             }
             //复杂过滤条件
             if (gridDataParmas.CdItems != null && gridDataParmas.CdItems.Count > 0)

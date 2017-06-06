@@ -46,6 +46,12 @@ namespace Rookey.Frame.Model.EnumSpace
         Freezed = 5,
 
         /// <summary>
+        /// 流程已作废
+        /// </summary>
+        [Description("已作废")]
+        Obsoleted = 6,
+
+        /// <summary>
         /// 已通过,流程结束
         /// </summary>
         [Description("已通过")]
@@ -145,7 +151,13 @@ namespace Rookey.Frame.Model.EnumSpace
         /// 重新发起
         /// </summary>
         [Description("重新发起")]
-        ReStarting = 9
+        ReStarting = 9,
+
+        /// <summary>
+        /// 作废流程
+        /// </summary>
+        [Description("作废流程")]
+        Obsoleting = 10
     }
 
     /// <summary>

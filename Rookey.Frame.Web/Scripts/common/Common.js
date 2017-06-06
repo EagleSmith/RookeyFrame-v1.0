@@ -1563,7 +1563,7 @@ function OpenOkCancelDialog(title, urlOrContent, width, height, okHandleFun, can
             if (typeof (okHandleFun) == "function") {
                 okHandleFun(iframe, function (action) {
                     if (action) {
-                        CloseDialog();
+                        topWin.CloseDialog();
                     }
                 });
             }
@@ -1573,13 +1573,13 @@ function OpenOkCancelDialog(title, urlOrContent, width, height, okHandleFun, can
         text: '关 闭',
         iconCls: "eu-icon-close",
         handler: function (e) {
-            CloseDialog();
+            topWin.CloseDialog();
             if (typeof (cancelHandleFun) == "function") {
                 cancelHandleFun();
             }
         }
     }];
-    OpenDialog(title, urlOrContent, toolbar, width, height, 'eu-icon-cog', openBackFun);
+    topWin.OpenDialog(title, urlOrContent, toolbar, width, height, 'eu-icon-cog', openBackFun);
 }
 
 //移除顶层弹出框按钮

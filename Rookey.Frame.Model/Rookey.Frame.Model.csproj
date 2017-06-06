@@ -59,6 +59,7 @@
     <Compile Include="Base\BaseMsgEntity.cs" />
     <Compile Include="Bpm\Bpm_FlowBtn.cs" />
     <Compile Include="Bpm\Bpm_FlowClass.cs" />
+    <Compile Include="Bpm\Bpm_FlowProxy.cs" />
     <Compile Include="Bpm\Bpm_NodeBtnConfig.cs" />
     <Compile Include="Bpm\Bpm_SubWorkFlow.cs" />
     <Compile Include="Bpm\Bpm_WorkFlow.cs" />

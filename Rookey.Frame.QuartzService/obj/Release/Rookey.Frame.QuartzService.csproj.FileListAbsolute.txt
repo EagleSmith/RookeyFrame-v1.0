@@ -28,3 +28,13 @@ D:\rookey\git.oschina\Rookey.Frame.QuartzService\obj\Release\Rookey.Frame.Quartz
 D:\rookey\git.oschina\Rookey.Frame.QuartzService\obj\Release\Rookey.Frame.QuartzService.csproj.GenerateResource.Cache
 D:\rookey\git.oschina\Rookey.Frame.QuartzService\obj\Release\Rookey.Frame.QuartzService.exe
 D:\rookey\git.oschina\Rookey.Frame.QuartzService\obj\Release\Rookey.Frame.QuartzService.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Web\Service\Rookey.Frame.QuartzService.exe.config
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Web\Service\Rookey.Frame.QuartzService.XML
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Web\Service\Rookey.Frame.QuartzService.exe
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.Web\Service\Rookey.Frame.QuartzService.pdb
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.QuartzService\obj\Release\Rookey.Frame.QuartzService.csprojResolveAssemblyReference.cache
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.QuartzService\obj\Release\Rookey.Frame.QuartzService.ProjectInstaller.resources
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.QuartzService\obj\Release\Rookey.Frame.QuartzService.QuartzService.resources
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.QuartzService\obj\Release\Rookey.Frame.QuartzService.csproj.GenerateResource.Cache
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.QuartzService\obj\Release\Rookey.Frame.QuartzService.exe
+D:\DotNet\我的代码\rookey\RookeyFrame-v1.0\Rookey.Frame.QuartzService\obj\Release\Rookey.Frame.QuartzService.pdb

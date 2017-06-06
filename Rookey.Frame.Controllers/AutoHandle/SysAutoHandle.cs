@@ -35,6 +35,16 @@ namespace Rookey.Frame.Controllers.AutoHandle
             //    return true;
             //}, null, false, 45, false);
             //AutoProcessTask.AddTask(reBuildIndexTask);
+            //添加自定义后台处理任务
+            try
+            {
+                InitFactory factory = InitFactory.GetInstance();
+                if (factory != null)
+                {
+                    factory.AddBackgroundTask();
+                }
+            }
+            catch { }
         }
     }
 }

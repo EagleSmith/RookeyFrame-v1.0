@@ -6,6 +6,7 @@ using Rookey.Frame.Common;
 using Rookey.Frame.Bridge;
 using Rookey.Frame.Model.Sys;
 using System.Web;
+using Rookey.Frame.Base;
 
 namespace Rookey.Frame.Operate.Base
 {
@@ -46,5 +47,17 @@ namespace Rookey.Frame.Operate.Base
         /// 自定义初始化，包括菜单、模块、字段、字典等数据初始化
         /// </summary>
         public abstract void CustomerInit();
+
+        /// <summary>
+        /// 获取自定义桌面URL
+        /// </summary>
+        /// <param name="currUser">当前用户</param>
+        /// <returns></returns>
+        public abstract string GetDesktopPageUrl(UserInfo currUser);
+
+        /// <summary>
+        /// 添加自定义后台任务
+        /// </summary>
+        public abstract void AddBackgroundTask();
     }
 }

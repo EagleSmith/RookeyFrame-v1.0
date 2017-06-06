@@ -720,7 +720,7 @@ namespace Rookey.Frame.Controllers
                     }
                     else
                     {
-                        filePath = UploadFileManager.SaveAs(item, string.Empty);
+                        filePath = UploadFileManager.SaveAs(item, "Temp");
                     }
                     filePath = filePath.StartsWith("~/") ? filePath : filePath.StartsWith("/") ? "~" + filePath : "~/" + filePath;
                     //swf保存路径

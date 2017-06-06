@@ -109,6 +109,56 @@
             分类描述
             </summary>
         </member>
+        <member name="T:Rookey.Frame.Model.Bpm.Bpm_FlowProxy">
+            <summary>
+            流程代理
+            </summary>
+        </member>
+        <member name="P:Rookey.Frame.Model.Bpm.Bpm_FlowProxy.Bpm_WorkFlowId">
+            <summary>
+            流程Id
+            </summary>
+        </member>
+        <member name="P:Rookey.Frame.Model.Bpm.Bpm_FlowProxy.Bpm_WorkFlowName">
+            <summary>
+            流程名称
+            </summary>
+        </member>
+        <member name="P:Rookey.Frame.Model.Bpm.Bpm_FlowProxy.Bpm_WorkNodeId">
+            <summary>
+            流程节点Id
+            </summary>
+        </member>
+        <member name="P:Rookey.Frame.Model.Bpm.Bpm_FlowProxy.Bpm_WorkNodeName">
+            <summary>
+            父流程节点名称
+            </summary>
+        </member>
+        <member name="P:Rookey.Frame.Model.Bpm.Bpm_FlowProxy.OrgM_EmpId">
+            <summary>
+            被代理人
+            </summary>
+        </member>
+        <member name="P:Rookey.Frame.Model.Bpm.Bpm_FlowProxy.OrgM_EmpName">
+            <summary>
+            被代理人
+            </summary>
+        </member>
+        <member name="P:Rookey.Frame.Model.Bpm.Bpm_FlowProxy.OrgM_EmpProxyId">
+            <summary>
+            代理人
+            </summary>
+        </member>
+        <member name="P:Rookey.Frame.Model.Bpm.Bpm_FlowProxy.OrgM_EmpProxyName">
+            <summary>
+            代理人
+            </summary>
+        </member>
+        <member name="P:Rookey.Frame.Model.Bpm.Bpm_FlowProxy.IsValid">
+            <summary>
+            是否启用
+            </summary>
+        </member>
         <member name="T:Rookey.Frame.Model.Bpm.Bpm_NodeBtnConfig">
             <summary>
             审批按钮配置
@@ -1339,6 +1389,11 @@
             流程被冻结
             </summary>
         </member>
+        <member name="F:Rookey.Frame.Model.EnumSpace.WorkFlowStatusEnum.Obsoleted">
+            <summary>
+            流程已作废
+            </summary>
+        </member>
         <member name="F:Rookey.Frame.Model.EnumSpace.WorkFlowStatusEnum.Over">
             <summary>
             已通过,流程结束
@@ -1422,6 +1477,11 @@
         <member name="F:Rookey.Frame.Model.EnumSpace.WorkActionEnum.ReStarting">
             <summary>
             重新发起
+            </summary>
+        </member>
+        <member name="F:Rookey.Frame.Model.EnumSpace.WorkActionEnum.Obsoleting">
+            <summary>
+            作废流程
             </summary>
         </member>
         <member name="T:Rookey.Frame.Model.EnumSpace.WorkNodeTypeEnum">
@@ -1661,12 +1721,12 @@
         </member>
         <member name="F:Rookey.Frame.Model.EnumSpace.GenderEnum.M">
             <summary>
-            女
+            男
             </summary>
         </member>
         <member name="F:Rookey.Frame.Model.EnumSpace.GenderEnum.F">
             <summary>
-            男
+            女
             </summary>
         </member>
         <member name="T:Rookey.Frame.Model.EnumSpace.BloodTypeEnum">
@@ -2979,11 +3039,6 @@
             员工管理
             </summary>
         </member>
-        <member name="P:Rookey.Frame.Model.OrgM.OrgM_Emp.Photo">
-            <summary>
-            图片
-            </summary>
-        </member>
         <member name="P:Rookey.Frame.Model.OrgM.OrgM_Emp.Code">
             <summary>
             员工编号
@@ -3019,16 +3074,6 @@
             身高
             </summary>
         </member>
-        <member name="P:Rookey.Frame.Model.OrgM.OrgM_Emp.BloodType">
-            <summary>
-            血型
-            </summary>
-        </member>
-        <member name="P:Rookey.Frame.Model.OrgM.OrgM_Emp.BloodTypeOfEnum">
-            <summary>
-            血型（枚举类型）
-            </summary>
-        </member>
         <member name="P:Rookey.Frame.Model.OrgM.OrgM_Emp.Education">
             <summary>
             学历
@@ -3042,6 +3087,16 @@
         <member name="P:Rookey.Frame.Model.OrgM.OrgM_Emp.IsMarriage">
             <summary>
             婚姻状况
+            </summary>
+        </member>
+        <member name="P:Rookey.Frame.Model.OrgM.OrgM_Emp.BloodType">
+            <summary>
+            血型
+            </summary>
+        </member>
+        <member name="P:Rookey.Frame.Model.OrgM.OrgM_Emp.BloodTypeOfEnum">
+            <summary>
+            血型（枚举类型）
             </summary>
         </member>
         <member name="P:Rookey.Frame.Model.OrgM.OrgM_Emp.Mobile">
@@ -3142,6 +3197,26 @@
         <member name="P:Rookey.Frame.Model.OrgM.OrgM_Emp.F3">
             <summary>
             自定义字段3
+            </summary>
+        </member>
+        <member name="P:Rookey.Frame.Model.OrgM.OrgM_Emp.DeptId">
+            <summary>
+            部门ID
+            </summary>
+        </member>
+        <member name="P:Rookey.Frame.Model.OrgM.OrgM_Emp.DeptName">
+            <summary>
+            部门名称
+            </summary>
+        </member>
+        <member name="P:Rookey.Frame.Model.OrgM.OrgM_Emp.DutyId">
+            <summary>
+            职务ID
+            </summary>
+        </member>
+        <member name="P:Rookey.Frame.Model.OrgM.OrgM_Emp.DutyName">
+            <summary>
+            职务名称
             </summary>
         </member>
         <member name="T:Rookey.Frame.Model.OrgM.OrgM_EmpDeptDuty">

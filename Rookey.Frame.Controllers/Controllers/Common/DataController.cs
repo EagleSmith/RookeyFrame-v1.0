@@ -830,7 +830,7 @@ namespace Rookey.Frame.Controllers
                 if (rs != Guid.Empty && opFlowBtnId.HasValue && BpmOperate.IsEnabledWorkflow(moduleId))
                 {
                     //处理流程
-                    if (toDoTaskId.HasValue && toDoTaskId.Value != Guid.Empty && opFlowBtnId.Value != Guid.Empty)
+                    if (toDoTaskId.HasValue && toDoTaskId.Value != Guid.Empty)
                         return new BpmAsyncController(_Request).HandleOpProcessAsync(toDoTaskId.Value, approvalOpinions, opFlowBtnId.Value, returnNodeId, directHandler, childTodoIds).Result;
                     else
                         return new BpmAsyncController(_Request).StartProcessAsync(moduleId, rs).Result;
@@ -852,7 +852,7 @@ namespace Rookey.Frame.Controllers
                     returnNodeId = formFastObj.ReturnNodeId;
                     directHandler = formFastObj.DirectHandler;
                     childTodoIds = formFastObj.ChildTodoIds;
-                    if (opFlowBtnId.HasValue && toDoTaskId.HasValue && toDoTaskId.Value != Guid.Empty && opFlowBtnId.Value != Guid.Empty)
+                    if (opFlowBtnId.HasValue && toDoTaskId.HasValue && toDoTaskId.Value != Guid.Empty)
                         return new BpmAsyncController(_Request).HandleOpProcessAsync(toDoTaskId.Value, approvalOpinions, opFlowBtnId.Value, returnNodeId, directHandler, childTodoIds).Result;
                     else
                         return Json(new SaveDataReturnResult() { Success = false, Message = "流程参数错误，操作失败", RecordId = Guid.Empty });
@@ -933,6 +933,21 @@ namespace Rookey.Frame.Controllers
             List<ConditionItem> conditions = new List<ConditionItem>() { new ConditionItem() { Field = "Id", Method = QueryMethod.In, Value = arr } };
             object expression = CommonOperate.GetQueryCondition(module.Id, conditions);
             bool rs = CommonOperate.UpdateRecordsByExpression(module.Id, new { IsDeleted = false }, expression, out errMsg);
+            if (rs)
+            {
+                try
+                {
+                    Type modelType = CommonOperate.GetModelType(module.TableName);
+                    PropertyInfo pid = modelType.GetProperty("Id");
+                    foreach (Guid id in arr)
+                    {
+                        object obj = Activator.CreateInstance(modelType);
+                        pid.SetValue2(obj, id, null);
+                        CommonOperate.ExecuteCustomeOperateHandleMethod(module.Id, "OperateCompeletedHandle", new object[] { ModelRecordOperateType.Restore, obj, true, currUser, null });
+                    }
+                }
+                catch { }
+            }
             //添加操作日志
             Task.Factory.StartNew(() =>
             {
